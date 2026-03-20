@@ -283,9 +283,9 @@ body.readonly .ro-hide-on-ro{display:none!important}
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kcbar" style="width:0%"></div></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-lbl">Base de Conversão</div>
+          <div class="kpi-lbl">Resgates Atendidos</div>
           <div class="kpi-val" id="km">—</div>
-          <div class="kpi-sub"><span class="badge nt" id="kmb">—</span><span id="kms">—</span></div>
+          <div class="kpi-sub"><span class="badge nt" id="kmb">—</span><span id="kms">de — recebidos</span></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kmbar" style="background:var(--accent2);width:0%"></div></div>
         </div>
         <div class="kpi-card">
@@ -1287,6 +1287,7 @@ function calcKPIs(f) {
   const tatend=trec-tnao;
   const tres=f.reduce((s,e)=>s+Math.max(0,e.rrec-(e.ratend||0))+Math.max(0,e.frec-(e.fatend||0)),0);
   const totalResgateRec=f.reduce((s,e)=>s+(e.rrec||0),0);
+  const totalResgateAtend=f.reduce((s,e)=>s+(e.ratend||0),0);
   const txAtend=trec>0?Math.round((tatend/trec)*100):0;
   const tok=f.reduce((s,e)=>s+(e.ok||0),0);
   const tsy=f.reduce((s,e)=>s+(e.sy||0),0);
@@ -1300,7 +1301,7 @@ function calcKPIs(f) {
   td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
   let nm=0,nt=0;
   Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
-  return{tv,trec,tatend,tres,totalResgateRec,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
+  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
 }
 function renderKPIs(k,pk) {
   const vd=pk?Math.round(((k.tv-pk.tv)/(pk.tv||1))*100):0;
