@@ -13,7 +13,7 @@
   --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
   --text:#e8eaf0;--muted:#7a8094;
   --accent:#4f8ef7;--accent2:#7c5fe6;
-  --green:#2ec98a;--amber:#f5a623;--red:#f05252;
+  --green:#2ec98a;--amber:#f5a623;--red:#f05252;--teal:#38b2d8;
   --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
 }
 html{font-size:15px}
@@ -58,7 +58,14 @@ input[type=date]{background:var(--bg3);border:1px solid var(--border2);color:var
 .alert-cnt{margin-left:auto;font-size:12px;font-weight:600;color:var(--red);background:rgba(240,82,82,.15);padding:3px 10px;border-radius:20px;white-space:nowrap}
 
 /* KPI */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:11px}
+.kpi-grid-top{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:11px}
+.kpi-grid-bot{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:11px}
+.resgate-stats{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.resgate-stat{display:flex;flex-direction:column;gap:2px}
+.resgate-stat-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.resgate-stat-val{font-size:15px;font-weight:600;font-family:var(--mono)}
+.kpi-legend{font-size:10px;color:var(--muted);margin-top:6px;padding:5px 8px;background:rgba(255,255,255,.03);border-radius:5px;border-left:2px solid var(--teal);line-height:1.5}
+.badge.tl{background:rgba(56,178,216,.12);color:var(--teal)}
 .kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 18px;transition:border-color .2s}
 .kpi-card:hover{border-color:var(--border2)}
 .kpi-lbl{font-size:11px;color:var(--muted);font-weight:500;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px}
@@ -178,7 +185,7 @@ body.readonly .ro-hide-on-ro{display:none!important}
 
 /* RESPONSIVE */
 @media(max-width:900px){
-  .kpi-grid{grid-template-columns:repeat(2,1fr)}.kpi-val{font-size:20px}
+  .kpi-grid-top{grid-template-columns:repeat(2,1fr)}.kpi-grid-bot{grid-template-columns:1fr}.kpi-val{font-size:20px}
   .charts-row,.bottom-row{grid-template-columns:1fr}
   .sb{display:none}.form-grid{grid-template-columns:1fr 1fr}
 }
@@ -262,18 +269,21 @@ body.readonly .ro-hide-on-ro{display:none!important}
         <div class="alert-txt" id="alert-txt"></div>
         <div class="alert-cnt" id="alert-cnt"></div>
       </div>
-      <div class="kpi-grid">
+      <!-- LINHA 1: Vendas · Pré-vendas · Conversão -->
+      <div class="kpi-grid-top">
         <div class="kpi-card">
           <div class="kpi-lbl">Vendas Identificadas</div>
           <div class="kpi-val" id="kv">—</div>
           <div class="kpi-sub"><span class="badge up" id="kb">—</span><span>vs ontem</span></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kvb" style="background:var(--accent);width:0%"></div></div>
+          <div class="kpi-legend">Inclui: Processo OK + Syonet Master + Checagem Manual — independente da origem do lead</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-lbl">Pré-vendas Atendidas</div>
           <div class="kpi-val" id="ka">—</div>
           <div class="kpi-sub"><span class="badge nt" id="kab">—</span><span>de <span id="kat">—</span> recebidas</span></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kabar" style="background:var(--accent2);width:0%"></div></div>
+          <div class="kpi-legend">Leads de pré-venda recebidos via CRM · taxa de atendimento</div>
         </div>
         <div class="kpi-card" id="kc-card">
           <div class="kpi-lbl">Conversão Total</div>
@@ -281,43 +291,90 @@ body.readonly .ro-hide-on-ro{display:none!important}
           <div class="kpi-sub"><span class="badge nt" id="kcb">—</span></div>
           <div id="kc-faixa" style="font-size:11px;font-weight:600;margin-top:4px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kcbar" style="width:0%"></div></div>
+          <div class="kpi-legend">Vendas ÷ (Pré-venda + Resgate de Insucesso) · FLUA excluído por ser produto diferente</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-lbl">Resgate de Insucesso</div>
-          <div class="kpi-val" id="km">—</div>
-          <div class="kpi-sub">
-            <span class="badge nt" id="kmb">—</span>
-            <span id="kms" style="font-size:11px;color:var(--muted)">de — recebidos</span>
+      </div>
+
+      <!-- LINHA 2: Resgate Insucesso (VENDA) · Resgate FLUA (ASSINATURA 0KM) -->
+      <div class="kpi-grid-bot">
+        <div class="kpi-card" style="border-left:3px solid var(--amber)">
+          <div class="kpi-lbl" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Resgate de Insucesso</span>
+            <span style="font-size:10px;background:rgba(245,166,35,.1);color:var(--amber);padding:2px 6px;border-radius:4px;font-weight:500">VENDA</span>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11px;color:var(--muted)">
-            <span>Rec: <span id="km-rec" style="color:var(--text);font-weight:500">—</span></span>
-            <span style="opacity:.4">·</span>
-            <span>Atend: <span id="km-atend" style="color:var(--text);font-weight:500">—</span></span>
-            <span style="opacity:.4">·</span>
-            <span style="font-size:10px;opacity:.6">sem FLUA</span>
+          <div class="resgate-stats">
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Recebidos</span>
+              <span class="resgate-stat-val" id="kr-rec" style="color:var(--text)">—</span>
+            </div>
+            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Atendidos</span>
+              <span class="resgate-stat-val" id="kr-atend" style="color:var(--green)">—</span>
+            </div>
+            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Não atendidos</span>
+              <span class="resgate-stat-val" id="kr-nao" style="color:var(--red)">—</span>
+            </div>
+            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Taxa atend.</span>
+              <span class="resgate-stat-val" id="kr-taxa" style="color:var(--amber)">—</span>
+            </div>
           </div>
-          <div class="kpi-bar"><div class="kpi-bar-fill" id="kmbar" style="background:var(--accent2);width:0%"></div></div>
+          <div class="kpi-bar" style="margin-top:12px"><div class="kpi-bar-fill" id="kr-bar" style="background:var(--amber);width:0%"></div></div>
+          <div class="kpi-legend">Lead de venda finalizado como insucesso → cliente retorna via mensagem automática → nova oportunidade para o gerente · entra na base de conversão geral</div>
         </div>
 
+        <div class="kpi-card" style="border-left:3px solid var(--teal)">
+          <div class="kpi-lbl" style="display:flex;align-items:center;justify-content:space-between">
+            <span>Resgate de Insucesso FLUA</span>
+            <span style="font-size:10px;background:rgba(56,178,216,.1);color:var(--teal);padding:2px 6px;border-radius:4px;font-weight:500">ASSINATURA 0KM</span>
+          </div>
+          <div class="resgate-stats">
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Recebidos</span>
+              <span class="resgate-stat-val" id="kf-rec" style="color:var(--text)">—</span>
+            </div>
+            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Atendidos</span>
+              <span class="resgate-stat-val" id="kf-atend" style="color:var(--green)">—</span>
+            </div>
+            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Não atendidos</span>
+              <span class="resgate-stat-val" id="kf-nao" style="color:var(--red)">—</span>
+            </div>
+            <div style="width:1px;height:32px;background:var(--border);flex-shrink:0"></div>
+            <div class="resgate-stat">
+              <span class="resgate-stat-lbl">Taxa atend.</span>
+              <span class="resgate-stat-val" id="kf-taxa" style="color:var(--teal)">—</span>
+            </div>
+          </div>
+          <div class="kpi-bar" style="margin-top:12px"><div class="kpi-bar-fill" id="kf-bar" style="background:var(--teal);width:0%"></div></div>
+          <div class="kpi-legend">Lead de assinatura zero km finalizado como insucesso → mesmo fluxo automático · medido separado por ser produto diferente · não entra na conversão geral</div>
+        </div>
       </div>
       <!-- CONVERSÃO BREAKDOWN -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:20px" id="conv-grid">
         <div class="kpi-card" style="border-left:3px solid #2ec98a">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#2ec98a;display:inline-block;flex-shrink:0"></span>Conversão — Processo OK</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#2ec98a;margin-top:4px" id="kc-ok">—</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas OK / pré-vendas rec.</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas OK / base total (pv+ri)</div>
           <div id="kc-ok-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
         </div>
         <div class="kpi-card" style="border-left:3px solid #4f8ef7">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#4f8ef7;display:inline-block;flex-shrink:0"></span>Conversão — Syonet Master</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#4f8ef7;margin-top:4px" id="kc-sy">—</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Syonet / pré-vendas rec.</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Syonet / base total (pv+ri)</div>
           <div id="kc-sy-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
         </div>
         <div class="kpi-card" style="border-left:3px solid #f5a623">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#f5a623;display:inline-block;flex-shrink:0"></span>Conversão — Proc. Manual</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#f5a623;margin-top:4px" id="kc-ma">—</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Manuais / pré-vendas rec.</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Manuais / base total (pv+ri)</div>
           <div id="kc-ma-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
         </div>
       </div>
@@ -444,8 +501,8 @@ body.readonly .ro-hide-on-ro{display:none!important}
                 <td><div id="in-pnao" class="calc-disp calc-amber">0</div></td>
                 <td style="color:var(--muted);font-size:12px">calculado automaticamente</td>
               </tr>
-              <!-- RESGATE -->
-              <tr><td class="sec-sub-row" colspan="3">Resgate de insucesso</td></tr>
+              <!-- RESGATE INSUCESSO -->
+              <tr><td class="sec-sub-row" colspan="3">Resgate de Insucesso <span style="background:rgba(245,166,35,.1);color:var(--amber);padding:1px 6px;border-radius:3px;font-size:10px;margin-left:4px">VENDA</span></td></tr>
               <tr>
                 <td style="padding-left:18px">Recebidos</td>
                 <td><input type="number" id="in-rrec" min="0" value="0" oninput="upNao('in','r')"></td>
@@ -462,7 +519,7 @@ body.readonly .ro-hide-on-ro{display:none!important}
                 <td><input type="text" id="in-rids" placeholder="IDs: 1309926, 1310255..."></td>
               </tr>
               <!-- FLUA -->
-              <tr><td class="sec-sub-row" colspan="3">Resgate FLUA</td></tr>
+              <tr><td class="sec-sub-row" colspan="3">Resgate de Insucesso FLUA <span style="background:rgba(56,178,216,.1);color:var(--teal);padding:1px 6px;border-radius:3px;font-size:10px;margin-left:4px">ASSINATURA 0KM</span></td></tr>
               <tr>
                 <td style="padding-left:18px">Recebidos</td>
                 <td><input type="number" id="in-frec" min="0" value="0" oninput="upNao('in','f')"></td>
@@ -513,9 +570,9 @@ body.readonly .ro-hide-on-ro{display:none!important}
           <table class="tbl">
             <thead><tr>
               <th>Data</th><th>Marca</th><th>Filial</th>
-              <th>Vendas</th><th>Pv.Rec</th><th>Pv.Nao</th>
-              <th>Rs.Rec</th><th>Rs.Nao</th><th>Fl.Rec</th><th>Fl.Nao</th>
-              <th>Tipos</th><th>Ações</th>
+              <th>Vendas</th><th>Pv.Rec</th><th>Pv.Não</th>
+              <th>Rs.Rec</th><th>Rs.Atend</th><th>Rs.Não</th><th>Fl.Rec</th><th>Fl.Não</th>
+              <th>Tipos</th><th>Obs</th><th>Ações</th>
             </tr></thead>
             <tbody id="hist-body"></tbody>
           </table>
@@ -561,7 +618,7 @@ body.readonly .ro-hide-on-ro{display:none!important}
     <div id="v-ranking" style="display:none">
       <div class="chart-card">
         <div class="sec-hdr" style="margin-bottom:14px">
-          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso)</div></div>
+          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso) · FLUA excluído</div></div>
           <select onchange="renderRank(this.value)" style="font-size:12px">
             <option value="conv">% Conversão total</option><option value="vendas">Vendas identificadas</option><option value="ok">Conversão Processo OK</option>
           </select>
@@ -570,46 +627,6 @@ body.readonly .ro-hide-on-ro{display:none!important}
       </div>
     </div>
 
-    <!-- CONSOLIDADO -->
-    <div id="v-consolidado" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Relatório Consolidado</div>
-          <div style="font-size:12px;color:var(--muted)">Todas as marcas · pronto para WhatsApp</div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <input type="date" id="cons-dt" onchange="renderCons()">
-          <button class="btn-p" onclick="copyCons()">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="white" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="white" stroke-width="1.2"/></svg>
-            Copiar tudo
-          </button>
-        </div>
-      </div>
-      <div id="cons-funil" style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px"></div>
-      <div id="cons-marcas"></div>
-      <div class="chart-card" style="margin-bottom:18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
-          <div style="font-size:13px;font-weight:600;color:var(--text)">Texto completo — WhatsApp</div>
-          <button class="btn-g" onclick="copyCons()" style="font-size:12px;padding:5px 11px">Copiar</button>
-        </div>
-        <pre id="cons-txt" style="font-family:var(--mono);font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.7;background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border);max-height:480px;overflow-y:auto"></pre>
-      </div>
-    </div>
-
-    <!-- RANKING -->
-    <div id="v-ranking" style="display:none">
-      <div class="chart-card">
-        <div class="sec-hdr" style="margin-bottom:14px">
-          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso)</div></div>
-          <select onchange="renderRank(this.value)" style="font-size:12px">
-            <option value="conv">% Conversão total</option><option value="vendas">Vendas identificadas</option><option value="ok">Conversão Processo OK</option>
-          </select>
-        </div>
-        <div id="rank-list"></div>
-      </div>
-    </div>
-
-  
 
   </div><!-- /content -->
 </div><!-- /main -->
@@ -1286,63 +1303,72 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 
 // ── KPIs ─────────────────────────────────────────────────────────────────────
 function calcKPIs(f) {
-  const tv=f.reduce((s,e)=>s+e.v,0);
-  const trec=f.reduce((s,e)=>s+e.prec,0);
-  const tnao=f.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
-  const tatend=trec-tnao;
-  const tres=f.reduce((s,e)=>s+Math.max(0,e.rrec-(e.ratend||0))+Math.max(0,e.frec-(e.fatend||0)),0);
-  const totalResgateRec=f.reduce((s,e)=>s+(e.rrec||0),0);
-  const totalResgateAtend=f.reduce((s,e)=>s+(e.ratend||0),0); // somente resgate insucesso, sem FLUA
-  const txAtend=trec>0?Math.round((tatend/trec)*100):0;
-  const tok=f.reduce((s,e)=>s+(e.ok||0),0);
-  const tsy=f.reduce((s,e)=>s+(e.sy||0),0);
-  const tma=f.reduce((s,e)=>s+(e.ma||0),0);
-  const txConv=trec>0?parseFloat((tv/trec*100).toFixed(2)):0;
-  const txConvOk=trec>0?parseFloat((tok/trec*100).toFixed(2)):0;
-  const txConvSy=trec>0?parseFloat((tsy/trec*100).toFixed(2)):0;
-  const txConvMa=trec>0?parseFloat((tma/trec*100).toFixed(2)):0;
-  const td=f.filter(e=>e.ds===today());
-  const byF={};
-  td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
-  let nm=0,nt=0;
-  Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
-  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
+  const tv     = f.reduce((s,e)=>s+e.v,0);
+  const tok    = f.reduce((s,e)=>s+(e.ok||0),0);
+  const tsy    = f.reduce((s,e)=>s+(e.sy||0),0);
+  const tma    = f.reduce((s,e)=>s+(e.ma||0),0);
+  // Pré-venda
+  const trec   = f.reduce((s,e)=>s+(e.prec||0),0);
+  const tpatend= f.reduce((s,e)=>s+(e.patend||0),0);
+  const tnao   = f.reduce((s,e)=>s+Math.max(0,(e.prec||0)-(e.patend||0)),0);
+  const tatend = trec-tnao;
+  const txAtend= trec>0?Math.round((tatend/trec)*100):0;
+  // Resgate de Insucesso (VENDA) — entra na base de conversão geral
+  const trrec  = f.reduce((s,e)=>s+(e.rrec||0),0);
+  const tratend= f.reduce((s,e)=>s+(e.ratend||0),0);
+  const trnao  = trrec-tratend;
+  const txRatend=trrec>0?Math.round((tratend/trrec)*100):0;
+  // Resgate FLUA (ASSINATURA 0KM) — produto diferente, fora da conversão geral
+  const tfrec  = f.reduce((s,e)=>s+(e.frec||0),0);
+  const tfatend= f.reduce((s,e)=>s+(e.fatend||0),0);
+  const tfnao  = tfrec-tfatend;
+  const txFatend=tfrec>0?Math.round((tfatend/tfrec)*100):0;
+  // Base de conversão = pré-venda + resgate insucesso (FLUA excluído)
+  const baseConv=trec+trrec;
+  const txConv  =baseConv>0?parseFloat((tv/baseConv*100).toFixed(2)):0;
+  const txConvOk=baseConv>0?parseFloat((tok/baseConv*100).toFixed(2)):0;
+  const txConvSy=baseConv>0?parseFloat((tsy/baseConv*100).toFixed(2)):0;
+  const txConvMa=baseConv>0?parseFloat((tma/baseConv*100).toFixed(2)):0;
+  return{tv,tok,tsy,tma,trec,tatend,txAtend,trrec,tratend,trnao,txRatend,tfrec,tfatend,tfnao,txFatend,baseConv,txConv,txConvOk,txConvSy,txConvMa};
 }
 function renderKPIs(k,pk) {
+  // Vendas Identificadas
   const vd=pk?Math.round(((k.tv-pk.tv)/(pk.tv||1))*100):0;
   document.getElementById('kv').textContent=k.tv;
   const kb=document.getElementById('kb');kb.textContent=(vd>=0?'+':'')+vd+'%';kb.className='badge '+(vd>=0?'up':'dn');
   document.getElementById('kvb').style.width=Math.min(100,Math.round((k.tv/300)*100))+'%';
-
+  // Pré-vendas
   document.getElementById('ka').textContent=k.tatend;
   document.getElementById('kat').textContent=k.trec;
   const kab=document.getElementById('kab');kab.textContent=k.txAtend+'% taxa';kab.className='badge '+(k.txAtend>=70?'up':k.txAtend>=40?'nt':'dn');
   document.getElementById('kabar').style.width=Math.min(100,k.txAtend)+'%';
-
-  // Conversão total
+  // Conversão total (base = pré-venda + resgate insucesso, FLUA fora)
   document.getElementById('kc').textContent=k.txConv.toFixed(2)+'%';
-  const fTotal=getFaixa(k.txConv); const kcb=document.getElementById('kcb');
-  kcb.textContent='pré-venda→venda'; kcb.className='badge '+(k.txConv>=3.01?'up':k.txConv>=2.51?'nt':'dn');
+  const fTotal=getFaixa(k.txConv);
+  const kcb=document.getElementById('kcb');
+  kcb.textContent='base: '+k.baseConv+' leads';
+  kcb.className='badge '+(k.txConv>=3.01?'up':k.txConv>=2.51?'nt':'dn');
   document.getElementById('kcbar').style.width=Math.min(100,k.txConv*10)+'%';
   document.getElementById('kcbar').style.background=fTotal.cor;
-  const fEl=document.getElementById('kc-faixa'); if(fEl){fEl.textContent=fTotal.label;fEl.style.background=fTotal.bg;fEl.style.color=fTotal.cor;}
-  // Conversão por tipo
+  const fEl=document.getElementById('kc-faixa');if(fEl){fEl.textContent=fTotal.label;fEl.style.background=fTotal.bg;fEl.style.color=fTotal.cor;}
+  // Conversão por tipo (mesmo denominador: baseConv)
   ['ok','sy','ma'].forEach((tp,i)=>{
-    const pct=k['txConv'+['Ok','Sy','Ma'][i]]; const ft=getFaixa(pct);
-    const el=document.getElementById('kc-'+tp); if(el) el.textContent=pct.toFixed(2)+'%';
-    const fe=document.getElementById('kc-'+tp+'-faixa'); if(fe){fe.textContent=ft.label;fe.style.background=ft.bg;fe.style.color=ft.cor;}
+    const pct=k['txConv'+['Ok','Sy','Ma'][i]];const ft=getFaixa(pct);
+    const el=document.getElementById('kc-'+tp);if(el)el.textContent=pct.toFixed(2)+'%';
+    const fe=document.getElementById('kc-'+tp+'-faixa');if(fe){fe.textContent=ft.label;fe.style.background=ft.bg;fe.style.color=ft.cor;}
   });
-
-  // Base de conversão = total pré-venda + total resgates recebidos
-  const baseConv = k.totalPrevRec + k.totalResgateRec;
-  document.getElementById('km').textContent=baseConv;
-  const kmb=document.getElementById('kmb');
-  kmb.textContent='pré-venda + res. insucesso';
-  kmb.className='badge nt';
-  document.getElementById('kms').textContent=k.totalPrevRec+' pv + '+k.totalResgateRec+' res.ins.';
-  document.getElementById('kmbar').style.width=Math.min(100,Math.round(baseConv/10))+'%';
-
-
+  // Resgate de Insucesso (VENDA)
+  document.getElementById('kr-rec').textContent  =k.trrec;
+  document.getElementById('kr-atend').textContent=k.tratend;
+  document.getElementById('kr-nao').textContent  =k.trnao;
+  document.getElementById('kr-taxa').textContent =k.txRatend+'%';
+  document.getElementById('kr-bar').style.width  =Math.min(100,k.txRatend)+'%';
+  // Resgate FLUA (ASSINATURA 0KM)
+  document.getElementById('kf-rec').textContent  =k.tfrec;
+  document.getElementById('kf-atend').textContent=k.tfatend;
+  document.getElementById('kf-nao').textContent  =k.tfnao;
+  document.getElementById('kf-taxa').textContent =k.txFatend+'%';
+  document.getElementById('kf-bar').style.width  =Math.min(100,k.txFatend)+'%';
 }
 
 // ── CHARTS ───────────────────────────────────────────────────────────────────
@@ -1451,7 +1477,7 @@ function renderRank(by='conv') {
       + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
       + '<div class="rank-name">'
         + '<div class="rank-fil">'+r.f+'</div>'
-        + '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads</div>'
+        + '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' (pv:'+r.prec+' + ri:'+r.rrec+')</div>'
       + '</div>'
       + '<div style="flex:1;min-width:60px;padding:0 10px">'
         + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
@@ -1524,7 +1550,7 @@ function renderHist() {
     const tipos=(e.ok>0?`<span style="color:#2ec98a">${e.ok}OK</span> `:'')+
                 (e.sy>0?`<span style="color:#4f8ef7">${e.sy}Sy</span> `:'')+
                 (e.ma>0?`<span style="color:#f5a623">${e.ma}Ma</span>`:'') || '<span style="color:var(--muted)">—</span>';
-    return `<tr><td style="font-family:var(--mono);font-size:12px">${fmtD(e.ds)}</td><td><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 6px;border-radius:4px;font-weight:500">${e.m}</span></td><td>${e.f}</td><td style="font-family:var(--mono);text-align:center">${e.v}</td><td style="font-family:var(--mono);text-align:center">${e.prec}</td><td style="font-family:var(--mono);text-align:center;color:${pnao>0?'var(--amber)':'var(--muted)'}">${pnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.rrec||0}</td><td style="font-family:var(--mono);text-align:center;color:${rnao>0?'var(--red)':'var(--muted)'}">${rnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.frec||0}</td><td style="font-family:var(--mono);text-align:center;color:${fnao>0?'var(--red)':'var(--muted)'}">${fnao}</td><td style="font-size:11px">${tipos}</td><td style="display:flex;gap:5px;padding:7px 10px"><button class="btn-ico edit" onclick="openEdit('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Editar</button><button class="btn-ico del" onclick="openDel('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Excluir</button></td></tr>`;
+    return `<tr><td style="font-family:var(--mono);font-size:12px">${fmtD(e.ds)}</td><td><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 6px;border-radius:4px;font-weight:500">${e.m}</span></td><td>${e.f}</td><td style="font-family:var(--mono);text-align:center">${e.v}</td><td style="font-family:var(--mono);text-align:center">${e.prec||0}</td><td style="font-family:var(--mono);text-align:center;color:${pnao>0?'var(--amber)':'var(--muted)'}">${pnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.rrec||0}</td><td style="font-family:var(--mono);text-align:center;color:var(--green)">${e.ratend||0}</td><td style="font-family:var(--mono);text-align:center;color:${rnao>0?'var(--red)':'var(--muted)'}">${rnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.frec||0}</td><td style="font-family:var(--mono);text-align:center;color:${fnao>0?'var(--red)':'var(--muted)'}">${fnao}</td><td style="font-size:11px">${tipos}</td><td style="text-align:center">${e.obs?`<span title="${e.obs}" style="cursor:help;font-size:13px">📝</span>`:'<span style="color:var(--border)">—</span>'}</td><td style="display:flex;gap:5px;padding:7px 10px"><button class="btn-ico edit" onclick="openEdit('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Editar</button><button class="btn-ico del" onclick="openDel('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Excluir</button></td></tr>`;
   }).join('');
 }
 function hPg(d){hPage+=d;renderHist();}
@@ -1578,11 +1604,13 @@ function renderCons() {
   const ds=document.getElementById('cons-dt')?.value||today();
   const entries=getE().filter(e=>e.ds===ds);
   const dl=fmtD(ds);
-  const trec=entries.reduce((s,e)=>s+e.prec,0);
-  const tnao=entries.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
+  const trec=entries.reduce((s,e)=>s+(e.prec||0),0);
+  const tnao=entries.reduce((s,e)=>s+Math.max(0,(e.prec||0)-(e.patend||0)),0);
   const tatend=trec-tnao;
   const tv=entries.reduce((s,e)=>s+e.v,0);
-  const tc=trec>0?Math.round((tv/trec)*100):0;
+  const trrec=entries.reduce((s,e)=>s+(e.rrec||0),0);
+  const baseConv=trec+trrec;
+  const tc=baseConv>0?parseFloat((tv/baseConv*100).toFixed(2)):0;
   const ft=getFaixa(tc);
   document.getElementById('cons-funil').innerHTML=[
     {l:'Pré-vendas recebidas',v:trec,c:'var(--accent)'},
@@ -1600,7 +1628,7 @@ function renderCons() {
     const cl=COLORS[m]||'#888';
     return `<div class="chart-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div style="display:flex;align-items:center;gap:8px"><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600">${MLABELS[m]||m}</span><span style="font-size:12px;color:var(--muted)">${me.length} filiais · ${me.reduce((s,e)=>s+e.v,0)} vendas</span></div><button class="btn-g" onclick="copyMarca('${m}')" style="font-size:11px;padding:4px 9px">Copiar marca</button></div><pre style="font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6;background:var(--bg3);border-radius:6px;padding:11px;border:1px solid var(--border)">${txt.trim()}</pre></div>`;
   }).join('');
-  full+=['——————————————————————————————','*FUNIL DO DIA*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
+  full+=['——————————————————————————————','*FUNIL DO DIA*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Resgates de insucesso recebidos: ${trrec}`,`Base de conversão (pv + ri): ${baseConv}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
   document.getElementById('cons-txt').textContent=full;
   window._cf=full;
 }
@@ -1620,12 +1648,14 @@ function buildTxt(m,entries,dl) {
       lines.push(`${e.v===1?'1 VENDA IDENTIFICADA':e.v+' VENDAS IDENTIFICADAS'}${tipos.length?' '+tipos.join(', ')+'.':'.'}`);
     }
     const rnao=Math.max(0,(e.rrec||0)-(e.ratend||0));
-    if((e.rrec||0)>0||rnao>0){const ids=e.rids?' ('+e.rids.split(/[,\s]+/).filter(Boolean).join(', ')+')':'';lines.push(`RESGATE DE INSUCESSO: ${rnao===1?'1 NÃO ATENDIDO':rnao+' NÃO ATENDIDOS'}${ids}`);}
+    if((e.rrec||0)>0){const ids=e.rids?' (IDs: '+e.rids.split(/[,\s]+/).filter(Boolean).join(', ')+')':'';const atLine=e.ratend>0?`${e.ratend} ATENDIDO${e.ratend>1?'S':''}`:'' ;const naoLine=rnao>0?`${rnao} NÃO ATENDIDO${rnao>1?'S':''}${ids}`:'';const parts=[atLine,naoLine].filter(Boolean).join(', ');lines.push(`RESGATE DE INSUCESSO: ${parts||'SEM MOVIMENTAÇÃO'}`);
+    }
     const fnao=Math.max(0,(e.frec||0)-(e.fatend||0));
-    if((e.frec||0)>0||fnao>0)lines.push(`RESGATE DE INSUCESSO FLUA: ${fnao===1?'1 NÃO ATENDIDO':fnao+' NÃO ATENDIDOS'}`);
+    if((e.frec||0)>0){const atLine=e.fatend>0?`${e.fatend} ATENDIDO${e.fatend>1?'S':''}`:'' ;const naoLine=fnao>0?`${fnao} NÃO ATENDIDO${fnao>1?'S':''}`:'' ;const parts=[atLine,naoLine].filter(Boolean).join(', ');lines.push(`RESGATE FLUA (ASSINATURA 0KM): ${parts||'SEM MOVIMENTAÇÃO'}`);}
     const pnao=Math.max(0,e.prec-(e.patend||0));
     if(e.prec>0){lines.push(pnao===0?`PRÉ-VENDA: ${e.prec} RECEBIDOS E ATENDIDOS.`:`PRÉ-VENDA: ${e.prec} RECEBIDOS, ${pnao} NÃO ATENDIDOS.`);}
     else if(m==='VW')lines.push('SEM VINCULAÇÃO COM CRM');
+    if(e.obs)lines.push(`OBS: ${e.obs}`);
     lines.push('');
   });
   return lines.join('\n');
@@ -1636,7 +1666,7 @@ function cpTxt(txt,msg){navigator.clipboard.writeText(txt).then(()=>toast(msg)).
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function gv(v) {
-  ['dashboard','input','historico','consolidado','ranking','metas'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
+  ['dashboard','input','historico','consolidado','ranking'].forEach(x=>{const el=document.getElementById('v-'+x);if(el)el.style.display=x===v?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(v));});
   const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking'};
   document.getElementById('page-ttl').textContent=ttls[v]||v;
