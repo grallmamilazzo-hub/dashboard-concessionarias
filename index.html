@@ -330,7 +330,7 @@ body.readonly .ro-hide-on-ro{display:none!important}
         <div class="kpi-card">
           <div class="kpi-lbl">Vendas Identificadas</div>
           <div class="kpi-val" id="kv">—</div>
-          <div class="kpi-sub"><span class="badge up" id="kb">—</span><span>vs ontem</span></div>
+          <div class="kpi-sub"><span class="badge up" id="kb">—</span><span id="kb-label">vs ontem</span></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kvb" style="background:var(--accent);width:0%"></div></div>
         </div>
         <div class="kpi-card">
@@ -1367,7 +1367,7 @@ const PG=15;
 function getDates(p) {
   const t=new Date();
   if(p==='hoje')   return [today()];
-  if(p==='ontem')  { const d=new Date(t); d.setDate(d.getDate()-1); return [d.toISOString().split('T')[0]]; }
+  if(p==='ontem')  { return [lastWorkday()]; }
   if(p==='semana-atual') {
     const dow=t.getDay(), r=[];
     for(let i=dow;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);r.push(d.toISOString().split('T')[0]);}
@@ -1449,6 +1449,8 @@ function renderKPIs(k,pk) {
   const vd=pk?Math.round(((k.tv-pk.tv)/(pk.tv||1))*100):0;
   document.getElementById('kv').textContent=k.tv;
   const kb=document.getElementById('kb');kb.textContent=(vd>=0?'+':'')+vd+'%';kb.className='badge '+(vd>=0?'up':'dn');
+  const kbLbl=document.getElementById('kb-label');
+  if(kbLbl){ const dow=new Date().getDay(); kbLbl.textContent = dow===1 ? 'vs sábado' : dow===0 ? 'vs sábado' : 'vs ontem'; }
   document.getElementById('kvb').style.width=Math.min(100,Math.round((k.tv/300)*100))+'%';
 
   document.getElementById('ka').textContent=k.tatend;
@@ -1798,11 +1800,20 @@ function setPeriod(p,btn){
 }
 function setMarca(v){marca=v;refresh();if(document.getElementById('v-ranking').style.display!=='none')renderRank();}
 
+// ── LAST WORKDAY — pula domingos (seg→sáb, dom→sáb) ─────────────────────────
+function lastWorkday() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);          // começa em ontem
+  while (d.getDay() === 0) {           // 0 = domingo → continua voltando
+    d.setDate(d.getDate() - 1);
+  }
+  return d.toISOString().split('T')[0];
+}
+
 // ── REFRESH ───────────────────────────────────────────────────────────────────
 function refresh() {
   const all=getE(), f=filterE(all,period,marca);
-  const yd=new Date();yd.setDate(yd.getDate()-1);
-  const yf=all.filter(e=>e.ds===yd.toISOString().split('T')[0]&&(marca==='todas'||e.m===marca));
+  const yf=all.filter(e=>e.ds===lastWorkday()&&(marca==='todas'||e.m===marca));
   renderKPIs(calcKPIs(f),calcKPIs(yf));
   renderChartF(f); renderChartM(f); renderChartEv();
   renderFunil(f); renderAlerts(f);
@@ -1922,7 +1933,7 @@ function setQuick(p, btn) {
   // Update date inputs to show range visually
   const t=new Date();
   if(p==='hoje')    { document.getElementById('dm-from').value=today(); document.getElementById('dm-to').value=today(); }
-  if(p==='ontem')   { const d=new Date(t);d.setDate(d.getDate()-1);const s=d.toISOString().split('T')[0]; document.getElementById('dm-from').value=s; document.getElementById('dm-to').value=s; }
+  if(p==='ontem')   { const s=lastWorkday(); document.getElementById('dm-from').value=s; document.getElementById('dm-to').value=s; }
   if(p==='semana')  { const d=new Date(t);d.setDate(d.getDate()-6); document.getElementById('dm-from').value=d.toISOString().split('T')[0]; document.getElementById('dm-to').value=today(); }
   if(p==='mes')     { const d=new Date(t);d.setDate(d.getDate()-29);document.getElementById('dm-from').value=d.toISOString().split('T')[0]; document.getElementById('dm-to').value=today(); }
   if(p==='semana-atual') { const d=new Date(t);d.setDate(d.getDate()-d.getDay());document.getElementById('dm-from').value=d.toISOString().split('T')[0];document.getElementById('dm-to').value=today(); }
