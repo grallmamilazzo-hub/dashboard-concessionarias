@@ -304,8 +304,8 @@ body.readonly .ro-hide-on-ro{display:none!important}
       </div>
       <select id="marca-flt" onchange="setMarca(this.value)">
         <option value="todas">Todas as marcas</option>
-        <option>FIAT</option><option>BYD</option><option>Peugeot</option>
-        <option>Jeep</option><option>Denza</option><option>VW</option>
+        <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
+        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
       </select>
       <!-- Mobile: período pill shown inline -->
       <button id="mob-period-pill" onclick="openDateModal()"
@@ -458,7 +458,7 @@ body.readonly .ro-hide-on-ro{display:none!important}
         <div class="form-grid">
           <div class="form-fld"><label class="form-lbl">Marca</label>
             <select class="form-inp" id="in-marca" onchange="upFiliais()">
-              <option>FIAT</option><option>BYD</option><option>Peugeot</option><option>Jeep</option><option>Denza</option><option>VW</option>
+              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
             </select>
           </div>
           <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="in-filial"></select></div>
@@ -566,7 +566,7 @@ body.readonly .ro-hide-on-ro{display:none!important}
         <div class="hist-flt">
           <select id="hf-mrc" onchange="renderHist()" style="font-size:12px">
             <option value="">Todas as marcas</option>
-            <option>FIAT</option><option>BYD</option><option>Peugeot</option><option>Jeep</option><option>Denza</option><option>VW</option>
+            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
           </select>
           <select id="hf-fil" onchange="renderHist()" style="font-size:12px"><option value="">Todas as filiais</option></select>
           <input type="date" id="hf-de" onchange="renderHist()">
@@ -687,7 +687,7 @@ body.readonly .ro-hide-on-ro{display:none!important}
     <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:14px">
       <div class="form-fld"><label class="form-lbl">Marca</label>
         <select class="form-inp" id="m-mrc" onchange="upMFiliais()">
-          <option>FIAT</option><option>BYD</option><option>Peugeot</option><option>Jeep</option><option>Denza</option><option>VW</option>
+          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
         </select>
       </div>
       <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="m-fil"></select></div>
@@ -1001,7 +1001,8 @@ const FILIAIS = {
   Peugeot: ['Bauru','Marília','Ribeirão Preto'],
   Jeep:    ['São José do Rio Preto','Barretos','Votuporanga'],
   Denza:   ['Ribeirão Preto'],
-  VW:      ['Bauru','Orlândia']
+  VW:      ['Bauru','Orlândia'],
+  Leapmotor: ['Santos']
 };
 const METAS = {
   'FIAT|Bauru':20,'FIAT|Botucatu':14,'FIAT|Jaú':12,'FIAT|Marília':16,'FIAT|Santos':22,'FIAT|Taguatinga':10,
@@ -1009,7 +1010,8 @@ const METAS = {
   'Peugeot|Bauru':9,'Peugeot|Marília':8,'Peugeot|Ribeirão Preto':11,
   'Jeep|São José do Rio Preto':10,'Jeep|Barretos':8,'Jeep|Votuporanga':7,
   'Denza|Ribeirão Preto':6,
-  'VW|Bauru':16,'VW|Orlândia':10
+  'VW|Bauru':16,'VW|Orlândia':10,
+  'Leapmotor|Santos':5
 };
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 let FB_CFG = JSON.parse(localStorage.getItem('fb_config') || 'null');
@@ -1167,8 +1169,8 @@ async function saveFbConfig(migrate) {
   else          { setTimeout(fbSync, 800); }
 }
 
-const COLORS = {FIAT:'#4f8ef7',BYD:'#2ec98a',Peugeot:'#f5a623',Jeep:'#f05252',Denza:'#38b2d8',VW:'#7c5fe6'};
-const MLABELS = {FIAT:'FIAT',BYD:'BYD',Peugeot:'PEUGEOT E CITROËN',Jeep:'JEEP',Denza:'DENZA',VW:'ALLMA VOLKSWAGEN'};
+const COLORS = {FIAT:'#4f8ef7',BYD:'#2ec98a',Peugeot:'#f5a623',Jeep:'#f05252',Denza:'#38b2d8',VW:'#7c5fe6',Leapmotor:'#e8500a'};
+const MLABELS = {FIAT:'FIAT',BYD:'BYD',Peugeot:'PEUGEOT/CITROËN',Jeep:'JEEP',Denza:'DENZA',VW:'ALLMA VOLKSWAGEN',Leapmotor:'LEAPMOTOR'};
 
 function seed() {
   if (localStorage.getItem('db_seeded_v2')) return;
@@ -1735,7 +1737,7 @@ function renderCons() {
     {l:'Taxa de conversão',v:tc.toFixed(2)+'%',c:ft.cor,sub:ft.label,bg:ft.bg}
   ].map(x=>`<div style="background:var(--bg3);border-radius:8px;padding:11px 13px"><div style="font-size:11px;color:var(--muted);margin-bottom:5px">${x.l}</div><div style="font-size:21px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>${x.sub?`<div style="font-size:10px;font-weight:600;margin-top:4px;padding:2px 7px;border-radius:4px;display:inline-block;background:${x.bg};color:${x.c}">${x.sub}</div>`:''}</div>`).join('');
 
-  const order=['FIAT','BYD','VW','Peugeot','Jeep','Denza'];
+  const order=['FIAT','BYD','VW','Peugeot','Jeep','Denza','Leapmotor'];
   let full='';
   window._cm={};
   document.getElementById('cons-marcas').innerHTML=order.map(m=>{
