@@ -329,7 +329,7 @@ body.directors .dir-banner{display:flex!important}
 
     <!-- DASHBOARD -->
     <div id="v-dashboard">
-      <div class="alert-banner" id="alert-banner">
+      <div class="alert-banner" id="alert-banner" style="display:none">
         <div class="alert-dot"></div>
         <div class="alert-txt" id="alert-txt"></div>
         <div class="alert-cnt" id="alert-cnt"></div>
@@ -365,8 +365,13 @@ body.directors .dir-banner{display:flex!important}
             <span>Rec: <span id="km-rec" style="color:var(--text);font-weight:500">—</span></span>
             <span style="opacity:.4">·</span>
             <span>Atend: <span id="km-atend" style="color:var(--text);font-weight:500">—</span></span>
-            <span style="opacity:.4">·</span>
-            <span style="font-size:10px;opacity:.6">sem FLUA</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:11px;padding:5px 8px;background:rgba(124,95,230,.07);border-radius:6px;border:1px solid rgba(124,95,230,.15)">
+            <span style="font-size:10px;color:var(--accent2);font-weight:600;letter-spacing:.03em">FLUA</span>
+            <span style="opacity:.3">|</span>
+            <span style="color:var(--muted)">Rec: <span id="km-frec" style="color:var(--text);font-weight:500">—</span></span>
+            <span style="opacity:.3">·</span>
+            <span style="color:var(--muted)">Não atend: <span id="km-fnao" style="font-weight:500">—</span></span>
           </div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kmbar" style="background:var(--accent2);width:0%"></div></div>
         </div>
@@ -603,6 +608,7 @@ body.directors .dir-banner{display:flex!important}
       </div>
     </div>
 
+    
     <!-- CONSOLIDADO -->
     <div id="v-consolidado" style="display:none">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
@@ -633,46 +639,7 @@ body.directors .dir-banner{display:flex!important}
     <div id="v-ranking" style="display:none">
       <div class="chart-card">
         <div class="sec-hdr" style="margin-bottom:14px">
-          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso)</div></div>
-          <select onchange="renderRank(this.value)" style="font-size:12px">
-            <option value="conv">% Conversão total</option><option value="vendas">Vendas identificadas</option><option value="ok">Conversão Processo OK</option>
-          </select>
-        </div>
-        <div id="rank-list"></div>
-      </div>
-    </div>
-
-    <!-- CONSOLIDADO -->
-    <div id="v-consolidado" style="display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Relatório Consolidado</div>
-          <div style="font-size:12px;color:var(--muted)">Todas as marcas · pronto para WhatsApp</div>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <input type="date" id="cons-dt" onchange="renderCons()">
-          <button class="btn-p" onclick="copyCons()">
-            <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="white" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="white" stroke-width="1.2"/></svg>
-            Copiar tudo
-          </button>
-        </div>
-      </div>
-      <div id="cons-funil" style="display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:18px"></div>
-      <div id="cons-marcas"></div>
-      <div class="chart-card" style="margin-bottom:18px">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px">
-          <div style="font-size:13px;font-weight:600;color:var(--text)">Texto completo — WhatsApp</div>
-          <button class="btn-g" onclick="copyCons()" style="font-size:12px;padding:5px 11px">Copiar</button>
-        </div>
-        <pre id="cons-txt" style="font-family:var(--mono);font-size:12px;color:var(--text);white-space:pre-wrap;line-height:1.7;background:var(--bg3);border-radius:8px;padding:14px;border:1px solid var(--border);max-height:480px;overflow-y:auto"></pre>
-      </div>
-    </div>
-
-    <!-- RANKING -->
-    <div id="v-ranking" style="display:none">
-      <div class="chart-card">
-        <div class="sec-hdr" style="margin-bottom:14px">
-          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso)</div></div>
+          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso) · <span id="rank-period-lbl" style="color:var(--amber)">Hoje</span></div></div>
           <select onchange="renderRank(this.value)" style="font-size:12px">
             <option value="conv">% Conversão total</option><option value="vendas">Vendas identificadas</option><option value="ok">Conversão Processo OK</option>
           </select>
@@ -786,18 +753,7 @@ body.directors .dir-banner{display:flex!important}
   </div>
 </div>
 
-<!-- DELETE MODAL -->
-<div class="modal-ov" id="del-modal">
-  <div class="modal" style="width:380px">
-    <div class="modal-ttl">Excluir relatório</div>
-    <div class="modal-sub">Esta ação não pode ser desfeita.</div>
-    <div id="del-info" style="background:var(--bg3);border-radius:8px;padding:11px 13px;font-size:13px;color:var(--text);margin-bottom:4px"></div>
-    <div class="modal-act">
-      <button class="btn-g" onclick="closeDel()">Cancelar</button>
-      <button class="btn-p" onclick="confirmDel()" style="background:var(--red)">Excluir</button>
-    </div>
-  </div>
-</div>
+
 
 
 <!-- FIREBASE CONFIG MODAL -->
@@ -861,44 +817,6 @@ body.directors .dir-banner{display:flex!important}
   </div>
 </div>
 
-
-<!-- CONFIG MODAL -->
-<div class="modal-ov" id="config-modal">
-  <div class="modal" style="width:520px">
-    <div class="modal-ttl">Configurar Google Sheets</div>
-    <div class="modal-sub">Cole a URL do Web App publicado no Google Apps Script</div>
-
-    <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.8;border-left:3px solid var(--accent)">
-      <div style="font-weight:600;color:var(--text);margin-bottom:6px">Como obter a URL (siga exatamente):</div>
-      1. Planilha → <strong style="color:var(--text)">Extensões → Apps Script</strong><br>
-      2. Cole o código do arquivo <code style="color:var(--accent);background:rgba(79,142,247,.1);padding:1px 5px;border-radius:3px">apps_script_banco.gs</code> (versão 2)<br>
-      3. <strong style="color:var(--text)">Implantar → Nova implantação</strong> — não reutilize a anterior<br>
-      4. Tipo: <strong style="color:var(--text)">App da Web</strong><br>
-      5. Executar como: <strong style="color:var(--text)">EU (minha conta)</strong><br>
-      6. Quem acessa: <strong style="color:var(--green)">Qualquer pessoa</strong> (sem login)<br>
-      7. <strong style="color:var(--text)">Implantar</strong> → autorize: "Revisar permissões" → sua conta → "Avançado" → "Acessar (não seguro)" → <strong style="color:var(--green)">Permitir</strong><br>
-      8. Copie a URL <code style="color:var(--amber)">.../exec</code> e cole abaixo
-    </div>
-
-    <div class="form-fld" style="margin-bottom:14px">
-      <label class="form-lbl">URL do Web App</label>
-      <input class="form-inp" type="url" id="cfg-url" placeholder="https://script.google.com/macros/s/AKfy.../exec">
-    </div>
-
-    <div style="background:rgba(46,201,138,.08);border:1px solid rgba(46,201,138,.2);border-radius:8px;padding:12px;margin-bottom:4px">
-      <div style="font-size:12px;font-weight:600;color:var(--green);margin-bottom:6px">Migrar dados locais para o Sheets</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Envia todos os dados salvos localmente para a planilha. Faça isso uma vez após configurar a URL.</div>
-      <button onclick="saveConfig();setTimeout(migrateToSheets,1500)" style="background:rgba(46,201,138,.15);border:1px solid rgba(46,201,138,.3);color:var(--green);border-radius:7px;padding:7px 14px;font-size:12px;font-family:var(--font);cursor:pointer">
-        Salvar URL e migrar dados agora
-      </button>
-    </div>
-
-    <div class="modal-act">
-      <button class="btn-g" onclick="closeConfig()">Cancelar</button>
-      <button class="btn-p" onclick="saveConfig()">Salvar URL</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- SHARE READONLY MODAL -->
@@ -1116,6 +1034,10 @@ async function fbSync() {
     localStorage.setItem('db_last', new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
     refresh();
     if (document.getElementById('v-historico').style.display !== 'none') renderHist();
+    const now = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    localStorage.setItem('db_last', now);
+    const luEl = document.getElementById('last-upd');
+    if(luEl) luEl.textContent = 'Hoje ' + now;
     setSyncStatus('ok');
     toast(`Firebase sincronizado — ${remote.length} registros`);
   } catch(err) {
@@ -1194,51 +1116,11 @@ const COLORS = {FIAT:'#4f8ef7',BYD:'#2ec98a',Peugeot:'#f5a623',Jeep:'#f05252',De
 const MLABELS = {FIAT:'FIAT',BYD:'BYD',Peugeot:'PEUGEOT/CITROËN',Jeep:'JEEP',Denza:'DENZA',VW:'ALLMA VOLKSWAGEN',Leapmotor:'LEAPMOTOR'};
 
 function seed() {
-  if (localStorage.getItem('db_seeded_v2')) return;
-  const rows = [
-  {ds:"2026-03-18",m:"FIAT",    f:"Bauru",                 v:2,ok:1,sy:0,ma:1, prec:88, patend:39,pnao:49, rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"FIAT",    f:"Botucatu",              v:2,ok:0,sy:1,ma:1, prec:4,  patend:4, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"FIAT",    f:"Jaú",                   v:0,ok:0,sy:0,ma:0, prec:4,  patend:1, pnao:3,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"FIAT",    f:"Marília",               v:0,ok:0,sy:0,ma:0, prec:7,  patend:6, pnao:1,  rrec:1,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"FIAT",    f:"Santos",                v:1,ok:1,sy:0,ma:0, prec:38, patend:34,pnao:4,  rrec:5,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"FIAT",    f:"Taguatinga",            v:0,ok:0,sy:0,ma:0, prec:20, patend:20,pnao:0,  rrec:1,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"BYD",     f:"Bauru",                 v:0,ok:0,sy:0,ma:0, prec:109,patend:0, pnao:109,rrec:2,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"BYD",     f:"Marília",               v:0,ok:0,sy:0,ma:0, prec:26, patend:0, pnao:26, rrec:2,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"BYD",     f:"Botucatu",              v:0,ok:0,sy:0,ma:0, prec:14, patend:14,pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"BYD",     f:"São José do Rio Preto", v:0,ok:0,sy:0,ma:0, prec:51, patend:49,pnao:2,  rrec:5,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"BYD",     f:"Araçatuba",             v:0,ok:0,sy:0,ma:0, prec:18, patend:14,pnao:4,  rrec:1,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"VW",      f:"Bauru",                 v:1,ok:1,sy:0,ma:0, prec:2,  patend:2, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"VW",      f:"Orlândia",              v:0,ok:0,sy:0,ma:0, prec:19, patend:12,pnao:7,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"Peugeot", f:"Bauru",                 v:0,ok:0,sy:0,ma:0, prec:58, patend:7, pnao:51, rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"Peugeot", f:"Marília",               v:0,ok:0,sy:0,ma:0, prec:5,  patend:3, pnao:2,  rrec:1,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"Peugeot", f:"Ribeirão Preto",        v:0,ok:0,sy:0,ma:0, prec:34, patend:14,pnao:20, rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"Jeep",    f:"São José do Rio Preto", v:0,ok:0,sy:0,ma:0, prec:21, patend:21,pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"Jeep",    f:"Barretos",              v:0,ok:0,sy:0,ma:0, prec:25, patend:1, pnao:24, rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-18",m:"Jeep",    f:"Votuporanga",           v:0,ok:0,sy:0,ma:0, prec:18, patend:14,pnao:4,  rrec:1,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"FIAT",    f:"Bauru",                 v:0,ok:0,sy:0,ma:0, prec:0,  patend:0, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"FIAT",    f:"Botucatu",              v:0,ok:0,sy:0,ma:0, prec:2,  patend:2, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"FIAT",    f:"Jaú",                   v:0,ok:0,sy:0,ma:0, prec:9,  patend:3, pnao:6,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"FIAT",    f:"Marília",               v:0,ok:0,sy:0,ma:0, prec:20, patend:11,pnao:9,  rrec:3,ratend:0,rids:"1320858, 1320911, 1329324",frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"FIAT",    f:"Santos",                v:0,ok:0,sy:0,ma:0, prec:41, patend:32,pnao:9,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"FIAT",    f:"Taguatinga",            v:0,ok:0,sy:0,ma:0, prec:23, patend:23,pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"BYD",     f:"Bauru",                 v:1,ok:1,sy:0,ma:0, prec:144,patend:0, pnao:144,rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"BYD",     f:"Marília",               v:1,ok:0,sy:0,ma:1, prec:16, patend:0, pnao:16, rrec:1,ratend:0,rids:"1320554",    frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"BYD",     f:"Botucatu",              v:0,ok:0,sy:0,ma:0, prec:9,  patend:9, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"BYD",     f:"São José do Rio Preto", v:0,ok:0,sy:0,ma:0, prec:65, patend:0, pnao:65, rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"BYD",     f:"Araçatuba",             v:2,ok:0,sy:0,ma:2, prec:20, patend:0, pnao:20, rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"VW",      f:"Bauru",                 v:0,ok:0,sy:0,ma:0, prec:61, patend:52,pnao:9,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"VW",      f:"Orlândia",              v:0,ok:0,sy:0,ma:0, prec:0,  patend:0, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"Peugeot", f:"Bauru",                 v:0,ok:0,sy:0,ma:0, prec:131,patend:5, pnao:126,rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"Peugeot", f:"Marília",               v:0,ok:0,sy:0,ma:0, prec:5,  patend:0, pnao:5,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"Peugeot", f:"Ribeirão Preto",        v:0,ok:0,sy:0,ma:0, prec:45, patend:18,pnao:27, rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"Jeep",    f:"São José do Rio Preto", v:0,ok:0,sy:0,ma:0, prec:16, patend:12,pnao:4,  rrec:1,ratend:0,rids:"1329361",    frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"Jeep",    f:"Barretos",              v:0,ok:0,sy:0,ma:0, prec:0,  patend:0, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"Jeep",    f:"Votuporanga",           v:0,ok:0,sy:0,ma:0, prec:0,  patend:0, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""},
-  {ds:"2026-03-19",m:"Denza",   f:"Ribeirão Preto",        v:0,ok:0,sy:0,ma:0, prec:0,  patend:0, pnao:0,  rrec:0,ratend:0,rids:"",           frec:0,fatend:0,obs:""}
-  ];
-  localStorage.removeItem('db_entries');
-  localStorage.setItem('db_entries', JSON.stringify(rows));
-  localStorage.setItem('db_seeded_v2', '1');
+  // Dados de exemplo removidos — os dados reais vêm do Firebase
+  if (!localStorage.getItem('db_seeded_v2')) {
+    localStorage.setItem('db_entries', JSON.stringify([]));
+    localStorage.setItem('db_seeded_v2', '1');
+  }
 }
 
 
@@ -1260,116 +1142,7 @@ function deleteE(ds,m,f) {
   if(fbCfgSaved()) fbDeleteEntry(ds,m,f);
 }
 
-// ── Google Sheets helpers ────────────────────────────────────────────────────
-async function gsUpsert(entry) {
-  try {
-    await gsFetch('GET',{action:'upsert', data: JSON.stringify(entry)});
-  } catch(e) { console.warn('GS upsert falhou:',e); }
-}
 
-async function gsFetch(method, body) {
-  if(!GS_URL) return null;
-  // Sempre usa GET para evitar bloqueio de CORS — Apps Script aceita tudo via GET
-  let url = GS_URL;
-  if(body) {
-    const params = {};
-    Object.keys(body).forEach(k => {
-      const v = body[k];
-      // Objetos/arrays precisam ser JSON+encoded
-      params[k] = (typeof v === 'object') ? encodeURIComponent(JSON.stringify(v)) : v;
-    });
-    url = GS_URL + '?' + new URLSearchParams(params).toString();
-  }
-  const r = await fetch(url, {method:'GET', mode:'cors'});
-  if(!r.ok) throw new Error('HTTP '+r.status);
-  return r.json();
-}
-
-async function syncFromSheets() {
-  if(!GS_URL){ toast('Configure a URL do Google Sheets primeiro'); showConfig(); return; }
-  setSyncStatus('syncing');
-  try {
-    const data = await gsFetch('GET',{action:'read', since:'2026-03-18'});
-    if(data && data.ok && data.data.length>0) {
-      // Merge: sheets tem prioridade sobre local para cada ds+m+f
-      const local = getE();
-      const merged = [...local];
-      data.data.forEach(row => {
-        const idx = merged.findIndex(e=>e.ds===row.ds&&e.m===row.m&&e.f===row.f);
-        // Normalise numeric fields
-        ['v','ok','sy','ma','prec','patend','pnao','rrec','ratend','frec','fatend'].forEach(k=>{ row[k]=+(row[k]||0); });
-        if(idx>=0) merged[idx]=row; else merged.push(row);
-      });
-      localStorage.setItem('db_entries',JSON.stringify(merged));
-      localStorage.setItem('db_last',new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
-      refresh();
-      if(document.getElementById('v-historico').style.display!=='none') renderHist();
-      setSyncStatus('ok');
-      toast(`Sincronizado! ${data.data.length} registros carregados`);
-    } else {
-      setSyncStatus('ok');
-      toast('Nenhum dado novo encontrado');
-    }
-  } catch(err) {
-    setSyncStatus('error');
-    toast('Erro ao sincronizar: verifique a URL do Sheets');
-    console.error(err);
-  }
-}
-
-async function migrateToSheets() {
-  if(!GS_URL){ toast('Configure a URL primeiro'); return; }
-  setSyncStatus('syncing');
-  try {
-    const entries = getE();
-    const data = await gsFetch('GET',{action:'batch', data: JSON.stringify(entries)});
-    if(data && data.ok){ setSyncStatus('ok'); toast(`${data.count} registros enviados para o Sheets!`); }
-    else { setSyncStatus('error'); toast('Erro ao migrar: '+( data?.error||'desconhecido')); }
-  } catch(err) { setSyncStatus('error'); toast('Erro de conexão'); }
-}
-
-function setSyncStatus(state) {
-  const el = document.getElementById('sync-status');
-  if(!el) return;
-  const map = {
-    syncing: {txt:'Sincronizando...', col:'var(--amber)'},
-    ok:      {txt:'Sincronizado ✓',   col:'var(--green)'},
-    error:   {txt:'Erro de sync ✗',   col:'var(--red)'},
-    idle:    {txt:'Não conectado',    col:'var(--muted)'},
-  };
-  const s = map[state]||map.idle;
-  el.textContent = s.txt;
-  el.style.color = s.col;
-}
-
-function showConfig() {
-  document.getElementById('config-modal').classList.add('open');
-  document.getElementById('cfg-url').value = GS_URL;
-}
-function closeConfig() { document.getElementById('config-modal').classList.remove('open'); }
-async function saveConfig() {
-  const url = document.getElementById('cfg-url').value.trim();
-  if(!url){ toast('Cole a URL do Web App'); return; }
-  if(!url.includes('script.google.com')){ toast('URL inválida — deve ser do Google Apps Script'); return; }
-  GS_URL = url;
-  localStorage.setItem('gs_url', url);
-  closeConfig();
-  setSyncStatus('syncing');
-  toast('Testando conexão...');
-  try {
-    const ping = await gsFetch('GET',{action:'ping'});
-    if(ping && ping.ok){
-      toast('Conexão OK! Sincronizando dados...');
-      syncFromSheets();
-    } else {
-      setSyncStatus('error');
-      toast('Erro: ' + (ping?.error || 'resposta inválida do script'));
-    }
-  } catch(err) {
-    setSyncStatus('error');
-    toast('Erro de conexão — verifique se publicou como "Qualquer pessoa"');
-  }
-}
 const today=()=>new Date().toISOString().split('T')[0];
 function fmtD(ds){const[y,mo,d]=ds.split('-');return`${d}/${mo}/${y}`}
 
@@ -1453,6 +1226,8 @@ function calcKPIs(f) {
   const tres=f.reduce((s,e)=>s+Math.max(0,e.rrec-(e.ratend||0))+Math.max(0,e.frec-(e.fatend||0)),0);
   const totalResgateRec=f.reduce((s,e)=>s+(e.rrec||0),0);
   const totalResgateAtend=f.reduce((s,e)=>s+(e.ratend||0),0); // somente resgate insucesso, sem FLUA
+  const totalFluaRec=f.reduce((s,e)=>s+(e.frec||0),0);
+  const totalFluaAtend=f.reduce((s,e)=>s+(e.fatend||0),0);
   const txAtend=trec>0?Math.round((tatend/trec)*100):0;
   const tok=f.reduce((s,e)=>s+(e.ok||0),0);
   const tsy=f.reduce((s,e)=>s+(e.sy||0),0);
@@ -1466,7 +1241,7 @@ function calcKPIs(f) {
   td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
   let nm=0,nt=0;
   Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
-  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
+  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
 }
 function renderKPIs(k,pk) {
   const vd=pk?Math.round(((k.tv-pk.tv)/(pk.tv||1))*100):0;
@@ -1509,7 +1284,16 @@ function renderKPIs(k,pk) {
   const kmBar = document.getElementById('kmbar');
   if(kmBar){ kmBar.style.width = resgPct + '%'; kmBar.style.background = resgPct >= 70 ? 'var(--green)' : resgPct >= 40 ? 'var(--amber)' : 'var(--red)'; }
 
-
+  // FLUA mini-indicator
+  const fluaRec  = k.totalFluaRec  || 0;
+  const fluaAtend= k.totalFluaAtend|| 0;
+  const fluaNao  = Math.max(0, fluaRec - fluaAtend);
+  const kmFrec = document.getElementById('km-frec'); if(kmFrec) kmFrec.textContent = fluaRec;
+  const kmFnao = document.getElementById('km-fnao');
+  if(kmFnao){
+    kmFnao.textContent = fluaNao;
+    kmFnao.style.color = fluaNao > 0 ? 'var(--red)' : 'var(--green)';
+  }
 }
 
 // ── CHARTS ───────────────────────────────────────────────────────────────────
@@ -1585,6 +1369,13 @@ function renderAlerts(f) {
 
 // ── RANKING ──────────────────────────────────────────────────────────────────
 function renderRank(by='conv') {
+  const pLbl = document.getElementById('rank-period-lbl');
+  if(pLbl){
+    const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês',custom:'Período personalizado'};
+    pLbl.textContent = period==='custom' && customFrom && customTo
+      ? (customFrom===customTo ? customFrom.split('-').reverse().join('/') : customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+      : (pMap[period]||period);
+  }
   const all=getE(), f=filterE(all,period,marca);
   const byF={};
   f.forEach(e=>{
@@ -1638,12 +1429,19 @@ function renderRank(by='conv') {
 
 // ── FORM ─────────────────────────────────────────────────────────────────────
 function limpar(){
+  _clearDirty();
   ['in-ok','in-sy','in-ma','in-prec','in-patend','in-rrec','in-ratend','in-frec','in-fatend'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
   ['in-vtot','in-pnao','in-rnao','in-fnao'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0';});
   document.getElementById('in-rids').value='';
   document.getElementById('in-fids').value='';
 }
 function salvar() {
+  const prec_v=+(document.getElementById('in-prec').value), patend_v=+(document.getElementById('in-patend').value);
+  const rrec_v=+(document.getElementById('in-rrec').value), ratend_v=+(document.getElementById('in-ratend').value);
+  const frec_v=+(document.getElementById('in-frec').value), fatend_v=+(document.getElementById('in-fatend').value);
+  if(patend_v>prec_v){toast('Pré-venda: atendidos não pode ser maior que recebidos');return;}
+  if(ratend_v>rrec_v){toast('Resgate: atendidos não pode ser maior que recebidos');return;}
+  if(fatend_v>frec_v){toast('FLUA: atendidos não pode ser maior que recebidos');return;}
   const m=document.getElementById('in-marca').value, f=document.getElementById('in-filial').value, ds=document.getElementById('in-data').value;
   if(!ds){toast('Selecione uma data');return;}
   const ok=+(document.getElementById('in-ok').value), sy=+(document.getElementById('in-sy').value), ma=+(document.getElementById('in-ma').value);
@@ -1654,6 +1452,7 @@ function salvar() {
   const existing=getE().find(e=>e.ds===ds&&e.m===m&&e.f===f);
   saveE(entry);
   toast(existing?`Relatório de ${f} (${m}) atualizado`:`Relatório de ${f} (${m}) salvo`);
+  _clearDirty();
   refresh();limpar();
 }
 
@@ -1719,17 +1518,22 @@ function openEdit(key) {
 }
 function closeModal(){document.getElementById('edit-modal').classList.remove('open');}
 function saveModal() {
-  const k=document.getElementById('m-key').value, [ods,om,of]=k.split('||');
-  const all=getE().filter(e=>!(e.ds===ods&&e.m===om&&e.f===of));
+  const prec_v=+(document.getElementById('m-prec').value), patend_v=+(document.getElementById('m-patend').value);
+  const rrec_v=+(document.getElementById('m-rrec').value), ratend_v=+(document.getElementById('m-ratend').value);
+  const frec_v=+(document.getElementById('m-frec').value), fatend_v=+(document.getElementById('m-fatend').value);
+  if(patend_v>prec_v){toast('Pré-venda: atendidos não pode ser maior que recebidos');return;}
+  if(ratend_v>rrec_v){toast('Resgate: atendidos não pode ser maior que recebidos');return;}
+  if(fatend_v>frec_v){toast('FLUA: atendidos não pode ser maior que recebidos');return;}
+  const k=document.getElementById('m-key').value;
+  const [ods,om,of_]=k.split('||');
   const ok=+(document.getElementById('m-ok').value), sy=+(document.getElementById('m-sy').value), ma=+(document.getElementById('m-ma').value);
   const prec=+(document.getElementById('m-prec').value), patend=+(document.getElementById('m-patend').value);
   const rrec=+(document.getElementById('m-rrec').value), ratend=+(document.getElementById('m-ratend').value);
   const frec=+(document.getElementById('m-frec').value), fatend=+(document.getElementById('m-fatend').value);
   const ne={ds:document.getElementById('m-dt').value,m:document.getElementById('m-mrc').value,f:document.getElementById('m-fil').value,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),rrec,ratend,rids:document.getElementById('m-rids').value,frec,fatend,fids:document.getElementById('m-fids').value,obs:''};
-  const xi=all.findIndex(e=>e.ds===ne.ds&&e.m===ne.m&&e.f===ne.f);
-  if(xi>=0)all[xi]=ne;else all.push(ne);
-  localStorage.setItem('db_entries',JSON.stringify(all));
-  localStorage.setItem('db_last',new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  // Se ds/marca/filial mudou, remove o registro original antes de salvar
+  if (ods !== ne.ds || om !== ne.m || of_ !== ne.f) deleteE(ods, om, of_);
+  saveE(ne);
   closeModal(); toast(`Atualizado — ${ne.f} (${ne.m})`); refresh(); renderHist();
 }
 
@@ -1803,10 +1607,11 @@ function cpTxt(txt,msg){navigator.clipboard.writeText(txt).then(()=>toast(msg)).
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function gv(v) {
-  ['dashboard','input','historico','consolidado','ranking','metas'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
+  ['dashboard','input','historico','consolidado','ranking'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(v));});
   const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking'};
   document.getElementById('page-ttl').textContent=ttls[v]||v;
+  document.title = (ttls[v]||v) + ' — Painel Concessionárias';
   if(v==='ranking')renderRank();
   if(v==='historico'){hPage=0;renderHist();}
   if(v==='consolidado'){const d=document.getElementById('cons-dt');if(d&&!d.value)d.value=today();renderCons();}
@@ -1826,8 +1631,9 @@ function setMarca(v){marca=v;refresh();if(document.getElementById('v-ranking').s
 // ── LAST WORKDAY — pula domingos (seg→sáb, dom→sáb) ─────────────────────────
 function lastWorkday() {
   const d = new Date();
-  d.setDate(d.getDate() - 1);          // começa em ontem
-  while (d.getDay() === 0) {           // 0 = domingo → continua voltando
+  d.setDate(d.getDate() - 1);
+  // Pula domingo (0) e sábado (6)
+  while (d.getDay() === 0 || d.getDay() === 6) {
     d.setDate(d.getDate() - 1);
   }
   return d.toISOString().split('T')[0];
@@ -2030,6 +1836,14 @@ function updateMobPeriodLabel() {
 }
 
 
+// ── UNSAVED CHANGES GUARD ────────────────────────────────────────────────────
+let _formDirty = false;
+function _markDirty() { _formDirty = true; }
+function _clearDirty() { _formDirty = false; }
+window.addEventListener('beforeunload', e => {
+  if (_formDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
 // ── INIT ─────────────────────────────────────────────────────────────────────
 seed();
 if(typeof READONLY_MODE!=='undefined'&&READONLY_MODE){document.body.classList.add('readonly');}
@@ -2039,6 +1853,12 @@ if(new URLSearchParams(location.search).get('directors')==='1'){
   document.body.classList.add('directors');
 }
 document.getElementById('in-data').value=today();
+// Mark form dirty on any input change in insertion form
+document.querySelectorAll('#v-input input').forEach(el => {
+  el.addEventListener('input', _markDirty);
+  el.addEventListener('change', _markDirty);
+});
+
 document.getElementById('hf-de').value='2026-03-18';
 upFiliais();
 refresh();
