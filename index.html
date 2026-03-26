@@ -551,8 +551,8 @@ body.directors .dir-banner{display:flex!important}
                 <td style="color:var(--muted);font-size:12px">calculado automaticamente</td>
               </tr>
               <tr>
-                <td>Observações gerais</td>
-                <td colspan="2"><input type="text" id="in-obs" placeholder="Notas adicionais..."></td>
+                <td style="padding-left:18px">IDs não atendidos</td>
+                <td colspan="2"><input type="text" id="in-fids" placeholder="IDs: 1309926, 1310255..."></td>
               </tr>
             </tbody>
           </table>
@@ -774,8 +774,8 @@ body.directors .dir-banner{display:flex!important}
           <td style="color:var(--muted);font-size:12px">automático</td>
         </tr>
         <tr>
-          <td>Obs. gerais</td>
-          <td colspan="2"><input type="text" id="m-obs" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 9px;font-size:13px;width:100%;outline:none" placeholder="Observações..."></td>
+          <td style="padding-left:16px">IDs não atendidos</td>
+          <td colspan="2"><input type="text" id="m-fids" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px;width:100%;outline:none" placeholder="IDs..."></td>
         </tr>
       </tbody>
     </table>
@@ -1641,7 +1641,7 @@ function limpar(){
   ['in-ok','in-sy','in-ma','in-prec','in-patend','in-rrec','in-ratend','in-frec','in-fatend'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
   ['in-vtot','in-pnao','in-rnao','in-fnao'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0';});
   document.getElementById('in-rids').value='';
-  document.getElementById('in-obs').value='';
+  document.getElementById('in-fids').value='';
 }
 function salvar() {
   const m=document.getElementById('in-marca').value, f=document.getElementById('in-filial').value, ds=document.getElementById('in-data').value;
@@ -1650,7 +1650,7 @@ function salvar() {
   const prec=+(document.getElementById('in-prec').value), patend=+(document.getElementById('in-patend').value);
   const rrec=+(document.getElementById('in-rrec').value), ratend=+(document.getElementById('in-ratend').value);
   const frec=+(document.getElementById('in-frec').value), fatend=+(document.getElementById('in-fatend').value);
-  const entry={ds,m,f,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),rrec,ratend,rids:document.getElementById('in-rids').value,frec,fatend,obs:document.getElementById('in-obs').value};
+  const entry={ds,m,f,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),rrec,ratend,rids:document.getElementById('in-rids').value,frec,fatend,fids:document.getElementById('in-fids').value,obs:''};
   const existing=getE().find(e=>e.ds===ds&&e.m===m&&e.f===f);
   saveE(entry);
   toast(existing?`Relatório de ${f} (${m}) atualizado`:`Relatório de ${f} (${m}) salvo`);
@@ -1712,7 +1712,7 @@ function openEdit(key) {
   document.getElementById('m-rids').value=e.rids||'';
   document.getElementById('m-frec').value=e.frec||0; document.getElementById('m-fatend').value=e.fatend||0;
   const fnao=Math.max(0,(e.frec||0)-(e.fatend||0)); const mfn=document.getElementById('m-fnao');if(mfn)mfn.textContent=fnao;
-  document.getElementById('m-obs').value=e.obs||'';
+  document.getElementById('m-fids').value=e.fids||'';
   document.getElementById('m-ttl').textContent=`Editar — ${e.f} (${e.m})`;
   document.getElementById('m-sub').textContent=`Relatório de ${fmtD(e.ds)}`;
   document.getElementById('edit-modal').classList.add('open');
@@ -1725,7 +1725,7 @@ function saveModal() {
   const prec=+(document.getElementById('m-prec').value), patend=+(document.getElementById('m-patend').value);
   const rrec=+(document.getElementById('m-rrec').value), ratend=+(document.getElementById('m-ratend').value);
   const frec=+(document.getElementById('m-frec').value), fatend=+(document.getElementById('m-fatend').value);
-  const ne={ds:document.getElementById('m-dt').value,m:document.getElementById('m-mrc').value,f:document.getElementById('m-fil').value,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),rrec,ratend,rids:document.getElementById('m-rids').value,frec,fatend,obs:document.getElementById('m-obs').value};
+  const ne={ds:document.getElementById('m-dt').value,m:document.getElementById('m-mrc').value,f:document.getElementById('m-fil').value,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),rrec,ratend,rids:document.getElementById('m-rids').value,frec,fatend,fids:document.getElementById('m-fids').value,obs:''};
   const xi=all.findIndex(e=>e.ds===ne.ds&&e.m===ne.m&&e.f===ne.f);
   if(xi>=0)all[xi]=ne;else all.push(ne);
   localStorage.setItem('db_entries',JSON.stringify(all));
@@ -1789,7 +1789,7 @@ function buildTxt(m,entries,dl) {
     const rnao=Math.max(0,(e.rrec||0)-(e.ratend||0));
     if((e.rrec||0)>0||rnao>0){const ids=e.rids?' ('+e.rids.split(/[,\s]+/).filter(Boolean).join(', ')+')':'';lines.push(`RESGATE DE INSUCESSO: ${rnao===1?'1 NÃO ATENDIDO':rnao+' NÃO ATENDIDOS'}${ids}`);}
     const fnao=Math.max(0,(e.frec||0)-(e.fatend||0));
-    if((e.frec||0)>0||fnao>0)lines.push(`RESGATE DE INSUCESSO FLUA: ${fnao===1?'1 NÃO ATENDIDO':fnao+' NÃO ATENDIDOS'}`);
+    if((e.frec||0)>0||fnao>0){const fids=e.fids?' ('+e.fids.split(/[,\s]+/).filter(Boolean).join(', ')+')':'';lines.push(`RESGATE DE INSUCESSO FLUA: ${fnao===1?'1 NÃO ATENDIDO':fnao+' NÃO ATENDIDOS'}${fids}`);}
     const pnao=Math.max(0,e.prec-(e.patend||0));
     if(e.prec>0){lines.push(pnao===0?`PRÉ-VENDA: ${e.prec} RECEBIDOS E ATENDIDOS.`:`PRÉ-VENDA: ${e.prec} RECEBIDOS, ${pnao} NÃO ATENDIDOS.`);}
     else if(m==='VW')lines.push('SEM VINCULAÇÃO COM CRM');
