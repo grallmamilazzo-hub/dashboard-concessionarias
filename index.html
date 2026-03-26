@@ -1014,7 +1014,15 @@ const METAS = {
   'Leapmotor|Santos':5
 };
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
-let FB_CFG = JSON.parse(localStorage.getItem('fb_config') || 'null');
+const _DEFAULT_FB_CFG = {
+  apiKey: "AIzaSyDXKN7fspdLtvTJmBqbmVwXYsY-n88aFJs",
+  authDomain: "dashboard-concessionarias.firebaseapp.com",
+  projectId: "dashboard-concessionarias",
+  storageBucket: "dashboard-concessionarias.firebasestorage.app",
+  messagingSenderId: "116010405175",
+  appId: "1:116010405175:web:cf5d9424809bb380c45eb2"
+};
+let FB_CFG = JSON.parse(localStorage.getItem('fb_config') || 'null') || _DEFAULT_FB_CFG;
 let fbDb = null; // Firestore instance
 let fbLoaded = false;
 
@@ -1072,7 +1080,7 @@ async function fbDeleteEntry(ds, m, f) {
 }
 
 async function fbSync() {
-  if (!fbCfgSaved()) { toast('Configure o Firebase primeiro'); showFbConfig(); return; }
+  if (!fbCfgSaved()) { toast('Erro de configuração Firebase'); return; }
   setSyncStatus('syncing');
   const ok = await initFirebase();
   if (!ok) { setSyncStatus('error'); toast('Erro ao conectar ao Firebase'); return; }
@@ -1105,7 +1113,7 @@ async function fbSync() {
 }
 
 async function fbMigrate() {
-  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
+  if (!await initFirebase()) { toast('Erro ao conectar Firebase'); return; }
   setSyncStatus('syncing');
   try {
     const entries = getE();
