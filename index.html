@@ -341,8 +341,8 @@ body.directors .dir-banner{display:flex!important}
           <div class="kpi-sub"><span class="badge up" id="kb">—</span><span id="kb-label">vs ontem</span></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kvb" style="background:var(--accent);width:0%"></div></div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-lbl">Pré-vendas Atendidas</div>
+        <div class="kpi-card" id="kpi-prevenda" onclick="openPVModal()" style="cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor=''">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="kpi-lbl" style="margin-bottom:0">Pré-vendas Atendidas</div><svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="opacity:.4;flex-shrink:0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="kpi-val" id="ka">—</div>
           <div class="kpi-sub"><span class="badge nt" id="kab">—</span><span>de <span id="kat">—</span> recebidas</span></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kabar" style="background:var(--accent2);width:0%"></div></div>
@@ -652,6 +652,26 @@ body.directors .dir-banner{display:flex!important}
 
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- PRÉ-VENDA MODAL -->
+<div class="modal-ov" id="prevenda-modal">
+  <div class="modal" style="width:640px;max-height:85vh">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl" id="pv-ttl">Pré-venda — Detalhamento</div>
+      <button onclick="closePVModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub" id="pv-sub"></div>
+    <div id="pv-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"></div>
+    <div id="pv-list" style="max-height:360px;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap">
+      <button onclick="copyPVAll()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.25);color:var(--accent);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Copiar consolidado (WhatsApp)
+      </button>
+      <button onclick="closePVModal()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;font-family:var(--font);cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
 
 <!-- RESGATE MODAL -->
 <div class="modal-ov" id="resgate-modal">
@@ -1006,6 +1026,30 @@ const GERENTES = {
   'Jeep|Barretos':        'Clovis',
   'Denza|Ribeirão Preto': 'S/ Gerente',
   'Leapmotor|Santos':     'Rodrigo'
+};
+
+// ── AGENTES DE PRÉ-VENDA (OPERADORES) ────────────────────────────────────────
+const AGENTES = {
+  'FIAT|Bauru':                    'Débora',
+  'FIAT|Botucatu':                 'Bianca',
+  'FIAT|Santos':                   'Adercylia e Jonathan',
+  'FIAT|Taguatinga':               'Victória',
+  'FIAT|Marília':                  'Sarah',
+  'FIAT|Jaú':                      'Rafael',
+  'Leapmotor|Santos':              'Isabela e Rafaela',
+  'BYD|Bauru':                     'Viviane',
+  'BYD|Araçatuba':                 'Amanda',
+  'BYD|Botucatu':                  'Bianca',
+  'BYD|Marília':                   'Viviane',
+  'BYD|São José do Rio Preto':     'Amanda',
+  'Peugeot|Bauru':                 'Rafael',
+  'Peugeot|Ribeirão Preto':        'Rafael',
+  'Peugeot|Marília':               'Sarah',
+  'Jeep|São José do Rio Preto':    'Cintia e Lurde',
+  'Jeep|Barretos':                 'Cintia e Lurde',
+  'Jeep|Votuporanga':              'Cintia e Lurde',
+  'VW|Bauru':                      'Ana Beatriz',
+  'VW|Orlândia':                   'Ana Beatriz'
 };
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 const _DEFAULT_FB_CFG = {
@@ -1472,7 +1516,7 @@ function renderRank(by='conv') {
       + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
       + '<div class="rank-name">'
         + '<div class="rank-fil">'+r.f+'</div>'
-        + '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads</div>'
+        + '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+' </div>'
       + '</div>'
       + '<div style="flex:1;min-width:60px;padding:0 10px">'
         + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
@@ -1626,7 +1670,7 @@ function renderCons() {
   ].map(x=>`<div style="background:var(--bg3);border-radius:8px;padding:11px 13px"><div style="font-size:11px;color:var(--muted);margin-bottom:5px">${x.l}</div><div style="font-size:21px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>${x.sub?`<div style="font-size:10px;font-weight:600;margin-top:4px;padding:2px 7px;border-radius:4px;display:inline-block;background:${x.bg};color:${x.c}">${x.sub}</div>`:''}</div>`).join('');
 
   const order=['FIAT','BYD','VW','Peugeot','Jeep','Denza','Leapmotor'];
-  let full='';
+  let full=`📋 *RELATÓRIO CONSOLIDADO — ${dl}*\n\n`;
   window._cm={};
   document.getElementById('cons-marcas').innerHTML=order.map(m=>{
     const me=entries.filter(e=>e.m===m); if(!me.length)return'';
@@ -1634,7 +1678,7 @@ function renderCons() {
     const cl=COLORS[m]||'#888';
     return `<div class="chart-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div style="display:flex;align-items:center;gap:8px"><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600">${MLABELS[m]||m}</span><span style="font-size:12px;color:var(--muted)">${me.length} filiais · ${me.reduce((s,e)=>s+e.v,0)} vendas</span></div><button class="btn-g" onclick="copyMarca('${m}')" style="font-size:11px;padding:4px 9px">Copiar marca</button></div><pre style="font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6;background:var(--bg3);border-radius:6px;padding:11px;border:1px solid var(--border)">${txt.trim()}</pre></div>`;
   }).join('');
-  full+=['——————————————————————————————','*FUNIL DO DIA*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
+  full+=[`——————————————————————————————`,'*FUNIL DO DIA — '+dl+'*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
   document.getElementById('cons-txt').textContent=full;
   window._cf=full;
 }
@@ -1668,6 +1712,157 @@ function copyCons(){if(!window._cf)return;cpTxt(window._cf,'Relatório consolida
 function copyMarca(m){const t=window._cm?.[m];if(t)cpTxt(t,`${MLABELS[m]||m} copiado!`);}
 function cpTxt(txt,msg){navigator.clipboard.writeText(txt).then(()=>toast(msg)).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast(msg);});}
 
+// ── PRÉ-VENDA MODAL ───────────────────────────────────────────────────────────
+function openPVModal() {
+  renderPVModal();
+  document.getElementById('prevenda-modal').classList.add('open');
+}
+function closePVModal() {
+  document.getElementById('prevenda-modal').classList.remove('open');
+}
+document.getElementById('prevenda-modal').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closePVModal();
+});
+
+function renderPVModal() {
+  const all = getE(), f = filterE(all, period, marca);
+
+  const pMap = {hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td = today().split('-').reverse().join('/'), _yd = lastWorkday().split('-').reverse().join('/');
+  const periodLbl = period==='custom' && customFrom && customTo
+    ? (customFrom===customTo ? customFrom.split('-').reverse().join('/') : customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    : (period==='hoje'?'Hoje · '+_td:period==='ontem'?'Ontem · '+_yd:pMap[period]||period);
+
+  document.getElementById('pv-ttl').textContent = 'Pré-venda — Detalhamento';
+  document.getElementById('pv-sub').textContent = `Período: ${periodLbl}${marca!=='todas' ? ' · '+marca : ''}`;
+
+  // Aggregate by marca+filial
+  const byMF = {};
+  f.forEach(e => {
+    const key = e.m+'|'+e.f;
+    if(!byMF[key]) byMF[key] = {m:e.m, f:e.f, rec:0, atend:0, nao:0};
+    byMF[key].rec   += (e.prec||0);
+    byMF[key].atend += (e.patend||0);
+    byMF[key].nao   += Math.max(0,(e.prec||0)-(e.patend||0));
+  });
+
+  const rows = Object.values(byMF).filter(r => r.rec > 0);
+  rows.sort((a,b) => b.nao - a.nao || b.rec - a.rec);
+
+  const totRec   = rows.reduce((s,r)=>s+r.rec,0);
+  const totAtend = rows.reduce((s,r)=>s+r.atend,0);
+  const totNao   = rows.reduce((s,r)=>s+r.nao,0);
+  const totPct   = totRec>0 ? Math.round(totAtend/totRec*100) : 0;
+  const pctColor = totPct>=70?'var(--green)':totPct>=40?'var(--amber)':'var(--red)';
+
+  document.getElementById('pv-summary').innerHTML = [
+    {l:'Recebidas', v:totRec, c:'var(--text)'},
+    {l:'Atendidas', v:totAtend, c:'var(--green)'},
+    {l:'Não atendidas', v:totNao, c:totNao>0?'var(--red)':'var(--muted)'},
+    {l:'% Atendido', v:totPct+'%', c:pctColor}
+  ].map(x=>`<div style="flex:1;min-width:90px;background:var(--bg3);border-radius:8px;padding:9px 12px">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">${x.l}</div>
+    <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>
+  </div>`).join('');
+
+  if(rows.length===0) {
+    document.getElementById('pv-list').innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Nenhum dado de pré-venda no período.</div>';
+    return;
+  }
+
+  document.getElementById('pv-list').innerHTML = rows.map(r => {
+    const cl    = COLORS[r.m]||'#888';
+    const ger   = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+    const agnt  = AGENTES[r.m+'|'+r.f]  || 'S/ Operador';
+    const pct   = r.rec>0 ? Math.round(r.atend/r.rec*100) : 0;
+    const pctC  = pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+    const statusIcon = r.nao===0
+      ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" fill="rgba(46,201,138,.15)"/><path d="M5 8l2.5 2.5L11 5" stroke="#2ec98a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" fill="rgba(240,82,82,.15)"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#f05252" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+    const naoColor = r.nao>0 ? 'var(--red)' : 'var(--muted)';
+
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="margin-top:2px">${statusIcon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
+          <span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600">${MLABELS[r.m]||r.m}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--text)">${r.f}</span>
+          <span style="font-size:12px;color:var(--muted)">·</span>
+          <span style="font-size:12px;color:var(--muted)">👤 Ger: ${ger}</span>
+          <span style="font-size:12px;color:var(--muted)">·</span>
+          <span style="font-size:12px;color:var(--accent)">📞 Op: ${agnt}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+          <span>Rec: <strong style="color:var(--text)">${r.rec}</strong></span>
+          <span>Atend: <strong style="color:var(--green)">${r.atend}</strong></span>
+          <span>Não atend: <strong style="color:${naoColor}">${r.nao}</strong></span>
+          <span style="background:${pctC}22;color:${pctC};font-size:11px;padding:1px 7px;border-radius:4px;font-weight:600">${pct}%</span>
+        </div>
+      </div>
+      <button onclick="copyPVRow('${r.m}','${r.f}')" title="Copiar esta filial" style="flex-shrink:0;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .15s;align-self:flex-start;margin-top:2px" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="display:block"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function _pvRowText(r, periodLbl) {
+  const ger  = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+  const agnt = AGENTES[r.m+'|'+r.f]  || 'S/ Operador';
+  const pct  = r.rec>0 ? Math.round(r.atend/r.rec*100) : 0;
+  const status = r.nao===0 ? '✅ ATENDIDO' : '⚠️ PENDENTE';
+  let txt = `${status} — *${MLABELS[r.m]||r.m} · ${r.f}*\n`;
+  txt += `*Gerente: ${ger}*\n`;
+  txt += `*Operador: ${agnt}*\n`;
+  txt += `PRÉ-VENDA: ${r.rec} rec · ${r.atend} atend · ${r.nao} não atend (${pct}%)`;
+  return txt;
+}
+
+function _buildPVRows() {
+  const all = getE(), f = filterE(all, period, marca);
+  const byMF = {};
+  f.forEach(e => {
+    const key = e.m+'|'+e.f;
+    if(!byMF[key]) byMF[key] = {m:e.m,f:e.f,rec:0,atend:0,nao:0};
+    byMF[key].rec   += (e.prec||0);
+    byMF[key].atend += (e.patend||0);
+    byMF[key].nao   += Math.max(0,(e.prec||0)-(e.patend||0));
+  });
+  return Object.values(byMF).filter(r=>r.rec>0).sort((a,b)=>b.nao-a.nao||b.rec-a.rec);
+}
+
+function copyPVAll() {
+  const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td3=today().split('-').reverse().join('/'), _yd3=lastWorkday().split('-').reverse().join('/');
+  const periodLbl = period==='custom'&&customFrom&&customTo
+    ?(customFrom===customTo?customFrom.split('-').reverse().join('/'):customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    :(period==='hoje'?'Hoje · '+_td3:period==='ontem'?'Ontem · '+_yd3:pMap[period]||period);
+  const rows = _buildPVRows();
+  if(!rows.length){toast('Nenhum dado para copiar');return;}
+  const totRec=rows.reduce((s,r)=>s+r.rec,0);
+  const totAtend=rows.reduce((s,r)=>s+r.atend,0);
+  const totNao=rows.reduce((s,r)=>s+r.nao,0);
+  const totPct=totRec>0?Math.round(totAtend/totRec*100):0;
+  const marcaLbl = marca!=='todas' ? ` · ${MLABELS[marca]||marca}` : '';
+  let txt = `📋 *PRÉ-VENDA — ${periodLbl}${marcaLbl}*\n`;
+  txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
+  txt += `${'─'.repeat(36)}\n`;
+  rows.forEach((r,i) => { txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
+  cpTxt(txt, 'Pré-venda copiado!');
+}
+
+function copyPVRow(m, f) {
+  const rows = _buildPVRows();
+  const r = rows.find(x=>x.m===m&&x.f===f);
+  if(!r){toast('Dados não encontrados');return;}
+  const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const periodLbl=period==='custom'&&customFrom&&customTo
+    ?(customFrom===customTo?customFrom.split('-').reverse().join('/'):customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    :(pMap[period]||period);
+  cpTxt(_pvRowText(r,periodLbl), `${MLABELS[m]||m} · ${f} copiado!`);
+}
+
+
 // ── RESGATE MODAL ─────────────────────────────────────────────────────────────
 let _rmTab = 'ri';
 
@@ -1698,9 +1893,11 @@ function renderResgateModal() {
 
   // Period label
   const pMap = {hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td = today().split('-').reverse().join('/');
+  const _yd = lastWorkday().split('-').reverse().join('/');
   const periodLbl = period==='custom' && customFrom && customTo
     ? (customFrom===customTo ? customFrom.split('-').reverse().join('/') : customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
-    : (pMap[period]||period);
+    : (period==='hoje' ? 'Hoje · '+_td : period==='ontem' ? 'Ontem · '+_yd : pMap[period]||period);
 
   document.getElementById('rm-ttl').textContent = isFlua ? 'Resgate FLUA — Detalhamento' : 'Resgate de Insucesso — Detalhamento';
   document.getElementById('rm-sub').textContent = `Período: ${periodLbl}${marca!=='todas' ? ' · '+marca : ''}`;
@@ -1792,8 +1989,8 @@ function _resgateRowText(r, isFlua, periodLbl) {
   const pct = r.rec>0 ? Math.round(r.atend/r.rec*100) : 0;
   const tipo = isFlua ? 'RESGATE FLUA' : 'RESGATE INSUCESSO';
   const status = r.nao===0 ? '✅ ATENDIDO' : '⚠️ PENDENTE';
-  let txt = `${status} — ${MLABELS[r.m]||r.m} · ${r.f}\n`;
-  txt += `Gerente: ${ger}\n`;
+  let txt = `${status} — *${MLABELS[r.m]||r.m} · ${r.f}*\n`;
+  txt += `*Gerente: ${ger}*\n`;
   txt += `${tipo}: ${r.rec} rec · ${r.atend} atend · ${r.nao} não atend (${pct}%)`;
   if(r.ids.length>0) txt += `\nIDs não atendidos: ${r.ids.join(', ')}`;
   return txt;
@@ -1821,9 +2018,10 @@ function _buildResgateRows() {
 
 function copyResgateAll() {
   const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td=today().split('-').reverse().join('/'), _yd=lastWorkday().split('-').reverse().join('/');
   const periodLbl = period==='custom'&&customFrom&&customTo
     ? (customFrom===customTo?customFrom.split('-').reverse().join('/'):customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
-    : (pMap[period]||period);
+    : (period==='hoje'?'Hoje · '+_td:period==='ontem'?'Ontem · '+_yd:pMap[period]||period);
   const {rows,isFlua} = _buildResgateRows();
   if(!rows.length){toast('Nenhum dado para copiar');return;}
   const tipo = isFlua?'RESGATE FLUA':'RESGATE INSUCESSO';
@@ -1831,10 +2029,11 @@ function copyResgateAll() {
   const totAtend=rows.reduce((s,r)=>s+r.atend,0);
   const totNao=rows.reduce((s,r)=>s+r.nao,0);
   const totPct=totRec>0?Math.round(totAtend/totRec*100):0;
-  let txt = `📋 *${tipo} — ${periodLbl}*\n`;
-  txt += `Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
-  txt += `${'─'.repeat(34)}\n`;
-  rows.forEach(r => { txt += '\n' + _resgateRowText(r,isFlua,periodLbl); });
+  const marcaLbl = marca!=='todas' ? ` · ${MLABELS[marca]||marca}` : '';
+  let txt = `📋 *${tipo} — ${periodLbl}${marcaLbl}*\n`;
+  txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
+  txt += `${'─'.repeat(36)}\n`;
+  rows.forEach((r,i) => { txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
   cpTxt(txt, `${tipo} copiado!`);
 }
 
@@ -1843,9 +2042,10 @@ function copyResgateRow(m, f) {
   const r = rows.find(x=>x.m===m&&x.f===f);
   if(!r){toast('Dados não encontrados');return;}
   const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td2=today().split('-').reverse().join('/'), _yd2=lastWorkday().split('-').reverse().join('/');
   const periodLbl=period==='custom'&&customFrom&&customTo
     ?(customFrom===customTo?customFrom.split('-').reverse().join('/'):customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
-    :(pMap[period]||period);
+    :(period==='hoje'?'Hoje · '+_td2:period==='ontem'?'Ontem · '+_yd2:pMap[period]||period);
   cpTxt(_resgateRowText(r,isFlua,periodLbl), `${MLABELS[m]||m} · ${f} copiado!`);
 }
 
@@ -1895,6 +2095,7 @@ function refresh() {
   renderKPIs(calcKPIs(f),calcKPIs(yf));
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
+  if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
   renderChartF(f); renderChartM(f); renderChartEv();
   renderFunil(f); renderAlerts(f);
   const lu=localStorage.getItem('db_last');
