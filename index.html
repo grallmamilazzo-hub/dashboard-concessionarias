@@ -676,7 +676,18 @@ body.directors .dir-banner{display:flex!important}
     <div id="rm-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"></div>
 
     <!-- LIST -->
-    <div id="rm-list" style="max-height:420px;overflow-y:auto"></div>
+    <div id="rm-list" style="max-height:360px;overflow-y:auto"></div>
+
+    <!-- COPY ACTIONS -->
+    <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap">
+      <button onclick="copyResgateAll()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(46,201,138,.12);border:1px solid rgba(46,201,138,.25);color:var(--green);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Copiar consolidado (WhatsApp)
+      </button>
+      <button onclick="closeResgateModal()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;font-family:var(--font);cursor:pointer">
+        Fechar
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1768,8 +1779,74 @@ function renderResgateModal() {
         </div>
         ${idsHtml}
       </div>
+      <button onclick="copyResgateRow('${r.m}','${r.f}')" title="Copiar esta filial" style="flex-shrink:0;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .15s;align-self:flex-start;margin-top:2px" onmouseenter="this.style.borderColor='var(--green)';this.style.color='var(--green)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="display:block"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
     </div>`;
   }).join('');
+}
+
+
+function _resgateRowText(r, isFlua, periodLbl) {
+  const ger = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+  const pct = r.rec>0 ? Math.round(r.atend/r.rec*100) : 0;
+  const tipo = isFlua ? 'RESGATE FLUA' : 'RESGATE INSUCESSO';
+  const status = r.nao===0 ? '✅ ATENDIDO' : '⚠️ PENDENTE';
+  let txt = `${status} — ${MLABELS[r.m]||r.m} · ${r.f}\n`;
+  txt += `Gerente: ${ger}\n`;
+  txt += `${tipo}: ${r.rec} rec · ${r.atend} atend · ${r.nao} não atend (${pct}%)`;
+  if(r.ids.length>0) txt += `\nIDs não atendidos: ${r.ids.join(', ')}`;
+  return txt;
+}
+
+function _buildResgateRows() {
+  const all = getE(), f = filterE(all, period, marca);
+  const isFlua = _rmTab === 'fl';
+  const byMF = {};
+  f.forEach(e => {
+    const key = e.m+'|'+e.f;
+    if(!byMF[key]) byMF[key] = {m:e.m,f:e.f,rec:0,atend:0,nao:0,ids:[]};
+    if(isFlua){
+      byMF[key].rec+=(e.frec||0); byMF[key].atend+=(e.fatend||0);
+      byMF[key].nao+=Math.max(0,(e.frec||0)-(e.fatend||0));
+      if(e.fids) e.fids.split(/[,\s]+/).filter(Boolean).forEach(id=>byMF[key].ids.push(id));
+    } else {
+      byMF[key].rec+=(e.rrec||0); byMF[key].atend+=(e.ratend||0);
+      byMF[key].nao+=Math.max(0,(e.rrec||0)-(e.ratend||0));
+      if(e.rids) e.rids.split(/[,\s]+/).filter(Boolean).forEach(id=>byMF[key].ids.push(id));
+    }
+  });
+  return {rows: Object.values(byMF).filter(r=>r.rec>0).sort((a,b)=>b.nao-a.nao||b.rec-a.rec), isFlua};
+}
+
+function copyResgateAll() {
+  const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const periodLbl = period==='custom'&&customFrom&&customTo
+    ? (customFrom===customTo?customFrom.split('-').reverse().join('/'):customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    : (pMap[period]||period);
+  const {rows,isFlua} = _buildResgateRows();
+  if(!rows.length){toast('Nenhum dado para copiar');return;}
+  const tipo = isFlua?'RESGATE FLUA':'RESGATE INSUCESSO';
+  const totRec=rows.reduce((s,r)=>s+r.rec,0);
+  const totAtend=rows.reduce((s,r)=>s+r.atend,0);
+  const totNao=rows.reduce((s,r)=>s+r.nao,0);
+  const totPct=totRec>0?Math.round(totAtend/totRec*100):0;
+  let txt = `📋 *${tipo} — ${periodLbl}*\n`;
+  txt += `Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
+  txt += `${'─'.repeat(34)}\n`;
+  rows.forEach(r => { txt += '\n' + _resgateRowText(r,isFlua,periodLbl); });
+  cpTxt(txt, `${tipo} copiado!`);
+}
+
+function copyResgateRow(m, f) {
+  const {rows,isFlua} = _buildResgateRows();
+  const r = rows.find(x=>x.m===m&&x.f===f);
+  if(!r){toast('Dados não encontrados');return;}
+  const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const periodLbl=period==='custom'&&customFrom&&customTo
+    ?(customFrom===customTo?customFrom.split('-').reverse().join('/'):customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    :(pMap[period]||period);
+  cpTxt(_resgateRowText(r,isFlua,periodLbl), `${MLABELS[m]||m} · ${f} copiado!`);
 }
 
 
