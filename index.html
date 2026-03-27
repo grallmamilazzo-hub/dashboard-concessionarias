@@ -354,8 +354,8 @@ body.directors .dir-banner{display:flex!important}
           <div id="kc-faixa" style="font-size:11px;font-weight:600;margin-top:4px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kcbar" style="width:0%"></div></div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-lbl">Resgate de Insucesso</div>
+        <div class="kpi-card" id="kpi-resgate" onclick="openResgateModal()" style="cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='var(--accent2)'" onmouseleave="this.style.borderColor=''">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="kpi-lbl" style="margin-bottom:0">Resgate de Insucesso</div><svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="opacity:.4;flex-shrink:0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="kpi-val" id="km">—</div>
           <div class="kpi-sub">
             <span class="badge nt" id="kmb">—</span>
@@ -653,6 +653,33 @@ body.directors .dir-banner{display:flex!important}
   </div><!-- /content -->
 </div><!-- /main -->
 
+<!-- RESGATE MODAL -->
+<div class="modal-ov" id="resgate-modal">
+  <div class="modal" style="width:640px;max-height:85vh">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl" id="rm-ttl">Resgate de Insucesso — Detalhamento</div>
+      <button onclick="closeResgateModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub" id="rm-sub"></div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:4px;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:16px">
+      <button id="rm-tab-ri" onclick="rmTab('ri')" style="flex:1;padding:6px 10px;border-radius:6px;border:none;font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;background:var(--bg2);color:var(--text);transition:all .15s">
+        Resgate Insucesso
+      </button>
+      <button id="rm-tab-fl" onclick="rmTab('fl')" style="flex:1;padding:6px 10px;border-radius:6px;border:none;font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;background:none;color:var(--muted);transition:all .15s">
+        Resgate FLUA
+      </button>
+    </div>
+
+    <!-- SUMMARY BAR -->
+    <div id="rm-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"></div>
+
+    <!-- LIST -->
+    <div id="rm-list" style="max-height:420px;overflow-y:auto"></div>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="modal-ov" id="edit-modal">
   <div class="modal">
@@ -943,6 +970,31 @@ const METAS = {
   'Denza|Ribeirão Preto':6,
   'VW|Bauru':16,'VW|Orlândia':10,
   'Leapmotor|Santos':5
+};
+
+// ── GERENTES POR FILIAL ───────────────────────────────────────────────────────
+const GERENTES = {
+  'FIAT|Bauru':           'Gabriela',
+  'FIAT|Botucatu':        'Caio',
+  'FIAT|Jaú':             'Bili',
+  'FIAT|Santos':          'Marcelo',
+  'FIAT|Marília':         'Willian',
+  'FIAT|Taguatinga':      'Leandro',
+  'Peugeot|Bauru':        'Gabriela',
+  'Peugeot|Ribeirão Preto': 'Marcelo',
+  'Peugeot|Marília':      'Willian',
+  'BYD|Bauru':            'Daniel',
+  'BYD|Botucatu':         'Daniel',
+  'BYD|São José do Rio Preto': 'Tarcísio',
+  'BYD|Marília':          'Bossoni',
+  'BYD|Araçatuba':        'Rodrigo',
+  'VW|Bauru':             'Danilo',
+  'VW|Orlândia':          'Clovis',
+  'Jeep|São José do Rio Preto': 'Everton',
+  'Jeep|Votuporanga':     'Eduardo',
+  'Jeep|Barretos':        'Clovis',
+  'Denza|Ribeirão Preto': 'S/ Gerente',
+  'Leapmotor|Santos':     'Rodrigo'
 };
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 const _DEFAULT_FB_CFG = {
@@ -1605,8 +1657,128 @@ function copyCons(){if(!window._cf)return;cpTxt(window._cf,'Relatório consolida
 function copyMarca(m){const t=window._cm?.[m];if(t)cpTxt(t,`${MLABELS[m]||m} copiado!`);}
 function cpTxt(txt,msg){navigator.clipboard.writeText(txt).then(()=>toast(msg)).catch(()=>{const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast(msg);});}
 
+// ── RESGATE MODAL ─────────────────────────────────────────────────────────────
+let _rmTab = 'ri';
+
+function openResgateModal() {
+  _rmTab = 'ri';
+  renderResgateModal();
+  document.getElementById('resgate-modal').classList.add('open');
+}
+function closeResgateModal() {
+  document.getElementById('resgate-modal').classList.remove('open');
+}
+document.getElementById('resgate-modal').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeResgateModal();
+});
+
+function rmTab(tab) {
+  _rmTab = tab;
+  document.getElementById('rm-tab-ri').style.background = tab==='ri' ? 'var(--bg2)' : 'none';
+  document.getElementById('rm-tab-ri').style.color      = tab==='ri' ? 'var(--text)' : 'var(--muted)';
+  document.getElementById('rm-tab-fl').style.background = tab==='fl' ? 'var(--bg2)' : 'none';
+  document.getElementById('rm-tab-fl').style.color      = tab==='fl' ? 'var(--text)' : 'var(--muted)';
+  renderResgateModal();
+}
+
+function renderResgateModal() {
+  const all = getE(), f = filterE(all, period, marca);
+  const isFlua = _rmTab === 'fl';
+
+  // Period label
+  const pMap = {hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const periodLbl = period==='custom' && customFrom && customTo
+    ? (customFrom===customTo ? customFrom.split('-').reverse().join('/') : customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    : (pMap[period]||period);
+
+  document.getElementById('rm-ttl').textContent = isFlua ? 'Resgate FLUA — Detalhamento' : 'Resgate de Insucesso — Detalhamento';
+  document.getElementById('rm-sub').textContent = `Período: ${periodLbl}${marca!=='todas' ? ' · '+marca : ''}`;
+
+  // Aggregate by marca+filial
+  const byMF = {};
+  f.forEach(e => {
+    const key = e.m + '|' + e.f;
+    if(!byMF[key]) byMF[key] = {m:e.m, f:e.f, rec:0, atend:0, nao:0, ids:[]};
+    if(isFlua) {
+      byMF[key].rec   += (e.frec||0);
+      byMF[key].atend += (e.fatend||0);
+      byMF[key].nao   += Math.max(0,(e.frec||0)-(e.fatend||0));
+      if(e.fids) e.fids.split(/[,\s]+/).filter(Boolean).forEach(id => byMF[key].ids.push(id));
+    } else {
+      byMF[key].rec   += (e.rrec||0);
+      byMF[key].atend += (e.ratend||0);
+      byMF[key].nao   += Math.max(0,(e.rrec||0)-(e.ratend||0));
+      if(e.rids) e.rids.split(/[,\s]+/).filter(Boolean).forEach(id => byMF[key].ids.push(id));
+    }
+  });
+
+  const rows = Object.values(byMF).filter(r => r.rec > 0);
+  rows.sort((a,b) => b.nao - a.nao || b.rec - a.rec);
+
+  // Summary bar
+  const totRec   = rows.reduce((s,r)=>s+r.rec,0);
+  const totAtend = rows.reduce((s,r)=>s+r.atend,0);
+  const totNao   = rows.reduce((s,r)=>s+r.nao,0);
+  const totPct   = totRec>0 ? Math.round(totAtend/totRec*100) : 0;
+  const pctColor = totPct>=70?'var(--green)':totPct>=40?'var(--amber)':'var(--red)';
+
+  document.getElementById('rm-summary').innerHTML = [
+    {l:'Recebidos', v:totRec, c:'var(--text)'},
+    {l:'Atendidos', v:totAtend, c:'var(--green)'},
+    {l:'Não atendidos', v:totNao, c:totNao>0?'var(--red)':'var(--muted)'},
+    {l:'% Atendido', v:totPct+'%', c:pctColor}
+  ].map(x=>`<div style="flex:1;min-width:90px;background:var(--bg3);border-radius:8px;padding:9px 12px">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">${x.l}</div>
+    <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>
+  </div>`).join('');
+
+  if(rows.length===0) {
+    document.getElementById('rm-list').innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Nenhum dado de resgate no período.</div>';
+    return;
+  }
+
+  // List
+  document.getElementById('rm-list').innerHTML = rows.map(r => {
+    const cl = COLORS[r.m]||'#888';
+    const ger = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+    const pct = r.rec>0 ? Math.round(r.atend/r.rec*100) : 0;
+    const pctC = pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+    const statusIcon = r.nao===0
+      ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" fill="rgba(46,201,138,.15)"/><path d="M5 8l2.5 2.5L11 5" stroke="#2ec98a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+      : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" fill="rgba(240,82,82,.15)"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#f05252" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+    const idsHtml = r.ids.length>0
+      ? `<div style="margin-top:5px;font-size:11px;font-family:var(--mono);color:var(--muted);background:var(--bg);padding:4px 8px;border-radius:5px;line-height:1.6">IDs: ${r.ids.join(', ')}</div>`
+      : '';
+    const naoColor = r.nao>0 ? 'var(--red)' : 'var(--muted)';
+
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="margin-top:2px">${statusIcon}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
+          <span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600">${MLABELS[r.m]||r.m}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--text)">${r.f}</span>
+          <span style="font-size:12px;color:var(--muted)">·</span>
+          <span style="font-size:12px;color:var(--muted)">👤 ${ger}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+          <span>Rec: <strong style="color:var(--text)">${r.rec}</strong></span>
+          <span>Atend: <strong style="color:var(--green)">${r.atend}</strong></span>
+          <span>Não atend: <strong style="color:${naoColor}">${r.nao}</strong></span>
+          <span style="background:${pctC}22;color:${pctC};font-size:11px;padding:1px 7px;border-radius:4px;font-weight:600">${pct}%</span>
+        </div>
+        ${idsHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function gv(v) {
+  if(_formDirty && document.getElementById('v-input').style.display!=='none' && v!=='input'){
+    if(!confirm('Há dados não salvos no formulário. Deseja sair mesmo assim?')) return;
+    _clearDirty();
+  }
   ['dashboard','input','historico','consolidado','ranking'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(v));});
   const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking'};
@@ -1644,6 +1816,8 @@ function refresh() {
   const all=getE(), f=filterE(all,period,marca);
   const yf=all.filter(e=>e.ds===lastWorkday()&&(marca==='todas'||e.m===marca));
   renderKPIs(calcKPIs(f),calcKPIs(yf));
+  // Atualiza modal de resgate se estiver aberto
+  if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   renderChartF(f); renderChartM(f); renderChartEv();
   renderFunil(f); renderAlerts(f);
   const lu=localStorage.getItem('db_last');
