@@ -329,6 +329,12 @@ body.directors .dir-banner{display:flex!important}
 
     <!-- DASHBOARD -->
     <div id="v-dashboard">
+      <div id="alert-sem-relatorio" style="display:none;background:rgba(124,95,230,.1);border:1px solid rgba(124,95,230,.25);border-radius:10px;padding:11px 15px;margin-bottom:8px;align-items:center;gap:11px;flex-wrap:wrap">
+        <div style="width:8px;height:8px;border-radius:50%;background:#7c5fe6;flex-shrink:0;animation:pulse 1.8s ease-in-out infinite"></div>
+        <div style="font-size:13px;color:#c3abf7;flex:1">Filiais sem relatório hoje: <span id="alert-sr-nomes" style="font-weight:600;color:#d4bdfa"></span></div>
+        <div id="alert-sr-cnt" style="font-size:12px;font-weight:600;color:#7c5fe6;background:rgba(124,95,230,.15);padding:3px 10px;border-radius:20px;white-space:nowrap"></div>
+      </div>
+      <!-- ALERT: metas -->
       <div class="alert-banner" id="alert-banner" style="display:none">
         <div class="alert-dot"></div>
         <div class="alert-txt" id="alert-txt"></div>
@@ -410,9 +416,11 @@ body.directors .dir-banner{display:flex!important}
           </div>
           <div style="position:relative;height:210px"><canvas id="ch-filiais"></canvas></div>
         </div>
-        <div class="chart-card">
-          <div class="chart-hdr"><div class="chart-ttl">Por marca</div></div>
-          <div style="position:relative;height:210px"><canvas id="ch-marcas"></canvas></div>
+        <div class="chart-card" id="spark-card">
+          <div class="chart-hdr">
+            <div class="chart-ttl">Tendência por marca <span style="font-size:10px;font-weight:400;color:var(--muted)">— 7 dias</span></div>
+          </div>
+          <div id="spark-list" style="display:flex;flex-direction:column;gap:10px;padding-top:4px"></div>
         </div>
       </div>
       <div class="bottom-row">
@@ -458,6 +466,13 @@ body.directors .dir-banner{display:flex!important}
       <div class="chart-card" style="margin-bottom:20px">
         <div class="chart-hdr"><div class="chart-ttl">Evolução — últimos 14 dias</div></div>
         <div style="position:relative;height:170px"><canvas id="ch-evolucao"></canvas></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="chart-hdr">
+          <div class="chart-ttl">Tendência por marca — últimos 7 dias</div>
+          <div style="font-size:11px;color:var(--muted)">vendas identificadas</div>
+        </div>
+        <div id="sparklines-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px"></div>
       </div>
     </div>
 
@@ -1420,15 +1435,59 @@ function renderChartF(f) {
     x:{ticks:{color:'#7a8094',font:{size:10},maxRotation:35},grid:{color:'rgba(255,255,255,.04)'}},
     y:{ticks:{color:'#7a8094',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'},beginAtZero:true}
   }}});
+}// ── SPARKLINES POR MARCA ──────────────────────────────────────────────────────
+function renderSparklines() {
+  const all = getE();
+  const t = new Date();
+  const days = [];
+  for(let i=6;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
+
+  const marcas = ['FIAT','BYD','VW','Peugeot','Jeep','Denza','Leapmotor'];
+  const container = document.getElementById('spark-list');
+  if(!container) return;
+
+  container.innerHTML = marcas.map(m => {
+    const series = days.map(ds => all.filter(e=>e.ds===ds&&e.m===m).reduce((s,e)=>s+e.v,0));
+    const total  = series.reduce((s,v)=>s+v,0);
+    const last   = series[series.length-1];
+    const prev   = series[series.length-2] ?? 0;
+    const trend  = last > prev ? 'up' : last < prev ? 'dn' : 'eq';
+    const trendC = trend==='up' ? 'var(--green)' : trend==='dn' ? 'var(--red)' : 'var(--muted)';
+    const trendA = trend==='up' ? '↑' : trend==='dn' ? '↓' : '→';
+    const cl     = COLORS[m] || '#888';
+    const max    = Math.max(...series, 1);
+
+    // Build SVG polyline
+    const w=80, h=28, pad=2;
+    const pts = series.map((v,i)=>{
+      const x = pad + (i/(days.length-1))*(w-pad*2);
+      const y = h - pad - (v/max)*(h-pad*2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+
+    // Fill area
+    const firstPt = `${pad},${h-pad}`;
+    const lastPt  = `${(w-pad).toFixed(1)},${h-pad}`;
+    const fillPts = firstPt+' '+pts+' '+lastPt;
+
+    return `<div style="display:flex;align-items:center;gap:10px">
+      <div style="width:7px;height:7px;border-radius:2px;background:${cl};flex-shrink:0"></div>
+      <div style="flex:1;min-width:0;font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${MLABELS[m]||m}</div>
+      <svg width="80" height="28" viewBox="0 0 80 28" style="flex-shrink:0">
+        <polygon points="${fillPts}" fill="${cl}" opacity="0.12"/>
+        <polyline points="${pts}" stroke="${cl}" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        ${series.map((v,i)=>{
+          if(i!==series.length-1) return '';
+          const x=pad+(i/(days.length-1))*(w-pad*2), y=h-pad-(v/max)*(h-pad*2);
+          return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="${cl}"/>`;
+        }).join('')}
+      </svg>
+      <div style="font-size:11px;font-family:var(--mono);font-weight:600;color:${cl};width:22px;text-align:right">${last}</div>
+      <div style="font-size:11px;color:${trendC};width:12px;text-align:center;font-weight:700">${trendA}</div>
+    </div>`;
+  }).join('');
 }
-function renderChartM(f) {
-  const bm={};f.forEach(e=>{bm[e.m]=(bm[e.m]||0)+e.v;});
-  const labels=Object.keys(bm);
-  const ctx=document.getElementById('ch-marcas').getContext('2d');
-  if(charts.m)charts.m.destroy();
-  charts.m=new Chart(ctx,{type:'doughnut',data:{labels,datasets:[{data:labels.map(k=>bm[k]),backgroundColor:labels.map(k=>COLORS[k]||'#888'),borderWidth:0,hoverOffset:6}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{display:true,position:'right',labels:{color:'#7a8094',font:{size:11},padding:10,boxWidth:10,boxHeight:10}}}}});
-}
+
 function renderChartEv() {
   const all=getE(), t=new Date(), labels=[], data=[];
   for(let i=13;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];labels.push(fmtD(ds));data.push(all.filter(e=>e.ds===ds&&(marca==='todas'||e.m===marca)).reduce((s,e)=>s+e.v,0));}
@@ -1439,6 +1498,64 @@ function renderChartEv() {
       x:{ticks:{color:'#7a8094',font:{size:10}},grid:{color:'rgba(255,255,255,.04)'}},
       y:{ticks:{color:'#7a8094',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'},beginAtZero:true}
     }}});
+}
+
+function renderSparklines() {
+  const all = getE();
+  const t = new Date();
+  const days = [];
+  for(let i=6;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
+  const marcaList = Object.keys(FILIAIS);
+  const mf = marca==='todas'?null:marca;
+  const visibleMarcas = mf ? [mf] : marcaList;
+
+  const grid = document.getElementById('sparklines-grid');
+  if(!grid) return;
+
+  grid.innerHTML = visibleMarcas.map(m => {
+    const cl = COLORS[m]||'#888';
+    const label = MLABELS[m]||m;
+    // daily totals
+    const vals = days.map(ds => all.filter(e=>e.ds===ds&&e.m===m).reduce((s,e)=>s+e.v,0));
+    const maxV = Math.max(...vals, 1);
+    const total = vals.reduce((s,v)=>s+v,0);
+    // trend: compare first half vs second half
+    const h = Math.floor(vals.length/2);
+    const first = vals.slice(0,h).reduce((s,v)=>s+v,0);
+    const second = vals.slice(h).reduce((s,v)=>s+v,0);
+    const trend = second > first ? '▲' : second < first ? '▼' : '—';
+    const trendC = second > first ? 'var(--green)' : second < first ? 'var(--red)' : 'var(--muted)';
+
+    // SVG sparkline (60x28)
+    const W=60, H=28, pad=2;
+    const pts = vals.map((v,i)=>{
+      const x = pad + i*(W-pad*2)/(vals.length-1||1);
+      const y = H - pad - (v/maxV)*(H-pad*2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    const lastV = vals[vals.length-1];
+
+    return `<div style="background:var(--bg3);border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="background:${cl}22;color:${cl};font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600">${label}</span>
+        <span style="font-size:11px;color:${trendC};font-weight:600">${trend}</span>
+      </div>
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px">
+        <div>
+          <div style="font-size:20px;font-weight:600;font-family:var(--mono);color:var(--text);line-height:1">${total}</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">vendas 7d · hoje: ${lastV}</div>
+        </div>
+        <svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="overflow:visible;flex-shrink:0">
+          <polyline points="${pts}" fill="none" stroke="${cl}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+          ${vals.map((v,i)=>{
+            const x=pad+i*(W-pad*2)/(vals.length-1||1);
+            const y=H-pad-(v/maxV)*(H-pad*2);
+            return i===vals.length-1?`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5" fill="${cl}"/>`:''
+          }).join('')}
+        </svg>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 // ── FUNIL ─────────────────────────────────────────────────────────────────────
@@ -1458,6 +1575,25 @@ function renderFunil(f) {
   document.getElementById('tx-conv').textContent=p3+'%';
 }
 
+// ── STREAK ────────────────────────────────────────────────────────────────────
+function calcStreak(m, f) {
+  // Returns consecutive days below 90% of target (counting back from yesterday)
+  const all = getE();
+  const mt = METAS[`${m}|${f}`] || 10;
+  let streak = 0;
+  const t = new Date();
+  for(let i = 1; i <= 30; i++) {
+    const d = new Date(t); d.setDate(d.getDate()-i);
+    const ds = d.toISOString().split('T')[0];
+    const dayEntries = all.filter(e=>e.ds===ds&&e.m===m&&e.f===f);
+    if(dayEntries.length===0) break; // no data = stop counting
+    const v = dayEntries.reduce((s,e)=>s+e.v, 0);
+    if(v >= mt * 0.9) break; // hit target = stop
+    streak++;
+  }
+  return streak;
+}
+
 // ── ALERTS ────────────────────────────────────────────────────────────────────
 function renderAlerts(f) {
   const td=f.filter(e=>e.ds===today());
@@ -1467,10 +1603,32 @@ function renderAlerts(f) {
   const bn=document.getElementById('alert-banner');
   if(bad.length>0){bn.style.display='flex';document.getElementById('alert-txt').textContent=`${bad.length} filial(is) abaixo de 90% da meta`;document.getElementById('alert-cnt').textContent=bad.length+' alertas';}
   else bn.style.display='none';
+  // Detectar filiais sem relatório hoje (apenas se period==='hoje')
+  const srBanner = document.getElementById('alert-sem-relatorio');
+  if(srBanner) {
+    const todayStr = today();
+    const withReport = new Set(getE().filter(e=>e.ds===todayStr&&(marca==='todas'||e.m===marca)).map(e=>e.m+'|'+e.f));
+    const allFiliais = Object.entries(FILIAIS).flatMap(([m,fs])=>
+      (marca==='todas'||m===marca) ? fs.map(f=>({m,f,key:m+'|'+f})) : []
+    );
+    const missing = allFiliais.filter(x=>!withReport.has(x.key));
+    if(period==='hoje' && missing.length>0) {
+      srBanner.style.display='flex';
+      document.getElementById('alert-sr-cnt').textContent = missing.length+' sem relatório';
+      // Show up to 4 names then "e mais N"
+      const names = missing.map(x=>`${x.f} (${x.m})`);
+      const shown = names.length<=4 ? names.join(', ') : names.slice(0,4).join(', ')+` e mais ${names.length-4}`;
+      document.getElementById('alert-sr-nomes').textContent = shown;
+    } else {
+      srBanner.style.display='none';
+    }
+  }
   document.getElementById('alerts-list').innerHTML=rows.slice(0,8).map(r=>{
     const dc=r.pct<70?'dot-r':r.pct<90?'dot-a':'dot-g';
     const pc=r.pct<70?'var(--red)':r.pct<90?'var(--amber)':'var(--green)';
-    return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text)">${r.f}</div><div style="font-size:11px;color:var(--muted)">${r.m} · meta:${r.mt}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v} vendas</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(100,r.pct)}%;background:${pc};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:38px;text-align:right;color:${pc}">${r.pct}%</div></div></div>`;
+    const streak=calcStreak(r.m,r.f);
+    const streakHtml=streak>=2?`<span title="${streak} dias seguidos abaixo da meta" style="font-size:10px;font-weight:700;color:var(--red);background:rgba(240,82,82,.12);padding:1px 6px;border-radius:4px;margin-left:4px">🔥${streak}d</span>`:'';
+    return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center">${r.f}${streakHtml}</div><div style="font-size:11px;color:var(--muted)">${r.m} · meta:${r.mt} · Ger: ${GERENTES[r.m+'|'+r.f]||'—'}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v} vendas</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(100,r.pct)}%;background:${pc};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:38px;text-align:right;color:${pc}">${r.pct}%</div></div></div>`;
   }).join('');
 }
 
@@ -1516,7 +1674,7 @@ function renderRank(by='conv') {
       + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
       + '<div class="rank-name">'
         + '<div class="rank-fil">'+r.f+'</div>'
-        + '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+' </div>'
+        + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d sem meta</span>':'')+'</div>';})()
       + '</div>'
       + '<div style="flex:1;min-width:60px;padding:0 10px">'
         + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
@@ -2096,7 +2254,7 @@ function refresh() {
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
-  renderChartF(f); renderChartM(f); renderChartEv();
+  renderChartF(f); renderChartEv(); renderSparklines();
   renderFunil(f); renderAlerts(f);
   const lu=localStorage.getItem('db_last');
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
