@@ -6,6 +6,7 @@
 <title>Painel de Atendimento — Concessionárias</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -255,6 +256,9 @@ body.directors .dir-banner{display:flex!important}
     </button>
     <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Inserir Dados
+    </button>
+    <button class="nav-btn ro-hide-on-ro" onclick="gv('venda')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 13V7l6-4 6 4v6a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 13V9h4v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M5 5l1.5 1.5L9 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Registrar Venda
     </button>
     <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('historico')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Histórico
@@ -580,6 +584,131 @@ body.directors .dir-banner{display:flex!important}
         <div style="display:flex;gap:10px">
           <button class="btn-p" onclick="salvar()">Salvar relatório</button>
           <button class="btn-g" onclick="limpar()">Limpar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTRAR VENDA -->
+    <div id="v-venda" style="display:none">
+      <div style="max-width:860px">
+        <div style="margin-bottom:18px">
+          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px">Registrar Venda</div>
+          <div style="font-size:13px;color:var(--muted)">Registre os dados completos de uma venda originada por lead. As informações ficam salvas no Firebase e podem ser exportadas como planilha.</div>
+        </div>
+
+        <!-- FORMULÁRIO -->
+        <div class="chart-card" style="margin-bottom:14px">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px">Dados da venda</div>
+          <div class="form-grid">
+            <div class="form-fld">
+              <label class="form-lbl">Marca</label>
+              <select class="form-inp" id="vd-marca" onchange="upVdFiliais()">
+                <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+              </select>
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Filial</label>
+              <select class="form-inp" id="vd-filial"></select>
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Cód. do Lead</label>
+              <input class="form-inp" type="text" id="vd-cod" placeholder="Ex: 1309926">
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Mídia</label>
+              <select class="form-inp" id="vd-midia" onchange="calcJanela()">
+                <option value="">Selecione...</option>
+              <option value="CARRO BAURU">CARRO BAURU</option>
+              <option value="CARRO SP">CARRO SP</option>
+              <option value="CONCESSIONARIA">CONCESSIONARIA</option>
+              <option value="E-MAIL MARKETING">E-MAIL MARKETING</option>
+              <option value="E-MAIL- MARKETING -SMS">E-MAIL- MARKETING -SMS</option>
+              <option value="FACEBOOK">FACEBOOK</option>
+              <option value="FACHADA">FACHADA</option>
+              <option value="GOOGLE">GOOGLE</option>
+              <option value="ICARROS">ICARROS</option>
+              <option value="INDICACAO">INDICACAO</option>
+              <option value="INDICACAO FUNCIONARIO">INDICACAO FUNCIONARIO</option>
+              <option value="INSTAGRAM">INSTAGRAM</option>
+              <option value="JA CONHECE A CONCESSIONARIA">JA CONHECE A CONCESSIONARIA</option>
+              <option value="JA CONHECE A LOJA">JA CONHECE A LOJA</option>
+              <option value="JA E CLIENTE">JA E CLIENTE</option>
+              <option value="LEAD SOMA">LEAD SOMA</option>
+              <option value="MENSAGEM WHATSAPP">MENSAGEM WHATSAPP</option>
+              <option value="MERCADO LIVRE">MERCADO LIVRE</option>
+              <option value="META ADS">META ADS</option>
+              <option value="MEU CARRO NOVO">MEU CARRO NOVO</option>
+              <option value="MOBIAUTO">MOBIAUTO</option>
+              <option value="MONTADORA">MONTADORA</option>
+              <option value="OLX">OLX</option>
+              <option value="RADIO">RADIO</option>
+              <option value="SITE CONCESSIONARIA">SITE CONCESSIONARIA</option>
+              <option value="SITE DE SEMINOVOS">SITE DE SEMINOVOS</option>
+              <option value="SITE LOJA">SITE LOJA</option>
+              <option value="SITE MONTADORA">SITE MONTADORA</option>
+              <option value="TELEVISAO">TELEVISAO</option>
+              <option value="TIKTOK">TIKTOK</option>
+              <option value="URA WHATSAPP">URA WHATSAPP</option>
+              <option value="USADOS BR">USADOS BR</option>
+              <option value="WEBMOTORS">WEBMOTORS</option>
+              <option value="WHATSAPP">WHATSAPP</option>
+              <option value="YOUTUBE">YOUTUBE</option>
+              <option value="[ Mídias Não Cadastradas ]">[ Mídias Não Cadastradas ]</option>
+              <option value="[ Sem Mídia ]">[ Sem Mídia ]</option>
+              </select>
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Data de criação do lead</label>
+              <input class="form-inp" type="date" id="vd-dtlead" onchange="calcJanela()">
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Data de faturamento</label>
+              <input class="form-inp" type="date" id="vd-dtfat" onchange="calcJanela()">
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Atendente (pré-venda)</label>
+              <input class="form-inp" type="text" id="vd-atendente" placeholder="Nome do atendente">
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Vendedor que recebeu</label>
+              <input class="form-inp" type="text" id="vd-vrec" placeholder="Nome do vendedor">
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Vendedor que faturou</label>
+              <input class="form-inp" type="text" id="vd-vfat" placeholder="Nome do vendedor">
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">NF (Nota Fiscal)</label>
+              <input class="form-inp" type="text" id="vd-nf" placeholder="Número da NF">
+            </div>
+            <div class="form-fld">
+              <label class="form-lbl">Chassi</label>
+              <input class="form-inp" type="text" id="vd-chassi" placeholder="Chassi do veículo" style="text-transform:uppercase">
+            </div>
+          </div>
+
+          <!-- INDICADOR DE JANELA -->
+          <div id="vd-janela-info" style="margin-top:14px;padding:10px 14px;border-radius:8px;font-size:12px;display:none"></div>
+
+          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+            <button class="btn-p" onclick="salvarVenda()">✔ Registrar Venda</button>
+            <button class="btn-g" onclick="limparVenda()">Limpar</button>
+          </div>
+        </div>
+
+        <!-- LISTA DE VENDAS + EXPORTAR -->
+        <div class="chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Vendas registradas</div>
+            <button onclick="exportarPlanilha()" style="background:rgba(46,201,138,.12);border:1px solid rgba(46,201,138,.3);color:var(--green);border-radius:7px;padding:7px 14px;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px">
+              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M5 8l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Exportar Planilha (.xlsx)
+            </button>
+          </div>
+          <div id="vd-list" style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">
+            Carregando vendas...
+          </div>
         </div>
       </div>
     </div>
@@ -979,6 +1108,10 @@ body.directors .dir-banner{display:flex!important}
     <button class="mob-btn ro-hide-on-ro" id="mnav-input" onclick="gv('input');setMobActive('input')">
       <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       Inserir
+    </button>
+    <button class="mob-btn ro-hide-on-ro" id="mnav-venda" onclick="gv('venda');setMobActive('venda')">
+      <svg viewBox="0 0 16 16" fill="none"><path d="M2 13V7l6-4 6 4v6a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 13V9h4v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+      Venda
     </button>
     <button class="mob-btn dir-hide" id="mnav-consolidado" onclick="gv('consolidado');setMobActive('consolidado')">
       <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="12" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>
@@ -2214,12 +2347,13 @@ function gv(v) {
     if(!confirm('Há dados não salvos no formulário. Deseja sair mesmo assim?')) return;
     _clearDirty();
   }
-  ['dashboard','input','historico','consolidado','ranking'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
+  ['dashboard','input','venda','historico','consolidado','ranking'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(v));});
-  const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking'};
+  const ttls={dashboard:'Dashboard',input:'Inserir Dados',venda:'Registrar Venda',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking'};
   document.getElementById('page-ttl').textContent=ttls[v]||v;
   document.title = (ttls[v]||v) + ' — Painel Concessionárias';
   if(v==='ranking')renderRank();
+  if(v==='venda')renderVendas();
   if(v==='historico'){hPage=0;renderHist();}
   if(v==='consolidado'){const d=document.getElementById('cons-dt');if(d&&!d.value)d.value=today();renderCons();}
 }
@@ -2471,6 +2605,7 @@ document.querySelectorAll('#v-input input').forEach(el => {
 
 document.getElementById('hf-de').value='2026-03-18';
 upFiliais();
+upVdFiliais();
 refresh();
 // Auto-sync se Firebase configurado
 if(fbCfgSaved()){
@@ -2482,6 +2617,249 @@ if(fbCfgSaved()){
 } else {
   setSyncStatus('idle');
 }
+// ══════════════════════════════════════════════════════════════
+//  MÓDULO REGISTRAR VENDA
+// ══════════════════════════════════════════════════════════════
+
+const MIDIAS_150 = new Set([
+  'MONTADORA','SITE CONCESSIONARIA','SITE DE SEMINOVOS','SITE LOJA','SITE MONTADORA',
+  'CONCESSIONARIA','MEU CARRO NOVO'
+]);
+
+// Filiais do select de venda (reutiliza FILIAIS existente)
+function upVdFiliais() {
+  const m = document.getElementById('vd-marca').value;
+  const s = document.getElementById('vd-filial');
+  s.innerHTML = (FILIAIS[m] || []).map(f => `<option>${f}</option>`).join('');
+}
+
+// Calcula se venda está dentro da janela e exibe indicador
+function calcJanela() {
+  const midia   = document.getElementById('vd-midia').value;
+  const dtLead  = document.getElementById('vd-dtlead').value;
+  const dtFat   = document.getElementById('vd-dtfat').value;
+  const box     = document.getElementById('vd-janela-info');
+
+  if (!midia || !dtLead || !dtFat) { box.style.display = 'none'; return; }
+
+  const lead = new Date(dtLead);
+  const fat  = new Date(dtFat);
+  const dias = Math.round((fat - lead) / 86400000);
+  const limite = MIDIAS_150.has(midia) ? 150 : 30;
+  const dentro = dias <= limite && dias >= 0;
+
+  box.style.display = 'block';
+  if (dentro) {
+    box.style.background = 'rgba(46,201,138,.1)';
+    box.style.border = '1px solid rgba(46,201,138,.25)';
+    box.style.color = 'var(--green)';
+    box.innerHTML = `✅ <strong>Dentro da janela</strong> — ${dias} dias entre lead e faturamento (limite: ${limite} dias). Esta venda será considerada.`;
+  } else {
+    box.style.background = 'rgba(240,82,82,.1)';
+    box.style.border = '1px solid rgba(240,82,82,.25)';
+    box.style.color = 'var(--red)';
+    box.innerHTML = `⚠️ <strong>Fora da janela</strong> — ${dias} dias entre lead e faturamento (limite: ${limite} dias). Esta venda será registrada como <em>Não Considerada</em>.`;
+  }
+}
+
+// Salva venda no Firebase (coleção "vendas")
+async function salvarVenda() {
+  const marca    = document.getElementById('vd-marca').value;
+  const filial   = document.getElementById('vd-filial').value;
+  const cod      = document.getElementById('vd-cod').value.trim();
+  const midia    = document.getElementById('vd-midia').value;
+  const dtLead   = document.getElementById('vd-dtlead').value;
+  const dtFat    = document.getElementById('vd-dtfat').value;
+  const atend    = document.getElementById('vd-atendente').value.trim();
+  const vrec     = document.getElementById('vd-vrec').value.trim();
+  const vfat     = document.getElementById('vd-vfat').value.trim();
+  const nf       = document.getElementById('vd-nf').value.trim();
+  const chassi   = document.getElementById('vd-chassi').value.trim().toUpperCase();
+
+  if (!marca || !filial || !cod || !midia || !dtLead || !dtFat || !nf || !chassi) {
+    alert('Preencha todos os campos obrigatórios:\nMarca, Filial, Cód. Lead, Mídia, Datas, NF e Chassi.');
+    return;
+  }
+
+  const dias    = Math.round((new Date(dtFat) - new Date(dtLead)) / 86400000);
+  const limite  = MIDIAS_150.has(midia) ? 150 : 30;
+  const dentro  = dias >= 0 && dias <= limite;
+
+  const venda = {
+    marca, filial, cod, midia, dtLead, dtFat,
+    atendente: atend, vendedorRecebeu: vrec, vendedorFaturou: vfat,
+    nf, chassi, dentroJanela: dentro, diasAteVenda: dias,
+    criadoEm: new Date().toISOString()
+  };
+
+  if (!fbDb) {
+    alert('Firebase não conectado. Verifique a configuração e tente novamente.');
+    return;
+  }
+
+  try {
+    const col = firebase.firestore().collection('vendas');
+    await col.add(venda);
+    alert(`✅ Venda registrada!\nLead: ${cod} | ${marca} ${filial}\n${dentro ? 'Considerada' : 'NÃO CONSIDERADA (fora da janela)'}`);
+    limparVenda();
+    renderVendas();
+  } catch (e) {
+    alert('Erro ao salvar: ' + e.message);
+  }
+}
+
+function limparVenda() {
+  ['vd-cod','vd-dtlead','vd-dtfat','vd-atendente','vd-vrec','vd-vfat','vd-nf','vd-chassi'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('vd-midia').value = '';
+  document.getElementById('vd-janela-info').style.display = 'none';
+}
+
+// Renderiza lista de vendas registradas
+async function renderVendas() {
+  const box = document.getElementById('vd-list');
+  if (!fbDb) {
+    box.innerHTML = '<span style="color:var(--muted)">Firebase não conectado.</span>';
+    return;
+  }
+  box.innerHTML = '<span style="color:var(--muted)">Carregando...</span>';
+  try {
+    const snap = await firebase.firestore().collection('vendas')
+      .orderBy('criadoEm','desc').limit(100).get();
+
+    if (snap.empty) {
+      box.innerHTML = '<span style="color:var(--muted)">Nenhuma venda registrada ainda.</span>';
+      return;
+    }
+
+    const rows = snap.docs.map(d => {
+      const v = d.data();
+      const tag = v.dentroJanela
+        ? `<span style="background:rgba(46,201,138,.15);color:var(--green);padding:1px 7px;border-radius:4px;font-size:11px">Considerada</span>`
+        : `<span style="background:rgba(240,82,82,.15);color:var(--red);padding:1px 7px;border-radius:4px;font-size:11px">Não Considerada</span>`;
+      return `<tr>
+        <td>${v.dtFat||'—'}</td>
+        <td><strong>${v.marca}</strong> · ${v.filial}</td>
+        <td style="font-family:var(--mono);font-size:11px">${v.cod}</td>
+        <td>${v.midia||'—'}</td>
+        <td>${v.atendente||'—'}</td>
+        <td>${v.vendedorFaturou||'—'}</td>
+        <td style="font-family:var(--mono);font-size:11px">${v.nf}</td>
+        <td style="font-family:var(--mono);font-size:11px">${v.chassi}</td>
+        <td>${tag}</td>
+        <td><button onclick="deletarVenda('${d.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px" title="Excluir">✕</button></td>
+      </tr>`;
+    }).join('');
+
+    box.innerHTML = `<div style="overflow-x:auto"><table class="tbl">
+      <thead><tr>
+        <th>Fat.</th><th>Loja</th><th>Cód. Lead</th><th>Mídia</th>
+        <th>Atendente</th><th>Vendedor Fat.</th><th>NF</th><th>Chassi</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  } catch(e) {
+    box.innerHTML = `<span style="color:var(--red)">Erro ao carregar: ${e.message}</span>`;
+  }
+}
+
+async function deletarVenda(id) {
+  if (!confirm('Excluir esta venda?')) return;
+  try {
+    await firebase.firestore().collection('vendas').doc(id).delete();
+    renderVendas();
+  } catch(e) {
+    alert('Erro ao excluir: ' + e.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  EXPORTAR PLANILHA .xlsx
+// ══════════════════════════════════════════════════════════════
+async function exportarPlanilha() {
+  if (!fbDb) { alert('Firebase não conectado.'); return; }
+  if (typeof XLSX === 'undefined') { alert('Biblioteca de planilha não carregada. Recarregue a página.'); return; }
+
+  const btn = event.currentTarget;
+  btn.textContent = '⏳ Gerando...';
+  btn.disabled = true;
+
+  try {
+    const snap = await firebase.firestore().collection('vendas')
+      .orderBy('dtFat','asc').get();
+
+    if (snap.empty) {
+      alert('Nenhuma venda registrada para exportar.');
+      btn.textContent = '⬇ Exportar Planilha (.xlsx)'; btn.disabled = false;
+      return;
+    }
+
+    const todas = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const wb = XLSX.utils.book_new();
+
+    // ── ABA 1: Vendidos por loja ──────────────────────────────
+    const lojas = {};
+    todas.forEach(v => {
+      const key = `${v.marca} ${v.filial}`.toUpperCase();
+      if (!lojas[key]) lojas[key] = { vendas: 0, leadsEnv: 0, emAtraso: 0, rescEnv: 0, rescAtraso: 0, rescVendas: 0 };
+      if (v.dentroJanela) lojas[key].vendas++;
+    });
+    const resumoRows = [
+      ['', 'VENDAS POR LOJA', '', '', 'LEADS ENVIADOS POR LOJA', 'Enviados', 'Em atraso', '', 'LEADS RESGATE DE INSUCESSO', 'Enviados', 'em atraso', 'Vendas'],
+    ];
+    Object.entries(lojas).sort().forEach(([loja, d]) => {
+      resumoRows.push([
+        '', `VEÍCULOS VENDIDOS NA ${loja}`, d.vendas, '',
+        `VEÍCULOS VENDIDOS NA ${loja}`, d.leadsEnv, d.emAtraso, '',
+        `VEÍCULOS VENDIDOS NA ${loja}`, d.rescEnv, d.rescAtraso, d.rescVendas
+      ]);
+    });
+    const totalVendas = Object.values(lojas).reduce((s, d) => s + d.vendas, 0);
+    resumoRows.push(['', 'TOTAL DE VENDAS POR LOJA', totalVendas, '', 'TOTAL DE LEADS ENVIADOS POR LOJA E EM ATRASO', 0, 0, '', 'TOTAL DE LEADS', 0, 0, 0]);
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(resumoRows), 'Vendidos por loja');
+
+    // ── ABA 2: Vendas não consideradas ───────────────────────
+    const naoConsideradas = todas.filter(v => !v.dentroJanela);
+    const ncRows = [['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA DO FATURAMENTO','MARCA','FILIAL','DIAS ATÉ VENDA']];
+    naoConsideradas.forEach(v => ncRows.push([
+      v.cod, v.atendente, v.vendedorRecebeu, v.vendedorFaturou,
+      v.nf, v.chassi, v.midia, v.dtFat, v.marca, v.filial, v.diasAteVenda
+    ]));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(ncRows), 'Vendas não consideradas');
+
+    // ── ABA POR LOJA ──────────────────────────────────────────
+    const porLoja = {};
+    todas.filter(v => v.dentroJanela).forEach(v => {
+      const key = `${v.marca} ${v.filial}`.toUpperCase().substring(0, 31);
+      if (!porLoja[key]) porLoja[key] = [];
+      porLoja[key].push(v);
+    });
+
+    Object.entries(porLoja).sort().forEach(([nomeAba, vendas]) => {
+      const rows = [['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA DO FATURAMENTO']];
+      vendas.forEach(v => rows.push([
+        v.cod, v.atendente, v.vendedorRecebeu, v.vendedorFaturou,
+        v.nf, v.chassi, v.midia, v.dtFat
+      ]));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), nomeAba);
+    });
+
+    // Download
+    const mes = new Date().toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).replace(' de ', '_').toUpperCase();
+    XLSX.writeFile(wb, `Faturamento_Leads_${mes}.xlsx`);
+
+  } catch(e) {
+    alert('Erro ao exportar: ' + e.message);
+  }
+
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M5 8l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Exportar Planilha (.xlsx)';
+  btn.disabled = false;
+}
+
+// Inicializa select de filiais na aba Venda
+document.addEventListener('DOMContentLoaded', () => { upVdFiliais(); });
+
 </script>
 </body>
 </html>
