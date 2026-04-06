@@ -2698,7 +2698,7 @@ async function salvarVenda() {
   }
 
   try {
-    const col = firebase.firestore().collection('vendas');
+    const col = fbDb.collection('vendas');
     await col.add(venda);
     alert(`✅ Venda registrada!\nLead: ${cod} | ${marca} ${filial}\n${dentro ? 'Considerada' : 'NÃO CONSIDERADA (fora da janela)'}`);
     limparVenda();
@@ -2725,7 +2725,7 @@ async function renderVendas() {
   }
   box.innerHTML = '<span style="color:var(--muted)">Carregando...</span>';
   try {
-    const snap = await firebase.firestore().collection('vendas')
+    const snap = await fbDb.collection('vendas')
       .orderBy('criadoEm','desc').limit(100).get();
 
     if (snap.empty) {
@@ -2767,7 +2767,7 @@ async function renderVendas() {
 async function deletarVenda(id) {
   if (!confirm('Excluir esta venda?')) return;
   try {
-    await firebase.firestore().collection('vendas').doc(id).delete();
+    await fbDb.collection('vendas').doc(id).delete();
     renderVendas();
   } catch(e) {
     alert('Erro ao excluir: ' + e.message);
@@ -2786,7 +2786,7 @@ async function exportarPlanilha() {
   btn.disabled = true;
 
   try {
-    const snap = await firebase.firestore().collection('vendas')
+    const snap = await fbDb.collection('vendas')
       .orderBy('dtFat','asc').get();
 
     if (snap.empty) {
