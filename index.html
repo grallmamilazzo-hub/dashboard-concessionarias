@@ -311,7 +311,7 @@ body.directors .dir-banner{display:flex!important}
       <select id="marca-flt" onchange="setMarca(this.value)">
         <option value="todas">Todas as marcas</option>
         <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
       </select>
       <!-- Mobile: período pill shown inline -->
       <button id="mob-period-pill" onclick="openDateModal()"
@@ -511,7 +511,7 @@ body.directors .dir-banner{display:flex!important}
         <div class="form-grid">
           <div class="form-fld"><label class="form-lbl">Marca</label>
             <select class="form-inp" id="in-marca" onchange="upFiliais()">
-              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option><option>Seminovos</option>
             </select>
           </div>
           <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="in-filial"></select></div>
@@ -625,7 +625,7 @@ body.directors .dir-banner{display:flex!important}
               <label class="form-lbl">Marca</label>
               <select class="form-inp" id="vd-marca" onchange="upVdFiliais()">
                 <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
               </select>
             </div>
             <div class="form-fld">
@@ -640,43 +640,28 @@ body.directors .dir-banner{display:flex!important}
               <label class="form-lbl">Mídia</label>
               <select class="form-inp" id="vd-midia" onchange="calcJanela()">
                 <option value="">Selecione...</option>
-              <option value="CARRO BAURU">CARRO BAURU</option>
-              <option value="CARRO SP">CARRO SP</option>
-              <option value="CONCESSIONARIA">CONCESSIONARIA</option>
-              <option value="E-MAIL MARKETING">E-MAIL MARKETING</option>
-              <option value="E-MAIL- MARKETING -SMS">E-MAIL- MARKETING -SMS</option>
-              <option value="FACEBOOK">FACEBOOK</option>
-              <option value="FACHADA">FACHADA</option>
+              <option value="CARRO BAURU / CARRO SP">CARRO BAURU / CARRO SP</option>
+              <option value="FACEBOOK / META ADS">FACEBOOK / META ADS</option>
               <option value="GOOGLE">GOOGLE</option>
               <option value="ICARROS">ICARROS</option>
-              <option value="INDICACAO">INDICACAO</option>
-              <option value="INDICACAO FUNCIONARIO">INDICACAO FUNCIONARIO</option>
               <option value="INSTAGRAM">INSTAGRAM</option>
-              <option value="JA CONHECE A CONCESSIONARIA">JA CONHECE A CONCESSIONARIA</option>
-              <option value="JA CONHECE A LOJA">JA CONHECE A LOJA</option>
-              <option value="JA E CLIENTE">JA E CLIENTE</option>
-              <option value="LEAD SOMA">LEAD SOMA</option>
-              <option value="MENSAGEM WHATSAPP">MENSAGEM WHATSAPP</option>
               <option value="MERCADO LIVRE">MERCADO LIVRE</option>
-              <option value="META ADS">META ADS</option>
               <option value="MEU CARRO NOVO">MEU CARRO NOVO</option>
               <option value="MOBIAUTO">MOBIAUTO</option>
               <option value="MONTADORA">MONTADORA</option>
               <option value="OLX">OLX</option>
-              <option value="RADIO">RADIO</option>
-              <option value="SITE CONCESSIONARIA">SITE CONCESSIONARIA</option>
+              <option value="RESGATE DE INSUCESSO">RESGATE DE INSUCESSO</option>
+              <option value="SITE CONCESSIONARIA / SITE LOJA">SITE CONCESSIONARIA / SITE LOJA</option>
               <option value="SITE DE SEMINOVOS">SITE DE SEMINOVOS</option>
-              <option value="SITE LOJA">SITE LOJA</option>
-              <option value="SITE MONTADORA">SITE MONTADORA</option>
-              <option value="TELEVISAO">TELEVISAO</option>
+              <option value="SITE MONTADORA / MONTADORA">SITE MONTADORA / MONTADORA</option>
               <option value="TIKTOK">TIKTOK</option>
-              <option value="URA WHATSAPP">URA WHATSAPP</option>
+              <option value="URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP">URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP</option>
+              <option value="CAMPANHA WHATSAPP">CAMPANHA WHATSAPP</option>
               <option value="USADOS BR">USADOS BR</option>
               <option value="WEBMOTORS">WEBMOTORS</option>
-              <option value="WHATSAPP">WHATSAPP</option>
               <option value="YOUTUBE">YOUTUBE</option>
-              <option value="[ Mídias Não Cadastradas ]">[ Mídias Não Cadastradas ]</option>
-              <option value="[ Sem Mídia ]">[ Sem Mídia ]</option>
+              <option value="[ MÍDIAS NÃO CADASTRADAS ]">[ MÍDIAS NÃO CADASTRADAS ]</option>
+              <option value="[ SEM MÍDIA ]">[ SEM MÍDIA ]</option>
               </select>
             </div>
             <div class="form-fld">
@@ -740,7 +725,7 @@ body.directors .dir-banner{display:flex!important}
             <select id="vd-filtro-marca" onchange="renderVendas()" class="form-inp" style="width:auto;font-size:12px;padding:5px 10px">
               <option value="">Todas as marcas</option>
               <option>FIAT</option><option>BYD</option><option>Peugeot</option>
-              <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+              <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
             </select>
             <select id="vd-filtro-status" onchange="renderVendas()" class="form-inp" style="width:auto;font-size:12px;padding:5px 10px">
               <option value="">Todos os status</option>
@@ -766,7 +751,7 @@ body.directors .dir-banner{display:flex!important}
         <div class="hist-flt">
           <select id="hf-mrc" onchange="renderHist()" style="font-size:12px">
             <option value="">Todas as marcas</option>
-            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option><option>Seminovos</option>
           </select>
           <select id="hf-fil" onchange="renderHist()" style="font-size:12px"><option value="">Todas as filiais</option></select>
           <input type="date" id="hf-de" onchange="renderHist()">
@@ -907,7 +892,7 @@ body.directors .dir-banner{display:flex!important}
     <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:14px">
       <div class="form-fld"><label class="form-lbl">Marca</label>
         <select class="form-inp" id="m-mrc" onchange="upMFiliais()">
-          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option><option>Seminovos</option>
         </select>
       </div>
       <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="m-fil"></select></div>
@@ -1182,7 +1167,8 @@ const FILIAIS = {
   Jeep:    ['São José do Rio Preto','Barretos','Votuporanga'],
   Denza:   ['Ribeirão Preto'],
   VW:      ['Bauru','Orlândia'],
-  Leapmotor: ['Santos']
+  Leapmotor: ['Santos'],
+  Seminovos: ['São José do Rio Preto']
 };
 const METAS = {
   'FIAT|Bauru':20,'FIAT|Botucatu':14,'FIAT|Jaú':12,'FIAT|Marília':16,'FIAT|Santos':22,'FIAT|Taguatinga':10,
@@ -1191,7 +1177,8 @@ const METAS = {
   'Jeep|São José do Rio Preto':10,'Jeep|Barretos':8,'Jeep|Votuporanga':7,
   'Denza|Ribeirão Preto':6,
   'VW|Bauru':16,'VW|Orlândia':10,
-  'Leapmotor|Santos':5
+  'Leapmotor|Santos':5,
+  'Seminovos|São José do Rio Preto':0
 };
 
 // ── GERENTES POR FILIAL ───────────────────────────────────────────────────────
@@ -1216,7 +1203,8 @@ const GERENTES = {
   'Jeep|Votuporanga':     'Eduardo',
   'Jeep|Barretos':        'Clovis',
   'Denza|Ribeirão Preto': 'S/ Gerente',
-  'Leapmotor|Santos':     'Rodrigo'
+  'Leapmotor|Santos':     'Rodrigo',
+  'Seminovos|São José do Rio Preto': 'André Luis'
 };
 
 // ── AGENTES DE PRÉ-VENDA (OPERADORES) ────────────────────────────────────────
@@ -1240,7 +1228,8 @@ const AGENTES = {
   'Jeep|Barretos':                 'Cintia e Lurde',
   'Jeep|Votuporanga':              'Cintia e Lurde',
   'VW|Bauru':                      'Ana Beatriz',
-  'VW|Orlândia':                   'Ana Beatriz'
+  'VW|Orlândia':                   'Ana Beatriz',
+  'Seminovos|São José do Rio Preto': 'Cintia Guerra'
 };
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 const _DEFAULT_FB_CFG = {
@@ -2667,8 +2656,11 @@ if(fbCfgSaved()){
 // ══════════════════════════════════════════════════════════════
 
 const MIDIAS_150 = new Set([
-  'MONTADORA','SITE CONCESSIONARIA','SITE DE SEMINOVOS','SITE LOJA','SITE MONTADORA',
-  'CONCESSIONARIA','MEU CARRO NOVO'
+  'MONTADORA',
+  'SITE CONCESSIONARIA / SITE LOJA',
+  'SITE DE SEMINOVOS',
+  'SITE MONTADORA / MONTADORA',
+  'MEU CARRO NOVO'
 ]);
 
 // ── Filiais ────────────────────────────────────────────────────
@@ -3157,7 +3149,7 @@ document.addEventListener('DOMContentLoaded', () => { upVdFiliais(); });
       <div class="form-fld"><label class="form-lbl">Marca</label>
         <select class="form-inp" id="ev-marca" onchange="upEvFiliais()">
           <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-          <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+          <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
         </select>
       </div>
       <div class="form-fld"><label class="form-lbl">Filial</label>
@@ -3169,43 +3161,28 @@ document.addEventListener('DOMContentLoaded', () => { upVdFiliais(); });
       <div class="form-fld"><label class="form-lbl">Mídia</label>
         <select class="form-inp" id="ev-midia">
           <option value="">Selecione...</option>
-              <option value="CARRO BAURU">CARRO BAURU</option>
-              <option value="CARRO SP">CARRO SP</option>
-              <option value="CONCESSIONARIA">CONCESSIONARIA</option>
-              <option value="E-MAIL MARKETING">E-MAIL MARKETING</option>
-              <option value="E-MAIL- MARKETING -SMS">E-MAIL- MARKETING -SMS</option>
-              <option value="FACEBOOK">FACEBOOK</option>
-              <option value="FACHADA">FACHADA</option>
+              <option value="CARRO BAURU / CARRO SP">CARRO BAURU / CARRO SP</option>
+              <option value="FACEBOOK / META ADS">FACEBOOK / META ADS</option>
               <option value="GOOGLE">GOOGLE</option>
               <option value="ICARROS">ICARROS</option>
-              <option value="INDICACAO">INDICACAO</option>
-              <option value="INDICACAO FUNCIONARIO">INDICACAO FUNCIONARIO</option>
               <option value="INSTAGRAM">INSTAGRAM</option>
-              <option value="JA CONHECE A CONCESSIONARIA">JA CONHECE A CONCESSIONARIA</option>
-              <option value="JA CONHECE A LOJA">JA CONHECE A LOJA</option>
-              <option value="JA E CLIENTE">JA E CLIENTE</option>
-              <option value="LEAD SOMA">LEAD SOMA</option>
-              <option value="MENSAGEM WHATSAPP">MENSAGEM WHATSAPP</option>
               <option value="MERCADO LIVRE">MERCADO LIVRE</option>
-              <option value="META ADS">META ADS</option>
               <option value="MEU CARRO NOVO">MEU CARRO NOVO</option>
               <option value="MOBIAUTO">MOBIAUTO</option>
               <option value="MONTADORA">MONTADORA</option>
               <option value="OLX">OLX</option>
-              <option value="RADIO">RADIO</option>
-              <option value="SITE CONCESSIONARIA">SITE CONCESSIONARIA</option>
+              <option value="RESGATE DE INSUCESSO">RESGATE DE INSUCESSO</option>
+              <option value="SITE CONCESSIONARIA / SITE LOJA">SITE CONCESSIONARIA / SITE LOJA</option>
               <option value="SITE DE SEMINOVOS">SITE DE SEMINOVOS</option>
-              <option value="SITE LOJA">SITE LOJA</option>
-              <option value="SITE MONTADORA">SITE MONTADORA</option>
-              <option value="TELEVISAO">TELEVISAO</option>
+              <option value="SITE MONTADORA / MONTADORA">SITE MONTADORA / MONTADORA</option>
               <option value="TIKTOK">TIKTOK</option>
-              <option value="URA WHATSAPP">URA WHATSAPP</option>
+              <option value="URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP">URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP</option>
+              <option value="CAMPANHA WHATSAPP">CAMPANHA WHATSAPP</option>
               <option value="USADOS BR">USADOS BR</option>
               <option value="WEBMOTORS">WEBMOTORS</option>
-              <option value="WHATSAPP">WHATSAPP</option>
               <option value="YOUTUBE">YOUTUBE</option>
-              <option value="[ Mídias Não Cadastradas ]">[ Mídias Não Cadastradas ]</option>
-              <option value="[ Sem Mídia ]">[ Sem Mídia ]</option>
+              <option value="[ MÍDIAS NÃO CADASTRADAS ]">[ MÍDIAS NÃO CADASTRADAS ]</option>
+              <option value="[ SEM MÍDIA ]">[ SEM MÍDIA ]</option>
         </select>
       </div>
       <div class="form-fld"><label class="form-lbl">Data criação do lead</label>
