@@ -2224,6 +2224,7 @@ function renderCons() {
     return `<div class="chart-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div style="display:flex;align-items:center;gap:8px"><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600">${MLABELS[m]||m}</span><span style="font-size:12px;color:var(--muted)">${me.length} filiais · ${me.reduce((s,e)=>s+e.v,0)} vendas</span></div><button class="btn-g" onclick="copyMarca('${m}')" style="font-size:11px;padding:4px 9px">Copiar marca</button></div><pre style="font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6;background:var(--bg3);border-radius:6px;padding:11px;border:1px solid var(--border)">${txt.trim()}</pre></div>`;
   }).join('');
   full+=[`——————————————————————————————`,'*FUNIL DO DIA — '+dl+'*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
+  full+='\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
   document.getElementById('cons-txt').textContent=full;
   window._cf=full;
 }
@@ -2392,7 +2393,10 @@ function copyPVAll() {
   let txt = `📋 *PRÉ-VENDA — ${periodLbl}${marcaLbl}*\n`;
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
-  rows.forEach((r,i) => { txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
+  rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
+  txt += '
+
+🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
   cpTxt(txt, 'Pré-venda copiado!');
 }
 
@@ -2530,7 +2534,7 @@ function renderResgateModal() {
 
 
 function _resgateRowText(r, isFlua, periodLbl) {
-  const ger = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+  const ger = isFlua ? 'Ulisses' : (GERENTES[r.m+'|'+r.f] || 'S/ Gerente');
   const pct = r.rec>0 ? Math.round(r.atend/r.rec*100) : 0;
   const tipo = isFlua ? 'RESGATE FLUA' : 'RESGATE INSUCESSO';
   const status = r.nao===0 ? '✅ ATENDIDO' : '⚠️ PENDENTE';
@@ -2578,7 +2582,10 @@ function copyResgateAll() {
   let txt = `📋 *${tipo} — ${periodLbl}${marcaLbl}*\n`;
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
-  rows.forEach((r,i) => { txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
+  rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
+  txt += '
+
+🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
   cpTxt(txt, `${tipo} copiado!`);
 }
 
