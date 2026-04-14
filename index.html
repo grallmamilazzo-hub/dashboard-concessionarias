@@ -6,7 +6,6 @@
 <title>Painel de Atendimento — Concessionárias</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -169,6 +168,32 @@ input[type=date]{background:var(--bg3);border:1px solid var(--border2);color:var
 /* SCROLLBAR */
 ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
+/* AUTH OVERLAY */
+.auth-ov{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
+.auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px 32px;width:360px;max-width:92vw;text-align:center}
+.auth-logo{width:44px;height:44px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 18px}
+.auth-ttl{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
+.auth-sub{font-size:12px;color:var(--muted);margin-bottom:22px}
+.auth-inp{width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font);outline:none;margin-bottom:12px}
+.auth-inp:focus{border-color:var(--accent)}
+.auth-err{font-size:12px;color:var(--red);margin-bottom:10px;min-height:16px}
+.auth-link{font-size:12px;color:var(--muted);margin-top:14px;cursor:pointer}
+.auth-link:hover{color:var(--text)}
+
+/* JANELA INDICATOR */
+.janela-ok{background:rgba(46,201,138,.12);border:1px solid rgba(46,201,138,.3);color:#2ec98a;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:500}
+.janela-warn{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:#f5a623;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:500}
+.janela-err{background:rgba(240,82,82,.12);border:1px solid rgba(240,82,82,.3);color:#f05252;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:500}
+
+/* VENDA TABLE */
+.venda-status{font-size:11px;font-weight:500;padding:2px 8px;border-radius:4px}
+.vs-ok{background:rgba(46,201,138,.15);color:#2ec98a}
+.vs-nc{background:rgba(240,82,82,.15);color:#f05252}
+
+/* PERIOD LOCKED */
+body.period-locked #period-flt{pointer-events:none;opacity:.45}
+body.period-locked #period-flt::after{content:'Período bloqueado — mês corrente';position:absolute;font-size:10px;color:var(--muted)}
+
 /* READ-ONLY MODE */
 .ro-banner{background:rgba(124,95,230,.12);border-bottom:1px solid rgba(124,95,230,.25);padding:8px 24px;display:flex;align-items:center;gap:10px;font-size:12px;color:#a58ef5;font-weight:500}
 .ro-banner svg{flex-shrink:0}
@@ -257,9 +282,6 @@ body.directors .dir-banner{display:flex!important}
     <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Inserir Dados
     </button>
-    <button class="nav-btn ro-hide-on-ro" onclick="gv('venda')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 13V7l6-4 6 4v6a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 13V9h4v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M5 5l1.5 1.5L9 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Registrar Venda
-    </button>
     <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('historico')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Histórico
     </button>
@@ -269,10 +291,15 @@ body.directors .dir-banner{display:flex!important}
     <button class="nav-btn" onclick="gv('ranking')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12h2v2H2zM7 8h2v6H7zM12 4h2v10h-2z" fill="currentColor"/></svg>Ranking
     </button>
+    <button class="nav-btn ro-hide-on-ro" onclick="gv('venda')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Registrar Venda
+    </button>
   </div>
   <div class="nav-sec">
     <div class="nav-lbl">Config</div>
-
+    <button class="nav-btn" onclick="authLogout()" style="color:var(--muted)">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M6 3H3a1 1 0 00-1 1v8a1 1 0 001 1h3M10 5l3 3-3 3M6 8h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sair / Trocar acesso
+    </button>
   </div>
   <div class="sb-foot">
     <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Última atualização</div>
@@ -311,7 +338,7 @@ body.directors .dir-banner{display:flex!important}
       <select id="marca-flt" onchange="setMarca(this.value)">
         <option value="todas">Todas as marcas</option>
         <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
+        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
       </select>
       <!-- Mobile: período pill shown inline -->
       <button id="mob-period-pill" onclick="openDateModal()"
@@ -480,27 +507,6 @@ body.directors .dir-banner{display:flex!important}
       </div>
     </div>
 
-    <!-- PAINEL GERENCIAL DE VENDAS (Fase 3) -->
-    <div id="dash-vendas-gerencial" style="margin-bottom:20px;display:none">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">Vendas registradas no mês — visão gerencial</div>
-        <span id="dash-vg-mes" style="font-size:12px;color:var(--muted)"></span>
-      </div>
-      <!-- Cards por marca -->
-      <div id="dash-vg-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:14px"></div>
-      <!-- Grid: comparativo + por mídia -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px" id="dash-vg-charts">
-        <div class="chart-card">
-          <div class="chart-hdr"><div class="chart-ttl">Leads recebidos × Vendas convertidas</div></div>
-          <div style="position:relative;height:190px"><canvas id="ch-leads-vs-vendas"></canvas></div>
-        </div>
-        <div class="chart-card">
-          <div class="chart-hdr"><div class="chart-ttl">Taxa de conversão por mídia <span style="font-size:10px;font-weight:400;color:var(--muted)">top 10</span></div></div>
-          <div id="dash-vg-midia" style="overflow-y:auto;max-height:195px"></div>
-        </div>
-      </div>
-    </div>
-
     <!-- INSERIR DADOS -->
     <div id="v-input" style="display:none">
       <div style="max-width:820px">
@@ -511,7 +517,7 @@ body.directors .dir-banner{display:flex!important}
         <div class="form-grid">
           <div class="form-fld"><label class="form-lbl">Marca</label>
             <select class="form-inp" id="in-marca" onchange="upFiliais()">
-              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option><option>Seminovos</option>
+              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
             </select>
           </div>
           <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="in-filial"></select></div>
@@ -609,138 +615,6 @@ body.directors .dir-banner{display:flex!important}
       </div>
     </div>
 
-    <!-- REGISTRAR VENDA -->
-    <div id="v-venda" style="display:none">
-      <div style="max-width:860px">
-        <div style="margin-bottom:18px">
-          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px">Registrar Venda</div>
-          <div style="font-size:13px;color:var(--muted)">Registre os dados completos de uma venda originada por lead. As informações ficam salvas no Firebase e podem ser exportadas como planilha.</div>
-        </div>
-
-        <!-- FORMULÁRIO -->
-        <div class="chart-card" style="margin-bottom:14px">
-          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px">Dados da venda</div>
-          <div class="form-grid">
-            <div class="form-fld">
-              <label class="form-lbl">Marca</label>
-              <select class="form-inp" id="vd-marca" onchange="upVdFiliais()">
-                <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
-              </select>
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Filial</label>
-              <select class="form-inp" id="vd-filial"></select>
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Cód. do Lead</label>
-              <input class="form-inp" type="text" id="vd-cod" placeholder="Ex: 1309926">
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Mídia</label>
-              <select class="form-inp" id="vd-midia" onchange="calcJanela()">
-                <option value="">Selecione...</option>
-              <option value="CARRO BAURU / CARRO SP">CARRO BAURU / CARRO SP</option>
-              <option value="FACEBOOK / META ADS">FACEBOOK / META ADS</option>
-              <option value="GOOGLE">GOOGLE</option>
-              <option value="ICARROS">ICARROS</option>
-              <option value="INSTAGRAM">INSTAGRAM</option>
-              <option value="MERCADO LIVRE">MERCADO LIVRE</option>
-              <option value="MEU CARRO NOVO">MEU CARRO NOVO</option>
-              <option value="MOBIAUTO">MOBIAUTO</option>
-              <option value="MONTADORA">MONTADORA</option>
-              <option value="OLX">OLX</option>
-              <option value="RESGATE DE INSUCESSO">RESGATE DE INSUCESSO</option>
-              <option value="SITE CONCESSIONARIA / SITE LOJA">SITE CONCESSIONARIA / SITE LOJA</option>
-              <option value="SITE DE SEMINOVOS">SITE DE SEMINOVOS</option>
-              <option value="SITE MONTADORA / MONTADORA">SITE MONTADORA / MONTADORA</option>
-              <option value="TIKTOK">TIKTOK</option>
-              <option value="URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP">URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP</option>
-              <option value="CAMPANHA WHATSAPP">CAMPANHA WHATSAPP</option>
-              <option value="USADOS BR">USADOS BR</option>
-              <option value="WEBMOTORS">WEBMOTORS</option>
-              <option value="YOUTUBE">YOUTUBE</option>
-              <option value="[ MÍDIAS NÃO CADASTRADAS ]">[ MÍDIAS NÃO CADASTRADAS ]</option>
-              <option value="[ SEM MÍDIA ]">[ SEM MÍDIA ]</option>
-              </select>
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Data de criação do lead</label>
-              <input class="form-inp" type="date" id="vd-dtlead" onchange="calcJanela()">
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Data de faturamento</label>
-              <input class="form-inp" type="date" id="vd-dtfat" onchange="calcJanela()">
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Atendente (pré-venda)</label>
-              <input class="form-inp" type="text" id="vd-atendente" placeholder="Nome do atendente">
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Vendedor que recebeu</label>
-              <input class="form-inp" type="text" id="vd-vrec" placeholder="Nome do vendedor">
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Vendedor que faturou</label>
-              <input class="form-inp" type="text" id="vd-vfat" placeholder="Nome do vendedor">
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">NF (Nota Fiscal)</label>
-              <input class="form-inp" type="text" id="vd-nf" placeholder="Número da NF">
-            </div>
-            <div class="form-fld">
-              <label class="form-lbl">Chassi</label>
-              <input class="form-inp" type="text" id="vd-chassi" placeholder="Chassi do veículo" style="text-transform:uppercase">
-            </div>
-          </div>
-
-          <!-- INDICADOR DE JANELA -->
-          <div id="vd-janela-info" style="margin-top:14px;padding:10px 14px;border-radius:8px;font-size:12px;display:none"></div>
-
-          <div class="form-fld" style="margin-top:14px">
-            <label class="form-lbl">Observação (opcional)</label>
-            <textarea class="form-inp" id="vd-obs" rows="2" placeholder="Anotações adicionais sobre esta venda..." style="resize:vertical;min-height:52px"></textarea>
-          </div>
-
-          <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-            <button class="btn-p" onclick="salvarVenda()">✔ Registrar Venda</button>
-            <button class="btn-g" onclick="limparVenda()">Limpar</button>
-          </div>
-        </div>
-
-        <!-- LISTA DE VENDAS + EXPORTAR -->
-        <div class="chart-card">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
-            <div style="font-size:13px;font-weight:600;color:var(--text)">Vendas registradas</div>
-            <button onclick="exportarPlanilha()" style="background:rgba(46,201,138,.12);border:1px solid rgba(46,201,138,.3);color:var(--green);border-radius:7px;padding:7px 14px;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px">
-              <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M5 8l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-              Exportar Planilha (.xlsx)
-            </button>
-          </div>
-          <!-- FILTROS DA LISTA -->
-          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-            <select id="vd-filtro-mes" onchange="renderVendas()" class="form-inp" style="width:auto;font-size:12px;padding:5px 10px">
-              <option value="">Todos os meses</option>
-            </select>
-            <select id="vd-filtro-marca" onchange="renderVendas()" class="form-inp" style="width:auto;font-size:12px;padding:5px 10px">
-              <option value="">Todas as marcas</option>
-              <option>FIAT</option><option>BYD</option><option>Peugeot</option>
-              <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
-            </select>
-            <select id="vd-filtro-status" onchange="renderVendas()" class="form-inp" style="width:auto;font-size:12px;padding:5px 10px">
-              <option value="">Todos os status</option>
-              <option value="true">Consideradas</option>
-              <option value="false">Não Consideradas</option>
-            </select>
-            <span id="vd-filtro-count" style="font-size:12px;color:var(--muted);margin-left:4px"></span>
-          </div>
-          <div id="vd-list" style="font-size:13px;color:var(--muted);text-align:center;padding:20px 0">
-            Carregando vendas...
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- HISTÓRICO -->
     <div id="v-historico" style="display:none">
       <div class="chart-card">
@@ -751,7 +625,7 @@ body.directors .dir-banner{display:flex!important}
         <div class="hist-flt">
           <select id="hf-mrc" onchange="renderHist()" style="font-size:12px">
             <option value="">Todas as marcas</option>
-            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option><option>Seminovos</option>
+            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
           </select>
           <select id="hf-fil" onchange="renderHist()" style="font-size:12px"><option value="">Todas as filiais</option></select>
           <input type="date" id="hf-de" onchange="renderHist()">
@@ -820,10 +694,189 @@ body.directors .dir-banner{display:flex!important}
       </div>
     </div>
 
-  
+    <!-- REGISTRAR VENDA -->
+    <div id="v-venda" style="display:none">
+      <div style="max-width:900px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px">Registrar Venda</div>
+            <div style="font-size:13px;color:var(--muted)">Associe a venda ao lead de origem com validação automática de janela</div>
+          </div>
+          <button class="btn-g" onclick="exportVendasXLSX()" style="font-size:12px;padding:7px 13px">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="margin-right:4px"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Exportar XLSX
+          </button>
+        </div>
+
+        <!-- FORM -->
+        <div class="chart-card" style="margin-bottom:16px">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:14px" id="venda-form-ttl">Nova Venda</div>
+          <div class="form-grid" style="grid-template-columns:repeat(3,1fr)">
+            <div class="form-fld"><label class="form-lbl">Marca</label>
+              <select class="form-inp" id="vv-marca" onchange="vvUpFiliais()">
+                <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+              </select>
+            </div>
+            <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
+            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
+            <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
+            <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
+            <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
+            <div class="form-fld"><label class="form-lbl">Vendedor que Faturou</label><input class="form-inp" type="text" id="vv-vfat" placeholder="Nome"></div>
+            <div class="form-fld"><label class="form-lbl">NF</label><input class="form-inp" type="text" id="vv-nf" placeholder="Número da NF"></div>
+            <div class="form-fld"><label class="form-lbl">Chassi</label><input class="form-inp" type="text" id="vv-chassi" placeholder="Número do chassi"></div>
+          </div>
+
+          <!-- Mídia + Validação -->
+          <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
+            <div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Origem do Lead</div>
+            <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr">
+              <div class="form-fld">
+                <label class="form-lbl">Mídia / Origem</label>
+                <select class="form-inp" id="vv-midia" onchange="vvUpdateJanela()">
+                  <option value="">Selecione...</option>
+                  <optgroup label="── Montadora / Site (150 dias)">
+                    <option>MONTADORA</option><option>SITE CONCESSIONÁRIA</option>
+                  </optgroup>
+                  <optgroup label="── Digitais (30 dias após insucesso)">
+                    <option>FACEBOOK</option><option>INSTAGRAM</option><option>CARROSP</option>
+                    <option>ICARROS</option><option>WEBMOTORS</option><option>WHATSAPP</option>
+                    <option>MERCADO LIVRE</option><option>OLX</option><option>TIKTOK</option>
+                  </optgroup>
+                  <optgroup label="── Campanha (30 dias corridos)">
+                    <option>CAMPANHA/WHATSAPP</option>
+                  </optgroup>
+                  <optgroup label="── Outros">
+                    <option>PROSPECÇÃO DE OFICINA</option><option>INDICAÇÃO</option>
+                    <option>SHOWROOM / PASSAGEM DE LOJA</option><option>EMAIL MARKETING</option>
+                    <option>GOOGLE ADS</option><option>EVENTO</option>
+                    <option>RECOMPRA / FIDELIZAÇÃO</option><option>TELEVENDAS</option>
+                    <option>PARCERIA</option><option>OUTROS</option>
+                  </optgroup>
+                </select>
+              </div>
+              <div class="form-fld" id="fld-dtcriacao">
+                <label class="form-lbl">Data de Criação do Lead</label>
+                <input class="form-inp" type="date" id="vv-dtcriacao" oninput="vvUpdateJanela()">
+              </div>
+              <div class="form-fld" id="fld-dtins" style="display:none">
+                <label class="form-lbl">Data Encerr. como INSUCESSO</label>
+                <input class="form-inp" type="date" id="vv-dtins" oninput="vvUpdateJanela()">
+              </div>
+            </div>
+            <!-- Resgate de Insucesso -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;margin-top:4px">
+              <input type="checkbox" id="vv-resgate" onchange="vvUpdateJanela()" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer">
+              <label for="vv-resgate" style="font-size:13px;color:var(--text);cursor:pointer">É Resgate de Insucesso</label>
+              <span style="font-size:11px;color:var(--muted)">(herda regra da mídia do lead anterior)</span>
+            </div>
+            <div id="fld-midiaorigem" style="display:none;margin-bottom:12px">
+              <div class="form-fld" style="max-width:280px">
+                <label class="form-lbl">Mídia de Origem do Lead Anterior</label>
+                <select class="form-inp" id="vv-midiaorigem" onchange="vvUpdateJanela()">
+                  <option value="">Selecione a mídia original...</option>
+                  <option>MONTADORA</option><option>SITE CONCESSIONÁRIA</option>
+                  <option>FACEBOOK</option><option>INSTAGRAM</option><option>CARROSP</option>
+                  <option>ICARROS</option><option>WEBMOTORS</option><option>WHATSAPP</option>
+                  <option>MERCADO LIVRE</option><option>OLX</option><option>TIKTOK</option>
+                  <option>CAMPANHA/WHATSAPP</option>
+                </select>
+              </div>
+            </div>
+            <!-- Janela indicator -->
+            <div id="vv-janela" style="display:none;margin-bottom:12px"></div>
+          </div>
+
+          <div class="form-fld" style="margin-top:4px">
+            <label class="form-lbl">Observação</label>
+            <input class="form-inp" type="text" id="vv-obs" placeholder="Opcional">
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:16px">
+            <button class="btn-p" onclick="saveVenda()" id="vv-btn-save">Salvar Venda</button>
+            <button class="btn-g" onclick="vvClear()">Limpar</button>
+          </div>
+          <input type="hidden" id="vv-edit-id">
+        </div>
+
+        <!-- FILTROS + LISTA -->
+        <div class="chart-card">
+          <div class="sec-hdr" style="margin-bottom:12px">
+            <div><div class="sec-ttl">Vendas Registradas</div><div class="sec-sub" id="vv-list-sub">carregando...</div></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <select id="vvf-mes" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
+                <option value="">Todos os meses</option>
+              </select>
+              <select id="vvf-marca" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
+                <option value="">Todas marcas</option>
+                <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+              </select>
+              <select id="vvf-status" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
+                <option value="">Todos status</option>
+                <option value="1">Consideradas</option>
+                <option value="0">Não Consideradas</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="tbl" id="vv-table">
+              <thead><tr>
+                <th>Data Fat.</th><th>Marca</th><th>Filial</th><th>Cód Lead</th>
+                <th>Atendente</th><th>Vendedor Faturou</th><th>Mídia</th><th>NF</th>
+                <th>Status</th><th class="ro-hide-on-ro">Ações</th>
+              </tr></thead>
+              <tbody id="vv-tbody"></tbody>
+            </table>
+          </div>
+          <div id="vv-empty" style="display:none;text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Nenhuma venda registrada.</div>
+        </div>
+      </div>
+    </div>
 
   </div><!-- /content -->
 </div><!-- /main -->
+
+<!-- AUTH OVERLAY -->
+<div class="auth-ov" id="auth-overlay" style="display:none">
+  <div class="auth-box">
+    <div class="auth-logo">C</div>
+    <div class="auth-ttl">Painel Concessionárias</div>
+    <div class="auth-sub">Digite a senha de acesso para continuar</div>
+    <input class="auth-inp" type="password" id="auth-pw" placeholder="Senha de acesso"
+      onkeydown="if(event.key==='Enter')authSubmit()">
+    <div class="auth-err" id="auth-err"></div>
+    <button class="btn-p" onclick="authSubmit()" style="width:100%;justify-content:center">Entrar</button>
+  </div>
+</div>
+
+<!-- EDIT VENDA MODAL -->
+<div class="modal-ov" id="edit-venda-modal">
+  <div class="modal" style="width:660px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl">Editar Venda</div>
+      <button onclick="closeEditVenda()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub">Atualize os dados da venda registrada</div>
+    <div id="edit-venda-body" style="max-height:60vh;overflow-y:auto"></div>
+    <div class="modal-act">
+      <button class="btn-g" onclick="closeEditVenda()">Cancelar</button>
+      <button class="btn-p" onclick="saveEditVenda()" id="ev-save-btn">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE VENDA CONFIRM -->
+<div class="modal-ov" id="del-venda-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-ttl">Confirmar exclusão</div>
+    <div class="modal-sub" id="del-venda-sub" style="margin-top:8px;margin-bottom:0">Esta venda será removida permanentemente.</div>
+    <div class="modal-act">
+      <button class="btn-g" onclick="closeDelVenda()">Cancelar</button>
+      <button class="btn-p" onclick="confirmDelVenda()" style="background:var(--red)">Excluir</button>
+    </div>
+  </div>
+</div>
 
 <!-- PRÉ-VENDA MODAL -->
 <div class="modal-ov" id="prevenda-modal">
@@ -892,7 +945,7 @@ body.directors .dir-banner{display:flex!important}
     <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:14px">
       <div class="form-fld"><label class="form-lbl">Marca</label>
         <select class="form-inp" id="m-mrc" onchange="upMFiliais()">
-          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option><option>Seminovos</option>
+          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
         </select>
       </div>
       <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="m-fil"></select></div>
@@ -1137,10 +1190,6 @@ body.directors .dir-banner{display:flex!important}
       <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       Inserir
     </button>
-    <button class="mob-btn ro-hide-on-ro" id="mnav-venda" onclick="gv('venda');setMobActive('venda')">
-      <svg viewBox="0 0 16 16" fill="none"><path d="M2 13V7l6-4 6 4v6a1 1 0 01-1 1H3a1 1 0 01-1-1z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M6 13V9h4v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Venda
-    </button>
     <button class="mob-btn dir-hide" id="mnav-consolidado" onclick="gv('consolidado');setMobActive('consolidado')">
       <svg viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="12" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>
       Consolidado
@@ -1167,8 +1216,7 @@ const FILIAIS = {
   Jeep:    ['São José do Rio Preto','Barretos','Votuporanga'],
   Denza:   ['Ribeirão Preto'],
   VW:      ['Bauru','Orlândia'],
-  Leapmotor: ['Santos'],
-  Seminovos: ['São José do Rio Preto']
+  Leapmotor: ['Santos']
 };
 const METAS = {
   'FIAT|Bauru':20,'FIAT|Botucatu':14,'FIAT|Jaú':12,'FIAT|Marília':16,'FIAT|Santos':22,'FIAT|Taguatinga':10,
@@ -1177,8 +1225,7 @@ const METAS = {
   'Jeep|São José do Rio Preto':10,'Jeep|Barretos':8,'Jeep|Votuporanga':7,
   'Denza|Ribeirão Preto':6,
   'VW|Bauru':16,'VW|Orlândia':10,
-  'Leapmotor|Santos':5,
-  'Seminovos|São José do Rio Preto':0
+  'Leapmotor|Santos':5
 };
 
 // ── GERENTES POR FILIAL ───────────────────────────────────────────────────────
@@ -1203,8 +1250,7 @@ const GERENTES = {
   'Jeep|Votuporanga':     'Eduardo',
   'Jeep|Barretos':        'Clovis',
   'Denza|Ribeirão Preto': 'S/ Gerente',
-  'Leapmotor|Santos':     'Rodrigo',
-  'Seminovos|São José do Rio Preto': 'André Luis'
+  'Leapmotor|Santos':     'Rodrigo'
 };
 
 // ── AGENTES DE PRÉ-VENDA (OPERADORES) ────────────────────────────────────────
@@ -1216,10 +1262,10 @@ const AGENTES = {
   'FIAT|Marília':                  'Sarah',
   'FIAT|Jaú':                      'Rafael',
   'Leapmotor|Santos':              'Isabela e Rafaela',
-  'BYD|Bauru':                     'Viviane',
+  'BYD|Bauru':                     'Viviane e Lays',
   'BYD|Araçatuba':                 'Amanda',
   'BYD|Botucatu':                  'Bianca',
-  'BYD|Marília':                   'Viviane',
+  'BYD|Marília':                   'Viviane e Lays',
   'BYD|São José do Rio Preto':     'Amanda',
   'Peugeot|Bauru':                 'Rafael',
   'Peugeot|Ribeirão Preto':        'Rafael',
@@ -1228,9 +1274,155 @@ const AGENTES = {
   'Jeep|Barretos':                 'Cintia e Lurde',
   'Jeep|Votuporanga':              'Cintia e Lurde',
   'VW|Bauru':                      'Ana Beatriz',
-  'VW|Orlândia':                   'Ana Beatriz',
-  'Seminovos|São José do Rio Preto': 'Cintia Guerra'
+  'VW|Orlândia':                   'Ana Beatriz'
 };
+// ── MÍDIAS — lista completa CAIXA ALTA ───────────────────────────────────────
+const MIDIAS = [
+  'MONTADORA','SITE CONCESSIONÁRIA',
+  'FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS',
+  'WHATSAPP','MERCADO LIVRE','OLX','TIKTOK',
+  'CAMPANHA/WHATSAPP',
+  'PROSPECÇÃO DE OFICINA',
+  'INDICAÇÃO','SHOWROOM / PASSAGEM DE LOJA',
+  'EMAIL MARKETING','GOOGLE ADS','EVENTO',
+  'RECOMPRA / FIDELIZAÇÃO','TELEVENDAS','PARCERIA','OUTROS'
+];
+// Grupos por regra de janela
+const MIDIAS_150        = ['MONTADORA','SITE CONCESSIONÁRIA'];
+const MIDIAS_30_INS     = ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS','WHATSAPP','MERCADO LIVRE','OLX','TIKTOK'];
+const MIDIAS_30_CORR    = ['CAMPANHA/WHATSAPP'];
+
+// ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
+function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
+  const m = isResgate ? (midiaOrigem || midia) : midia;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  function diffDias(ds) {
+    if(!ds) return null;
+    const d = new Date(ds); d.setHours(0,0,0,0);
+    return Math.floor((hoje - d) / 86400000);
+  }
+
+  // ── Montadora / Site: 150 dias da criação ────────────────────────────────
+  if (MIDIAS_150.includes(m)) {
+    const d = diffDias(dtCriacao);
+    if (d === null) return {valido:null, label:'Informe a data de criação do lead', cor:'warn'};
+    const ok = d <= 150;
+    return {valido:ok, dias:d, label: ok ? `✅ ${d} dias desde criação (máx 150 dias)` : `❌ Fora da janela: ${d} dias (máx 150)`, cor: ok?'ok':'err'};
+  }
+
+  // ── Campanha/WhatsApp: 30 dias corridos ──────────────────────────────────
+  if (MIDIAS_30_CORR.includes(m)) {
+    const d = diffDias(dtCriacao);
+    if (d === null) return {valido:null, label:'Informe a data de criação do lead', cor:'warn'};
+    const ok = d <= 31;
+    return {valido:ok, dias:d, label: ok ? `✅ ${d} dias corridos (máx 31)` : `❌ Fora da janela: ${d} dias corridos (máx 31)`, cor: ok?'ok':'err'};
+  }
+
+  // ── Outras mídias digitais: 30 dias após insucesso ──────────────────────
+  if (MIDIAS_30_INS.includes(m)) {
+    // Lead sem tratativa por +90 dias: inválido
+    const dc = diffDias(dtCriacao);
+    if (dc !== null && dc > 90)
+      return {valido:false, label:`❌ Lead sem tratativa há ${dc} dias — inválido (máx 90)`, cor:'err'};
+    const di = diffDias(dtInsucesso);
+    if (di === null) return {valido:null, label:'Informe a data de encerramento como INSUCESSO', cor:'warn'};
+    const ok = di <= 31;
+    return {valido:ok, dias:di, label: ok ? `✅ ${di} dias após insucesso (máx 31)` : `❌ Fora da janela: ${di} dias após insucesso (máx 31)`, cor: ok?'ok':'err'};
+  }
+
+  // ── Demais mídias: regra geral 90 dias com movimentação ─────────────────
+  const dc = diffDias(dtCriacao);
+  if (dc !== null && dc > 90)
+    return {valido:false, label:`❌ Lead sem tratativa há ${dc} dias — inválido (máx 90)`, cor:'err'};
+  if (dc !== null)
+    return {valido:true, dias:dc, label:`✅ ${dc} dias desde criação`, cor:'ok'};
+  return {valido:null, label:'Preencha os campos de data para validar', cor:'warn'};
+}
+
+// ── AUTENTICAÇÃO — Opção A (senha operador) + Opção B (token gerente) ─────────
+const _AUTH_VER = '1';
+const OP_PASSWORD_HASH = 'grall2025'; // altere aqui quando necessário
+const TOKENS_RO = {
+  // token: { nome, role: 'gerente'|'diretor', marcas: ['BYD'] | 'all' }
+  'DIR-2025':         { nome:'Diretoria',         role:'diretor', marcas:'all' },
+  'GM-BYD':           { nome:'Gerência BYD',       role:'gerente', marcas:['BYD'] },
+  'GM-JEEP':          { nome:'Gerência Jeep',      role:'gerente', marcas:['Jeep'] },
+  'GM-VW':            { nome:'Gerência VW',        role:'gerente', marcas:['VW'] },
+  'GM-FIAT':          { nome:'Gerência FIAT',      role:'gerente', marcas:['FIAT'] },
+  'GM-PSA':           { nome:'Gerência Peugeot',   role:'gerente', marcas:['Peugeot'] },
+  'GM-LEAP':          { nome:'Gerência Leapmotor', role:'gerente', marcas:['Leapmotor'] },
+};
+
+let _authRole  = null; // 'operador' | 'gerente' | 'diretor'
+let _authToken = null; // token profile or null
+let _roMode    = false;
+
+function _initAuth() {
+  const params = new URLSearchParams(location.search);
+
+  // Opção B — token na URL
+  const tk = params.get('token');
+  if (tk && TOKENS_RO[tk]) {
+    _authToken = TOKENS_RO[tk];
+    _authRole  = _authToken.role;
+    _roMode    = true;
+    localStorage.setItem('auth_role', _authRole);
+    localStorage.setItem('auth_token', tk);
+    _applyAuth();
+    return;
+  }
+
+  // Retro-compat: ?directors=1
+  if (params.get('directors') === '1') {
+    _authRole = 'diretor'; _roMode = true;
+    _applyAuth(); return;
+  }
+
+  // Sessão salva
+  const saved = localStorage.getItem('auth_role');
+  if (saved === 'operador') { _authRole='operador'; _applyAuth(); return; }
+
+  // Sem auth: exibir login
+  _showLogin();
+}
+
+function _applyAuth() {
+  if (_roMode) {
+    document.body.classList.add('readonly');
+    if (_authRole === 'diretor') document.body.classList.add('directors');
+    // Ação 4: trava período no mês corrente
+    document.body.classList.add('period-locked');
+    setTimeout(() => { setPeriod('mes-atual', null); }, 200);
+  }
+  // Esconde overlay se visível
+  const ov = document.getElementById('auth-overlay');
+  if (ov) ov.style.display = 'none';
+}
+
+function _showLogin() {
+  document.getElementById('auth-overlay').style.display = 'flex';
+}
+
+function authSubmit() {
+  const pw = document.getElementById('auth-pw').value.trim();
+  const err = document.getElementById('auth-err');
+  if (pw === OP_PASSWORD_HASH) {
+    _authRole = 'operador';
+    localStorage.setItem('auth_role', 'operador');
+    _applyAuth();
+  } else {
+    err.textContent = 'Senha incorreta. Tente novamente.';
+    document.getElementById('auth-pw').value = '';
+    document.getElementById('auth-pw').focus();
+  }
+}
+
+function authLogout() {
+  localStorage.removeItem('auth_role');
+  localStorage.removeItem('auth_token');
+  location.href = location.pathname;
+}
+
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
 const _DEFAULT_FB_CFG = {
   apiKey: "AIzaSyDXKN7fspdLtvTJmBqbmVwXYsY-n88aFJs",
@@ -1327,7 +1519,6 @@ async function fbSync() {
     if(luEl) luEl.textContent = 'Hoje ' + now;
     setSyncStatus('ok');
     toast(`Firebase sincronizado — ${remote.length} registros`);
-    renderDashVendas();
   } catch(err) {
     setSyncStatus('error');
     toast('Erro ao sincronizar: ' + err.message);
@@ -2380,16 +2571,15 @@ function gv(v) {
     if(!confirm('Há dados não salvos no formulário. Deseja sair mesmo assim?')) return;
     _clearDirty();
   }
-  ['dashboard','input','venda','historico','consolidado','ranking'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
+  ['dashboard','input','historico','consolidado','ranking','venda'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(v));});
-  const ttls={dashboard:'Dashboard',input:'Inserir Dados',venda:'Registrar Venda',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking'};
+  const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking',venda:'Registrar Venda'};
   document.getElementById('page-ttl').textContent=ttls[v]||v;
   document.title = (ttls[v]||v) + ' — Painel Concessionárias';
   if(v==='ranking')renderRank();
-  if(v==='venda')renderVendas();
-  if(v==='dashboard')renderDashVendas();
   if(v==='historico'){hPage=0;renderHist();}
   if(v==='consolidado'){const d=document.getElementById('cons-dt');if(d&&!d.value)d.value=today();renderCons();}
+  if(v==='venda'){vvUpFiliais();renderVendas();}
 }
 function setPeriod(p,btn){
   period=p; customFrom=''; customTo='';
@@ -2615,6 +2805,262 @@ function updateMobPeriodLabel() {
 
 
 // ── UNSAVED CHANGES GUARD ────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+//  MÓDULO REGISTRAR VENDA
+// ══════════════════════════════════════════════════════════════
+
+function vvUpFiliais() {
+  const m = document.getElementById('vv-marca').value;
+  const s = document.getElementById('vv-filial');
+  const c = s.value;
+  s.innerHTML = (FILIAIS[m] || []).map(f => `<option${f===c?' selected':''}>${f}</option>`).join('');
+}
+
+function vvUpdateJanela() {
+  const midia       = document.getElementById('vv-midia').value;
+  const dtCriacao   = document.getElementById('vv-dtcriacao').value;
+  const dtIns       = document.getElementById('vv-dtins').value;
+  const isResgate   = document.getElementById('vv-resgate').checked;
+  const midiaOrig   = document.getElementById('vv-midiaorigem').value;
+
+  // Mostrar/ocultar campo insucesso
+  const need30Ins = MIDIAS_30_INS.includes(midia) || (isResgate && MIDIAS_30_INS.includes(midiaOrig));
+  document.getElementById('fld-dtins').style.display = need30Ins ? 'flex' : 'none';
+
+  // Mostrar/ocultar campo mídia origem (resgate)
+  document.getElementById('fld-midiaorigem').style.display = isResgate ? 'block' : 'none';
+
+  // Calcular janela
+  const janelaEl = document.getElementById('vv-janela');
+  if (!midia) { janelaEl.style.display = 'none'; return; }
+
+  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig);
+  const cls = r.cor === 'ok' ? 'janela-ok' : r.cor === 'err' ? 'janela-err' : 'janela-warn';
+  janelaEl.innerHTML = `<div class="${cls}">${r.label}</div>`;
+  janelaEl.style.display = 'block';
+}
+
+function vvClear() {
+  ['vv-cod','vv-atendente','vv-vrec','vv-vfat','vv-nf','vv-chassi','vv-obs','vv-dtcriacao','vv-dtins'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('vv-midia').value       = '';
+  document.getElementById('vv-midiaorigem').value = '';
+  document.getElementById('vv-resgate').checked   = false;
+  document.getElementById('vv-dtfat').value       = today();
+  document.getElementById('vv-janela').style.display = 'none';
+  document.getElementById('fld-dtins').style.display = 'none';
+  document.getElementById('fld-midiaorigem').style.display = 'none';
+  document.getElementById('vv-edit-id').value     = '';
+  document.getElementById('venda-form-ttl').textContent = 'Nova Venda';
+  document.getElementById('vv-btn-save').textContent = 'Salvar Venda';
+}
+
+async function saveVenda() {
+  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
+  const marca    = document.getElementById('vv-marca').value;
+  const filial   = document.getElementById('vv-filial').value;
+  const dtFat    = document.getElementById('vv-dtfat').value;
+  const cod      = document.getElementById('vv-cod').value.trim();
+  const midia    = document.getElementById('vv-midia').value;
+  const dtCri    = document.getElementById('vv-dtcriacao').value;
+  const dtIns    = document.getElementById('vv-dtins').value;
+  const isResgate= document.getElementById('vv-resgate').checked;
+  const midOrig  = document.getElementById('vv-midiaorigem').value;
+
+  if (!dtFat || !cod || !midia) { toast('Preencha: Data de Faturamento, Cód. Lead e Mídia'); return; }
+
+  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig);
+  const dentroJanela = janela.valido === true;
+
+  const venda = {
+    marca, filial, dtFat, cod,
+    atendente:      document.getElementById('vv-atendente').value.trim(),
+    vendedorRecebeu:document.getElementById('vv-vrec').value.trim(),
+    vendedorFaturou:document.getElementById('vv-vfat').value.trim(),
+    nf:             document.getElementById('vv-nf').value.trim(),
+    chassi:         document.getElementById('vv-chassi').value.trim(),
+    midia, dtCriacao: dtCri, dtInsucesso: dtIns,
+    isResgate, midiaOrigem: midOrig,
+    dentroJanela,
+    janelaLabel:    janela.label,
+    obs:            document.getElementById('vv-obs').value.trim(),
+    ts:             new Date().toISOString()
+  };
+
+  const editId = document.getElementById('vv-edit-id').value;
+  const docId  = editId || `${marca}||${filial}||${dtFat}||${cod}`;
+
+  try {
+    await fbDb.collection('vendas').doc(docId).set(venda);
+    toast(dentroJanela ? '✅ Venda registrada — Considerada' : '⚠️ Venda salva — Não Considerada');
+    vvClear();
+    renderVendas();
+  } catch(e) { toast('Erro ao salvar: ' + e.message); }
+}
+
+let _vendasCache = [];
+let _vendaDelId  = null;
+
+async function renderVendas() {
+  if (!await initFirebase()) return;
+  const mesFlt   = document.getElementById('vvf-mes').value;
+  const marcaFlt = document.getElementById('vvf-marca').value;
+  const statusFlt= document.getElementById('vvf-status').value;
+
+  try {
+    let q = fbDb.collection('vendas');
+    if (mesFlt) q = q.where('dtFat', '>=', mesFlt + '-01').where('dtFat', '<=', mesFlt + '-31');
+    const snap = await q.get();
+    let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Preencher filtro de meses disponíveis
+    const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
+    const mesEl = document.getElementById('vvf-mes');
+    const mesAtual = mesEl.value;
+    mesEl.innerHTML = '<option value="">Todos os meses</option>' +
+      meses.map(m => `<option value="${m}"${m===mesAtual?' selected':''}>${m}</option>`).join('');
+
+    if (marcaFlt) docs = docs.filter(d => d.marca === marcaFlt);
+    if (statusFlt === '1') docs = docs.filter(d => d.dentroJanela);
+    if (statusFlt === '0') docs = docs.filter(d => !d.dentroJanela);
+    docs.sort((a,b) => (b.dtFat||'').localeCompare(a.dtFat||''));
+
+    _vendasCache = docs;
+    const tbody = document.getElementById('vv-tbody');
+    const empty = document.getElementById('vv-empty');
+    const sub   = document.getElementById('vv-list-sub');
+
+    const cons   = docs.filter(d => d.dentroJanela).length;
+    const ncons  = docs.length - cons;
+    sub.textContent = `${docs.length} registro(s) · ${cons} considerada(s) · ${ncons} não considerada(s)`;
+
+    if (!docs.length) {
+      tbody.innerHTML = '';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+    const cl = m => {const c=COLORS[m];return c?`background:${c}22;color:${c};`:'';};
+    tbody.innerHTML = docs.map(v => `
+      <tr>
+        <td style="font-family:var(--mono);font-size:12px">${fmtD(v.dtFat||'')}</td>
+        <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;${cl(v.marca)}">${v.marca}</span></td>
+        <td style="font-size:12px">${v.filial||'—'}</td>
+        <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}</td>
+        <td style="font-size:12px">${v.atendente||'—'}</td>
+        <td style="font-size:12px">${v.vendedorFaturou||'—'}</td>
+        <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.midia||''}">${v.midia||'—'}</td>
+        <td style="font-family:var(--mono);font-size:12px">${v.nf||'—'}</td>
+        <td><span class="venda-status ${v.dentroJanela?'vs-ok':'vs-nc'}">${v.dentroJanela?'Considerada':'Não Consid.'}</span></td>
+        <td class="ro-hide-on-ro" style="display:flex;gap:5px;padding:7px 10px">
+          <button class="btn-ico edit" onclick="openEditVenda('${v.id}')">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Editar
+          </button>
+          <button class="btn-ico del" onclick="openDelVenda('${v.id}')">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Excluir
+          </button>
+        </td>
+      </tr>`).join('');
+  } catch(e) { console.error('renderVendas:', e); }
+}
+
+function openEditVenda(id) {
+  const v = _vendasCache.find(x => x.id === id);
+  if (!v) return;
+  document.getElementById('vv-edit-id').value = id;
+  document.getElementById('vv-marca').value   = v.marca || 'FIAT';
+  vvUpFiliais();
+  setTimeout(() => {
+    document.getElementById('vv-filial').value       = v.filial || '';
+    document.getElementById('vv-dtfat').value        = v.dtFat || '';
+    document.getElementById('vv-cod').value          = v.cod || '';
+    document.getElementById('vv-atendente').value    = v.atendente || '';
+    document.getElementById('vv-vrec').value         = v.vendedorRecebeu || '';
+    document.getElementById('vv-vfat').value         = v.vendedorFaturou || '';
+    document.getElementById('vv-nf').value           = v.nf || '';
+    document.getElementById('vv-chassi').value       = v.chassi || '';
+    document.getElementById('vv-midia').value        = v.midia || '';
+    document.getElementById('vv-dtcriacao').value    = v.dtCriacao || '';
+    document.getElementById('vv-dtins').value        = v.dtInsucesso || '';
+    document.getElementById('vv-resgate').checked    = v.isResgate || false;
+    document.getElementById('vv-midiaorigem').value  = v.midiaOrigem || '';
+    document.getElementById('vv-obs').value          = v.obs || '';
+    document.getElementById('venda-form-ttl').textContent = 'Editando Venda — ' + (v.cod || id);
+    document.getElementById('vv-btn-save').textContent    = 'Atualizar Venda';
+    vvUpdateJanela();
+    window.scrollTo({top:0, behavior:'smooth'});
+    document.getElementById('vv-cod').focus();
+  }, 50);
+}
+
+function openDelVenda(id) {
+  _vendaDelId = id;
+  const v = _vendasCache.find(x => x.id === id);
+  document.getElementById('del-venda-sub').textContent =
+    v ? `Excluir venda — Lead ${v.cod || id} · ${v.marca} ${v.filial} · ${fmtD(v.dtFat||'')}` : 'Esta venda será removida permanentemente.';
+  document.getElementById('del-venda-modal').classList.add('open');
+}
+function closeDelVenda() {
+  document.getElementById('del-venda-modal').classList.remove('open');
+  _vendaDelId = null;
+}
+async function confirmDelVenda() {
+  if (!_vendaDelId) return;
+  try {
+    await fbDb.collection('vendas').doc(_vendaDelId).delete();
+    toast('Venda excluída');
+    closeDelVenda();
+    renderVendas();
+  } catch(e) { toast('Erro: ' + e.message); }
+}
+function closeEditVenda() {
+  document.getElementById('edit-venda-modal').classList.remove('open');
+}
+function saveEditVenda() { saveVenda(); closeEditVenda(); }
+
+// ── EXPORTAR XLSX ─────────────────────────────────────────────────────────────
+async function exportVendasXLSX() {
+  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
+  const btn = document.querySelector('[onclick="exportVendasXLSX()"]');
+  const orig = btn ? btn.innerHTML : '';
+  if (btn) { btn.innerHTML = 'Gerando...'; btn.disabled = true; }
+  try {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    await new Promise((res, rej) => { script.onload = res; script.onerror = rej; document.head.appendChild(script); });
+
+    const snap = await fbDb.collection('vendas').get();
+    const todas = snap.docs.map(d => d.data());
+
+    const wb = XLSX.utils.book_new();
+
+    // Aba 1: Não Consideradas
+    const nc = todas.filter(v => !v.dentroJanela);
+    const r1 = [['COD DO LEAD','MARCA','FILIAL','ATENDENTE','MÍDIA','DATA FATURAMENTO','MOTIVO']];
+    nc.forEach(v => r1.push([v.cod, v.marca, v.filial, v.atendente, v.midia, v.dtFat, v.janelaLabel||'']));
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(r1), 'Vendas não consideradas');
+
+    // Aba 2: Consideradas por loja
+    const porLoja = {};
+    todas.filter(v => v.dentroJanela).forEach(v => {
+      const key = `${v.marca} ${v.filial}`.toUpperCase().substring(0, 31);
+      if (!porLoja[key]) porLoja[key] = [];
+      porLoja[key].push(v);
+    });
+    Object.entries(porLoja).sort().forEach(([nome, vs]) => {
+      const rows = [['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA FATURAMENTO','OBSERVAÇÃO']];
+      vs.forEach(v => rows.push([v.cod, v.atendente, v.vendedorRecebeu, v.vendedorFaturou, v.nf, v.chassi, v.midia, v.dtFat, v.obs||'']));
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), nome);
+    });
+
+    const mes = new Date().toLocaleString('pt-BR', {month:'long', year:'numeric'}).replace(' de ','_').toUpperCase();
+    XLSX.writeFile(wb, `Faturamento_Leads_${mes}.xlsx`);
+    toast('✅ XLSX gerado com sucesso!');
+  } catch(e) { toast('Erro ao exportar: ' + e.message); }
+  if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+}
+
 let _formDirty = false;
 function _markDirty() { _formDirty = true; }
 function _clearDirty() { _formDirty = false; }
@@ -2624,13 +3070,13 @@ window.addEventListener('beforeunload', e => {
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 seed();
+// ── AUTH INIT (Ação 5) ─────────────────────────────────────────────────────
+_initAuth();
+// Retrocompatibilidade READONLY_MODE embutido
 if(typeof READONLY_MODE!=='undefined'&&READONLY_MODE){document.body.classList.add('readonly');}
-// Activate directors mode via URL param or embedded class
-if(new URLSearchParams(location.search).get('directors')==='1'){
-  document.body.classList.add('readonly');
-  document.body.classList.add('directors');
-}
 document.getElementById('in-data').value=today();
+document.getElementById('vv-dtfat').value=today();
+vvUpFiliais();
 // Mark form dirty on any input change in insertion form
 document.querySelectorAll('#v-input input').forEach(el => {
   el.addEventListener('input', _markDirty);
@@ -2639,7 +3085,6 @@ document.querySelectorAll('#v-input input').forEach(el => {
 
 document.getElementById('hf-de').value='2026-03-18';
 upFiliais();
-upVdFiliais();
 refresh();
 // Auto-sync se Firebase configurado
 if(fbCfgSaved()){
@@ -2651,572 +3096,6 @@ if(fbCfgSaved()){
 } else {
   setSyncStatus('idle');
 }
-// ══════════════════════════════════════════════════════════════
-//  MÓDULO REGISTRAR VENDA — Fases 2 e 3
-// ══════════════════════════════════════════════════════════════
-
-const MIDIAS_150 = new Set([
-  'MONTADORA',
-  'SITE CONCESSIONARIA / SITE LOJA',
-  'SITE DE SEMINOVOS',
-  'SITE MONTADORA / MONTADORA',
-  'MEU CARRO NOVO'
-]);
-
-// ── Filiais ────────────────────────────────────────────────────
-function upVdFiliais() {
-  const m = document.getElementById('vd-marca').value;
-  document.getElementById('vd-filial').innerHTML =
-    (FILIAIS[m]||[]).map(f=>`<option>${f}</option>`).join('');
-}
-function upEvFiliais() {
-  const m = document.getElementById('ev-marca').value;
-  const cur = document.getElementById('ev-filial').value;
-  document.getElementById('ev-filial').innerHTML =
-    (FILIAIS[m]||[]).map(f=>`<option${f===cur?' selected':''}>${f}</option>`).join('');
-}
-
-// ── Calcula janela (reutilizável) ──────────────────────────────
-function _calcJanelaInfo(midia, dtLead, dtFat) {
-  if (!midia || !dtLead || !dtFat) return null;
-  const dias   = Math.round((new Date(dtFat) - new Date(dtLead)) / 86400000);
-  const limite = MIDIAS_150.has(midia) ? 150 : 30;
-  const dentro = dias >= 0 && dias <= limite;
-  return { dias, limite, dentro };
-}
-function _renderJanelaBox(box, info) {
-  if (!info) { box.style.display='none'; return; }
-  box.style.display = 'block';
-  if (info.dentro) {
-    box.style.cssText += ';background:rgba(46,201,138,.1);border:1px solid rgba(46,201,138,.25);color:var(--green)';
-    box.innerHTML = `✅ <strong>Dentro da janela</strong> — ${info.dias} dias (limite: ${info.limite} dias). Venda considerada.`;
-  } else {
-    box.style.cssText += ';background:rgba(240,82,82,.1);border:1px solid rgba(240,82,82,.25);color:var(--red)';
-    box.innerHTML = `⚠️ <strong>Fora da janela</strong> — ${info.dias} dias (limite: ${info.limite} dias). Será registrada como <em>Não Considerada</em>.`;
-  }
-}
-function calcJanela() {
-  _renderJanelaBox(
-    document.getElementById('vd-janela-info'),
-    _calcJanelaInfo(
-      document.getElementById('vd-midia').value,
-      document.getElementById('vd-dtlead').value,
-      document.getElementById('vd-dtfat').value
-    )
-  );
-}
-
-// ── Salvar nova venda ──────────────────────────────────────────
-async function salvarVenda() {
-  const marca  = document.getElementById('vd-marca').value;
-  const filial = document.getElementById('vd-filial').value;
-  const cod    = document.getElementById('vd-cod').value.trim();
-  const midia  = document.getElementById('vd-midia').value;
-  const dtLead = document.getElementById('vd-dtlead').value;
-  const dtFat  = document.getElementById('vd-dtfat').value;
-  const atend  = document.getElementById('vd-atendente').value.trim();
-  const vrec   = document.getElementById('vd-vrec').value.trim();
-  const vfat   = document.getElementById('vd-vfat').value.trim();
-  const nf     = document.getElementById('vd-nf').value.trim();
-  const chassi = document.getElementById('vd-chassi').value.trim().toUpperCase();
-  const obs    = document.getElementById('vd-obs').value.trim();
-
-  if (!marca||!filial||!cod||!midia||!dtLead||!dtFat||!nf||!chassi) {
-    alert('Preencha todos os campos obrigatórios:\nMarca, Filial, Cód. Lead, Mídia, Datas, NF e Chassi.');
-    return;
-  }
-  if (!fbDb) { alert('Firebase não conectado.'); return; }
-
-  const info = _calcJanelaInfo(midia, dtLead, dtFat);
-  const venda = {
-    marca, filial, cod, midia, dtLead, dtFat, obs,
-    atendente: atend, vendedorRecebeu: vrec, vendedorFaturou: vfat,
-    nf, chassi,
-    dentroJanela: info ? info.dentro : true,
-    diasAteVenda: info ? info.dias : 0,
-    criadoEm: new Date().toISOString()
-  };
-
-  try {
-    await fbDb.collection('vendas').add(venda);
-    alert(`✅ Venda registrada!\nLead: ${cod} | ${marca} ${filial}\n${venda.dentroJanela?'Considerada':'NÃO CONSIDERADA (fora da janela)'}`);
-    limparVenda();
-    renderVendas();
-    renderDashVendas();
-  } catch(e) { alert('Erro ao salvar: ' + e.message); }
-}
-
-function limparVenda() {
-  ['vd-cod','vd-dtlead','vd-dtfat','vd-atendente','vd-vrec','vd-vfat','vd-nf','vd-chassi','vd-obs']
-    .forEach(id => { document.getElementById(id).value=''; });
-  document.getElementById('vd-midia').value='';
-  document.getElementById('vd-janela-info').style.display='none';
-}
-
-// ── Popular select de meses com os dados existentes ────────────
-function _popularFiltroMes(docs) {
-  const meses = new Set();
-  docs.forEach(v => { if (v.dtFat) meses.add(v.dtFat.substring(0,7)); });
-  const sel = document.getElementById('vd-filtro-mes');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">Todos os meses</option>' +
-    [...meses].sort().reverse().map(m => {
-      const [y,mo] = m.split('-');
-      const label  = new Date(+y, +mo-1, 1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
-      return `<option value="${m}"${m===cur?' selected':''}>${label}</option>`;
-    }).join('');
-}
-
-// ── Renderizar lista de vendas com filtros ─────────────────────
-let _vendasCache = [];
-
-async function renderVendas() {
-  const box = document.getElementById('vd-list');
-  if (!fbDb) { box.innerHTML='<span style="color:var(--muted)">Firebase não conectado.</span>'; return; }
-  box.innerHTML='<span style="color:var(--muted)">Carregando...</span>';
-
-  try {
-    const snap = await fbDb.collection('vendas').orderBy('dtFat','desc').limit(500).get();
-    if (snap.empty) { box.innerHTML='<span style="color:var(--muted)">Nenhuma venda registrada ainda.</span>'; return; }
-
-    _vendasCache = snap.docs.map(d=>({id:d.id,...d.data()}));
-    _popularFiltroMes(_vendasCache);
-
-    const filtMes    = document.getElementById('vd-filtro-mes').value;
-    const filtMarca  = document.getElementById('vd-filtro-marca').value;
-    const filtStatus = document.getElementById('vd-filtro-status').value;
-
-    let lista = _vendasCache;
-    if (filtMes)    lista = lista.filter(v => (v.dtFat||'').startsWith(filtMes));
-    if (filtMarca)  lista = lista.filter(v => v.marca === filtMarca);
-    if (filtStatus !== '') lista = lista.filter(v => String(v.dentroJanela) === filtStatus);
-
-    document.getElementById('vd-filtro-count').textContent =
-      lista.length !== _vendasCache.length ? `${lista.length} de ${_vendasCache.length} vendas` : `${lista.length} vendas`;
-
-    if (!lista.length) { box.innerHTML='<span style="color:var(--muted)">Nenhuma venda encontrada com os filtros aplicados.</span>'; return; }
-
-    const rows = lista.map(v => {
-      const tag = v.dentroJanela
-        ? `<span style="background:rgba(46,201,138,.15);color:var(--green);padding:1px 7px;border-radius:4px;font-size:11px">Considerada</span>`
-        : `<span style="background:rgba(240,82,82,.15);color:var(--red);padding:1px 7px;border-radius:4px;font-size:11px">Não Considerada</span>`;
-      const obsHint = v.obs ? `<span title="${v.obs.replace(/"/g,"'")}" style="color:var(--accent2);cursor:help">💬</span> ` : '';
-      return `<tr>
-        <td>${v.dtFat||'—'}</td>
-        <td><strong>${v.marca}</strong> · ${v.filial}</td>
-        <td style="font-family:var(--mono);font-size:11px">${v.cod||'—'}</td>
-        <td style="font-size:11px">${v.midia||'—'}</td>
-        <td>${v.atendente||'—'}</td>
-        <td>${v.vendedorFaturou||'—'}</td>
-        <td style="font-family:var(--mono);font-size:11px">${v.nf||'—'}</td>
-        <td style="font-family:var(--mono);font-size:11px">${v.chassi||'—'}</td>
-        <td>${tag}</td>
-        <td style="white-space:nowrap">
-          ${obsHint}<button onclick="abrirEditVenda('${v.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px" title="Editar">✏️</button>
-          <button onclick="deletarVenda('${v.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px" title="Excluir">✕</button>
-        </td>
-      </tr>`;
-    }).join('');
-
-    box.innerHTML = `<div style="overflow-x:auto"><table class="tbl">
-      <thead><tr>
-        <th>Fat.</th><th>Loja</th><th>Cód. Lead</th><th>Mídia</th>
-        <th>Atendente</th><th>Vendedor Fat.</th><th>NF</th><th>Chassi</th><th>Status</th><th></th>
-      </tr></thead><tbody>${rows}</tbody>
-    </table></div>`;
-  } catch(e) {
-    box.innerHTML=`<span style="color:var(--red)">Erro ao carregar: ${e.message}</span>`;
-  }
-}
-
-async function deletarVenda(id) {
-  if (!confirm('Excluir esta venda?')) return;
-  try { await fbDb.collection('vendas').doc(id).delete(); renderVendas(); renderDashVendas(); }
-  catch(e) { alert('Erro ao excluir: ' + e.message); }
-}
-
-// ── Editar venda ───────────────────────────────────────────────
-function abrirEditVenda(id) {
-  const v = _vendasCache.find(x=>x.id===id);
-  if (!v) { alert('Venda não encontrada. Recarregue a lista.'); return; }
-
-  document.getElementById('ev-id').value      = id;
-  document.getElementById('ev-marca').value   = v.marca||'';
-  upEvFiliais();
-  document.getElementById('ev-filial').value  = v.filial||'';
-  document.getElementById('ev-cod').value     = v.cod||'';
-  document.getElementById('ev-midia').value   = v.midia||'';
-  document.getElementById('ev-dtlead').value  = v.dtLead||'';
-  document.getElementById('ev-dtfat').value   = v.dtFat||'';
-  document.getElementById('ev-atendente').value = v.atendente||'';
-  document.getElementById('ev-vrec').value    = v.vendedorRecebeu||'';
-  document.getElementById('ev-vfat').value    = v.vendedorFaturou||'';
-  document.getElementById('ev-nf').value      = v.nf||'';
-  document.getElementById('ev-chassi').value  = v.chassi||'';
-  document.getElementById('ev-obs').value     = v.obs||'';
-
-  const info = _calcJanelaInfo(v.midia, v.dtLead, v.dtFat);
-  _renderJanelaBox(document.getElementById('ev-janela-info'), info);
-
-  const m = document.getElementById('edit-venda-modal');
-  m.style.display='flex';
-}
-
-function fecharEditVenda() {
-  document.getElementById('edit-venda-modal').style.display='none';
-}
-
-async function salvarEdicaoVenda() {
-  const id     = document.getElementById('ev-id').value;
-  const marca  = document.getElementById('ev-marca').value;
-  const filial = document.getElementById('ev-filial').value;
-  const cod    = document.getElementById('ev-cod').value.trim();
-  const midia  = document.getElementById('ev-midia').value;
-  const dtLead = document.getElementById('ev-dtlead').value;
-  const dtFat  = document.getElementById('ev-dtfat').value;
-  const nf     = document.getElementById('ev-nf').value.trim();
-  const chassi = document.getElementById('ev-chassi').value.trim().toUpperCase();
-
-  if (!marca||!filial||!cod||!midia||!dtLead||!dtFat||!nf||!chassi) {
-    alert('Preencha todos os campos obrigatórios.'); return;
-  }
-  if (!fbDb) { alert('Firebase não conectado.'); return; }
-
-  const info = _calcJanelaInfo(midia, dtLead, dtFat);
-  const dados = {
-    marca, filial, cod, midia, dtLead, dtFat,
-    atendente: document.getElementById('ev-atendente').value.trim(),
-    vendedorRecebeu: document.getElementById('ev-vrec').value.trim(),
-    vendedorFaturou: document.getElementById('ev-vfat').value.trim(),
-    nf, chassi,
-    obs: document.getElementById('ev-obs').value.trim(),
-    dentroJanela: info ? info.dentro : true,
-    diasAteVenda: info ? info.dias : 0,
-    editadoEm: new Date().toISOString()
-  };
-
-  try {
-    await fbDb.collection('vendas').doc(id).update(dados);
-    fecharEditVenda();
-    renderVendas();
-    renderDashVendas();
-  } catch(e) { alert('Erro ao salvar: ' + e.message); }
-}
-
-// ── Exportar planilha ──────────────────────────────────────────
-async function exportarPlanilha() {
-  if (!fbDb) { alert('Firebase não conectado.'); return; }
-  if (typeof XLSX === 'undefined') { alert('Biblioteca de planilha não carregada. Recarregue a página.'); return; }
-
-  const btn = event.currentTarget;
-  const orig = btn.innerHTML;
-  btn.textContent='⏳ Gerando...'; btn.disabled=true;
-
-  try {
-    const snap = await fbDb.collection('vendas').orderBy('dtFat','asc').get();
-    if (snap.empty) { alert('Nenhuma venda registrada para exportar.'); btn.innerHTML=orig; btn.disabled=false; return; }
-
-    const todas = snap.docs.map(d=>({id:d.id,...d.data()}));
-    const wb = XLSX.utils.book_new();
-
-    // Aba 1 — Vendidos por loja
-    const lojas={};
-    todas.forEach(v=>{
-      const key=`${v.marca} ${v.filial}`.toUpperCase();
-      if(!lojas[key]) lojas[key]={vendas:0};
-      if(v.dentroJanela) lojas[key].vendas++;
-    });
-    const r1=[['','VENDAS POR LOJA','','','LEADS ENVIADOS POR LOJA','Enviados','Em atraso','','LEADS RESGATE DE INSUCESSO','Enviados','em atraso','Vendas']];
-    Object.entries(lojas).sort().forEach(([loja,d])=>r1.push(['',`VEÍCULOS VENDIDOS NA ${loja}`,d.vendas,'',`VEÍCULOS VENDIDOS NA ${loja}`,0,0,'',`VEÍCULOS VENDIDOS NA ${loja}`,0,0,0]));
-    r1.push(['','TOTAL DE VENDAS POR LOJA',Object.values(lojas).reduce((s,d)=>s+d.vendas,0),'','TOTAL DE LEADS ENVIADOS',0,0,'','TOTAL DE LEADS',0,0,0]);
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(r1),'Vendidos por loja');
-
-    // Aba 2 — Não consideradas
-    const nc=todas.filter(v=>!v.dentroJanela);
-    const r2=[['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA DO FATURAMENTO','MARCA','FILIAL','DIAS ATÉ VENDA','OBSERVAÇÃO']];
-    nc.forEach(v=>r2.push([v.cod,v.atendente,v.vendedorRecebeu,v.vendedorFaturou,v.nf,v.chassi,v.midia,v.dtFat,v.marca,v.filial,v.diasAteVenda,v.obs||'']));
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(r2),'Vendas não consideradas');
-
-    // Abas por loja
-    const porLoja={};
-    todas.filter(v=>v.dentroJanela).forEach(v=>{
-      const key=`${v.marca} ${v.filial}`.toUpperCase().substring(0,31);
-      if(!porLoja[key]) porLoja[key]=[];
-      porLoja[key].push(v);
-    });
-    Object.entries(porLoja).sort().forEach(([nome,vs])=>{
-      const rows=[['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA DO FATURAMENTO','OBSERVAÇÃO']];
-      vs.forEach(v=>rows.push([v.cod,v.atendente,v.vendedorRecebeu,v.vendedorFaturou,v.nf,v.chassi,v.midia,v.dtFat,v.obs||'']));
-      XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),nome);
-    });
-
-    const mes=new Date().toLocaleString('pt-BR',{month:'long',year:'numeric'}).replace(' de ','_').toUpperCase();
-    XLSX.writeFile(wb,`Faturamento_Leads_${mes}.xlsx`);
-  } catch(e) { alert('Erro ao exportar: '+e.message); }
-
-  btn.innerHTML=orig; btn.disabled=false;
-}
-
-// ══════════════════════════════════════════════════════════════
-//  FASE 3 — PAINEL GERENCIAL NO DASHBOARD
-// ══════════════════════════════════════════════════════════════
-let _chLeadsVsVendas = null;
-
-async function renderDashVendas() {
-  const wrapper = document.getElementById('dash-vendas-gerencial');
-  if (!wrapper) return;
-
-  // Mês atual
-  const now      = new Date();
-  const mesAtual = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-  const [yy,mm]  = mesAtual.split('-');
-  const labelMes = new Date(+yy,+mm-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
-  const mesEl = document.getElementById('dash-vg-mes');
-  if (mesEl) mesEl.textContent = labelMes;
-
-  const marcaCores = {
-    FIAT:'#f5a623', BYD:'#2ec98a', Peugeot:'#7c5fe6',
-    Jeep:'#4f8ef7', Denza:'#e85d9a', VW:'#3ac4e0', Leapmotor:'#ff7043'
-  };
-  const marcasGraf = Object.keys(FILIAIS);
-
-  // ── Leads recebidos do mês — via getE() ───────────────────
-  const entradasMes = getE().filter(e => (e.ds||'').startsWith(mesAtual));
-  const leadsRecPorMarca = {};
-  entradasMes.forEach(e => {
-    if (!leadsRecPorMarca[e.m]) leadsRecPorMarca[e.m] = 0;
-    leadsRecPorMarca[e.m] += (e.prec || 0);
-  });
-
-  // ── Vendas registradas do mês — via Firebase ──────────────
-  let vendas = [];
-  let snapDocs = [];
-
-  if (fbDb) {
-    try {
-      const snap = await fbDb.collection('vendas')
-        .where('dtFat', '>=', mesAtual + '-01')
-        .where('dtFat', '<=', mesAtual + '-31')
-        .get();
-      snapDocs = snap.docs;
-      vendas   = snapDocs.map(d => d.data()).filter(v => v.dentroJanela);
-    } catch(e) {
-      console.warn('renderDashVendas Firebase:', e.message);
-    }
-  }
-
-  const porMarca = {};
-  vendas.forEach(v => {
-    if (!porMarca[v.marca]) porMarca[v.marca] = 0;
-    porMarca[v.marca]++;
-  });
-
-  // ── Cards por marca ───────────────────────────────────────
-  const cardsEl = document.getElementById('dash-vg-cards');
-  if (cardsEl) {
-    const todasMarcas = [...new Set([...marcasGraf, ...Object.keys(porMarca)])];
-    const comDados = todasMarcas.filter(m => (porMarca[m]||0) > 0 || leadsRecPorMarca[m] > 0);
-
-    if (comDados.length === 0) {
-      cardsEl.innerHTML = '<div style="color:var(--muted);font-size:12px;grid-column:1/-1;padding:8px 0">Nenhuma venda ou lead registrado neste mês ainda.</div>';
-    } else {
-      cardsEl.innerHTML = todasMarcas
-        .sort((a,b)=>(porMarca[b]||0)-(porMarca[a]||0))
-        .map(marca => {
-          const qtd  = porMarca[marca] || 0;
-          const rec  = leadsRecPorMarca[marca] || 0;
-          const cor  = marcaCores[marca] || 'var(--accent)';
-          const meta = Object.entries(METAS)
-            .filter(([k]) => k.startsWith(marca + '|'))
-            .reduce((s,[,v]) => s + v, 0);
-          const pct  = meta ? Math.min(100, Math.round(qtd / meta * 100)) : null;
-          const conv = rec > 0 ? Math.round(qtd / rec * 100) : null;
-          return `<div class="kpi-card" style="border-left:3px solid ${cor}">
-            <div class="kpi-lbl" style="color:${cor};font-weight:600;font-size:11px">${marca}</div>
-            <div style="font-size:26px;font-weight:700;font-family:var(--mono);color:var(--text);margin:4px 0">${qtd}</div>
-            <div style="font-size:11px;color:var(--muted)">vendas no mês</div>
-            ${rec > 0 ? `<div style="font-size:11px;color:var(--muted);margin-top:2px">${rec} leads rec. ${conv !== null ? `· <span style="color:var(--green)">${conv}% conv.</span>` : ''}</div>` : ''}
-            ${pct !== null ? `<div class="kpi-bar" style="margin-top:7px"><div class="kpi-bar-fill" style="background:${cor};width:${pct}%"></div></div><div style="font-size:10px;color:var(--muted);margin-top:2px">${pct}% da meta mensal</div>` : ''}
-          </div>`;
-        }).join('');
-    }
-  }
-
-  // ── Gráfico Leads × Vendas ────────────────────────────────
-  const ctx = document.getElementById('ch-leads-vs-vendas');
-  if (ctx) {
-    if (_chLeadsVsVendas) { _chLeadsVsVendas.destroy(); _chLeadsVsVendas = null; }
-    _chLeadsVsVendas = new Chart(ctx.getContext('2d'), {
-      type: 'bar',
-      data: {
-        labels: marcasGraf,
-        datasets: [
-          {
-            label: 'Leads recebidos',
-            data: marcasGraf.map(m => leadsRecPorMarca[m] || 0),
-            backgroundColor: 'rgba(79,142,247,.45)',
-            borderColor: '#4f8ef7',
-            borderWidth: 1,
-            borderRadius: 4
-          },
-          {
-            label: 'Vendas convertidas',
-            data: marcasGraf.map(m => porMarca[m] || 0),
-            backgroundColor: 'rgba(46,201,138,.55)',
-            borderColor: '#2ec98a',
-            borderWidth: 1,
-            borderRadius: 4
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { labels: { color: '#aaa', font: { size: 11 } } },
-          tooltip: {
-            callbacks: {
-              afterLabel: (ctx) => {
-                if (ctx.datasetIndex === 1) {
-                  const marca = ctx.label;
-                  const rec   = leadsRecPorMarca[marca] || 0;
-                  const conv  = ctx.parsed.y;
-                  return rec > 0 ? `Taxa: ${Math.round(conv/rec*100)}%` : '';
-                }
-                return '';
-              }
-            }
-          }
-        },
-        scales: {
-          x: { ticks: { color:'#aaa', font:{size:10} }, grid: { color:'rgba(255,255,255,.05)' } },
-          y: { ticks: { color:'#aaa', font:{size:10} }, grid: { color:'rgba(255,255,255,.05)' }, beginAtZero: true }
-        }
-      }
-    });
-  }
-
-  // ── Taxa de conversão por mídia ───────────────────────────
-  const porMidia = {};
-  snapDocs.map(d => d.data()).forEach(v => {
-    const m = v.midia || 'Sem Mídia';
-    if (!porMidia[m]) porMidia[m] = { total: 0, consider: 0 };
-    porMidia[m].total++;
-    if (v.dentroJanela) porMidia[m].consider++;
-  });
-
-  const midiaEl = document.getElementById('dash-vg-midia');
-  if (midiaEl) {
-    const midiaRows = Object.entries(porMidia)
-      .sort((a,b) => b[1].consider - a[1].consider)
-      .slice(0, 10)
-      .map(([midia, d]) => {
-        const taxa = d.total ? Math.round(d.consider / d.total * 100) : 0;
-        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);gap:10px">
-          <div style="font-size:12px;color:var(--text);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${midia}">${midia}</div>
-          <div style="text-align:right;flex-shrink:0;min-width:70px">
-            <div style="font-size:13px;font-weight:600;font-family:var(--mono);color:var(--green)">${d.consider} <span style="font-size:10px;color:var(--muted);font-weight:400">venda${d.consider!==1?'s':''}</span></div>
-            <div style="height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:3px;width:60px;margin-left:auto">
-              <div style="height:4px;border-radius:2px;background:var(--green);width:${taxa}%"></div>
-            </div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px">${taxa}% cons.</div>
-          </div>
-        </div>`;
-      }).join('');
-
-    midiaEl.innerHTML = midiaRows ||
-      '<div style="color:var(--muted);font-size:12px;padding:10px 0">Sem vendas registradas neste mês.</div>';
-  }
-
-  wrapper.style.display = 'block';
-}
-
-// Inicializa
-document.addEventListener('DOMContentLoaded', () => { upVdFiliais(); });
-
-
 </script>
-
-<!-- MODAL EDIÇÃO DE VENDA -->
-<div id="edit-venda-modal" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:16px">
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;width:100%;max-width:740px;max-height:90vh;overflow-y:auto;padding:22px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-      <div style="font-size:14px;font-weight:600;color:var(--text)">✏️ Editar Venda</div>
-      <button onclick="fecharEditVenda()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button>
-    </div>
-    <input type="hidden" id="ev-id">
-    <div class="form-grid">
-      <div class="form-fld"><label class="form-lbl">Marca</label>
-        <select class="form-inp" id="ev-marca" onchange="upEvFiliais()">
-          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-          <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
-        </select>
-      </div>
-      <div class="form-fld"><label class="form-lbl">Filial</label>
-        <select class="form-inp" id="ev-filial"></select>
-      </div>
-      <div class="form-fld"><label class="form-lbl">Cód. do Lead</label>
-        <input class="form-inp" type="text" id="ev-cod">
-      </div>
-      <div class="form-fld"><label class="form-lbl">Mídia</label>
-        <select class="form-inp" id="ev-midia">
-          <option value="">Selecione...</option>
-              <option value="CARRO BAURU / CARRO SP">CARRO BAURU / CARRO SP</option>
-              <option value="FACEBOOK / META ADS">FACEBOOK / META ADS</option>
-              <option value="GOOGLE">GOOGLE</option>
-              <option value="ICARROS">ICARROS</option>
-              <option value="INSTAGRAM">INSTAGRAM</option>
-              <option value="MERCADO LIVRE">MERCADO LIVRE</option>
-              <option value="MEU CARRO NOVO">MEU CARRO NOVO</option>
-              <option value="MOBIAUTO">MOBIAUTO</option>
-              <option value="MONTADORA">MONTADORA</option>
-              <option value="OLX">OLX</option>
-              <option value="RESGATE DE INSUCESSO">RESGATE DE INSUCESSO</option>
-              <option value="SITE CONCESSIONARIA / SITE LOJA">SITE CONCESSIONARIA / SITE LOJA</option>
-              <option value="SITE DE SEMINOVOS">SITE DE SEMINOVOS</option>
-              <option value="SITE MONTADORA / MONTADORA">SITE MONTADORA / MONTADORA</option>
-              <option value="TIKTOK">TIKTOK</option>
-              <option value="URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP">URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP</option>
-              <option value="CAMPANHA WHATSAPP">CAMPANHA WHATSAPP</option>
-              <option value="USADOS BR">USADOS BR</option>
-              <option value="WEBMOTORS">WEBMOTORS</option>
-              <option value="YOUTUBE">YOUTUBE</option>
-              <option value="[ MÍDIAS NÃO CADASTRADAS ]">[ MÍDIAS NÃO CADASTRADAS ]</option>
-              <option value="[ SEM MÍDIA ]">[ SEM MÍDIA ]</option>
-        </select>
-      </div>
-      <div class="form-fld"><label class="form-lbl">Data criação do lead</label>
-        <input class="form-inp" type="date" id="ev-dtlead">
-      </div>
-      <div class="form-fld"><label class="form-lbl">Data de faturamento</label>
-        <input class="form-inp" type="date" id="ev-dtfat">
-      </div>
-      <div class="form-fld"><label class="form-lbl">Atendente (pré-venda)</label>
-        <input class="form-inp" type="text" id="ev-atendente">
-      </div>
-      <div class="form-fld"><label class="form-lbl">Vendedor que recebeu</label>
-        <input class="form-inp" type="text" id="ev-vrec">
-      </div>
-      <div class="form-fld"><label class="form-lbl">Vendedor que faturou</label>
-        <input class="form-inp" type="text" id="ev-vfat">
-      </div>
-      <div class="form-fld"><label class="form-lbl">NF (Nota Fiscal)</label>
-        <input class="form-inp" type="text" id="ev-nf">
-      </div>
-      <div class="form-fld"><label class="form-lbl">Chassi</label>
-        <input class="form-inp" type="text" id="ev-chassi" style="text-transform:uppercase">
-      </div>
-    </div>
-    <div class="form-fld" style="margin-top:10px"><label class="form-lbl">Observação</label>
-      <textarea class="form-inp" id="ev-obs" rows="2" style="resize:vertical;min-height:52px"></textarea>
-    </div>
-    <div id="ev-janela-info" style="margin-top:12px;padding:9px 13px;border-radius:8px;font-size:12px;display:none"></div>
-    <div style="display:flex;gap:10px;margin-top:16px">
-      <button class="btn-p" onclick="salvarEdicaoVenda()">💾 Salvar Alterações</button>
-      <button class="btn-g" onclick="fecharEditVenda()">Cancelar</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
