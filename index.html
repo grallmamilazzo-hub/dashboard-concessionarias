@@ -425,7 +425,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <select id="marca-flt" onchange="setMarca(this.value)">
         <option value="todas">Todas as marcas</option>
         <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
       </select>
       <!-- Mobile: período pill shown inline -->
       <button id="mob-period-pill" onclick="openDateModal()"
@@ -598,7 +598,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="form-grid">
           <div class="form-fld"><label class="form-lbl">Marca</label>
             <select class="form-inp" id="in-marca" onchange="upFiliais()">
-              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
             </select>
           </div>
           <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="in-filial"></select></div>
@@ -706,7 +706,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="hist-flt">
           <select id="hf-mrc" onchange="renderHist()" style="font-size:12px">
             <option value="">Todas as marcas</option>
-            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
           </select>
           <select id="hf-fil" onchange="renderHist()" style="font-size:12px"><option value="">Todas as filiais</option></select>
           <input type="date" id="hf-de" onchange="renderHist()">
@@ -795,7 +795,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="form-fld"><label class="form-lbl">Marca</label>
               <select class="form-inp" id="vv-marca" onchange="vvUpFiliais()">
                 <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
               </select>
             </div>
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
@@ -891,7 +891,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               <select id="vvf-marca" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
                 <option value="">Todas marcas</option>
                 <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
               </select>
               <select id="vvf-status" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
                 <option value="">Todos status</option>
@@ -1026,7 +1026,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:14px">
       <div class="form-fld"><label class="form-lbl">Marca</label>
         <select class="form-inp" id="m-mrc" onchange="upMFiliais()">
-          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
+          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
         </select>
       </div>
       <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="m-fil"></select></div>
@@ -1297,7 +1297,8 @@ const FILIAIS = {
   Jeep:    ['São José do Rio Preto','Barretos','Votuporanga'],
   Denza:   ['Ribeirão Preto'],
   VW:      ['Bauru','Orlândia'],
-  Leapmotor: ['Santos']
+  Leapmotor: ['Santos'],
+  Seminovos: ['São José do Rio Preto']
 };
 const METAS = {
   'FIAT|Bauru':20,'FIAT|Botucatu':14,'FIAT|Jaú':12,'FIAT|Marília':16,'FIAT|Santos':22,'FIAT|Taguatinga':10,
@@ -1307,7 +1308,24 @@ const METAS = {
   'Denza|Ribeirão Preto':6,
   'VW|Bauru':16,'VW|Orlândia':10,
   'Leapmotor|Santos':5
+  // Seminovos: meta dinâmica (5% leads) — calculada via METAS_PCT
 };
+
+// ── METAS PERCENTUAIS (% dos leads recebidos no período) ──────────────────────
+const METAS_PCT = {
+  'Seminovos|São José do Rio Preto': 5   // 5% dos leads recebidos
+};
+/** Retorna a meta para m|f.
+ *  Se METAS_PCT existir: meta = Math.max(1, Math.round(leadsRec * pct/100))
+ *  Senão: usa METAS fixo, fallback 10. */
+function getMeta(m, f, leadsRec) {
+  const k = `${m}|${f}`;
+  if (METAS_PCT[k] != null) {
+    const base = typeof leadsRec === 'number' ? leadsRec : 0;
+    return Math.max(1, Math.round(base * METAS_PCT[k] / 100));
+  }
+  return METAS[k] || 10;
+}
 
 // ── GERENTES POR FILIAL ───────────────────────────────────────────────────────
 const GERENTES = {
@@ -1331,7 +1349,8 @@ const GERENTES = {
   'Jeep|Votuporanga':     'Eduardo',
   'Jeep|Barretos':        'Clovis',
   'Denza|Ribeirão Preto': 'S/ Gerente',
-  'Leapmotor|Santos':     'Rodrigo'
+  'Leapmotor|Santos':     'Rodrigo',
+  'Seminovos|São José do Rio Preto': 'André Luis'
 };
 
 // ── AGENTES DE PRÉ-VENDA (OPERADORES) ────────────────────────────────────────
@@ -1355,7 +1374,8 @@ const AGENTES = {
   'Jeep|Barretos':                 'Cintia e Lurde',
   'Jeep|Votuporanga':              'Cintia e Lurde',
   'VW|Bauru':                      'Ana Beatriz',
-  'VW|Orlândia':                   'Ana Beatriz'
+  'VW|Orlândia':                   'Ana Beatriz',
+  'Seminovos|São José do Rio Preto': 'Cintia e Lurde'
 };
 // ── MÍDIAS — lista completa CAIXA ALTA ───────────────────────────────────────
 const MIDIAS = [
@@ -1432,6 +1452,7 @@ const TOKENS_RO = {
   'GM-FIAT':          { nome:'Gerência FIAT',      role:'gerente', marcas:['FIAT'] },
   'GM-PSA':           { nome:'Gerência Peugeot',   role:'gerente', marcas:['Peugeot'] },
   'GM-LEAP':          { nome:'Gerência Leapmotor', role:'gerente', marcas:['Leapmotor'] },
+  'GM-SEMINO':        { nome:'Gerência Seminovos',  role:'gerente', marcas:['Seminovos'] },
 };
 
 let _authRole  = null; // 'operador' | 'gerente' | 'diretor'
@@ -1693,8 +1714,8 @@ async function saveFbConfig(migrate) {
   else          { setTimeout(fbSync, 800); }
 }
 
-const COLORS = {FIAT:'#4f8ef7',BYD:'#2ec98a',Peugeot:'#f5a623',Jeep:'#f05252',Denza:'#38b2d8',VW:'#7c5fe6',Leapmotor:'#e8500a'};
-const MLABELS = {FIAT:'FIAT',BYD:'BYD',Peugeot:'PEUGEOT/CITROËN',Jeep:'JEEP',Denza:'DENZA',VW:'ALLMA VOLKSWAGEN',Leapmotor:'LEAPMOTOR'};
+const COLORS = {FIAT:'#4f8ef7',BYD:'#2ec98a',Peugeot:'#f5a623',Jeep:'#f05252',Denza:'#38b2d8',VW:'#7c5fe6',Leapmotor:'#e8500a',Seminovos:'#e8439a'};
+const MLABELS = {FIAT:'FIAT',BYD:'BYD',Peugeot:'PEUGEOT/CITROËN',Jeep:'JEEP',Denza:'DENZA',VW:'ALLMA VOLKSWAGEN',Leapmotor:'LEAPMOTOR',Seminovos:'ALLMA SEMINOVOS'};
 
 function seed() {
   // Dados de exemplo removidos — os dados reais vêm do Firebase
@@ -1821,7 +1842,7 @@ function calcKPIs(f) {
   const byF={};
   td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
   let nm=0,nt=0;
-  Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
+  Object.values(byF).forEach(x=>{const mt=getMeta(x.m,x.f,x.prec||0);if(x.v>=mt*.9)nm++;nt++;});
   return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
 }
 function renderKPIs(k,pk) {
@@ -1881,7 +1902,7 @@ function renderKPIs(k,pk) {
 function renderChartF(f) {
   const byF={};
   f.filter(e=>e.ds===today()||period!=='hoje').forEach(e=>{
-    const k=`${e.f} (${e.m})`;if(!byF[k])byF[k]={v:0,mt:METAS[`${e.m}|${e.f}`]||10};byF[k].v+=e.v;
+    const k=`${e.f} (${e.m})`;if(!byF[k])byF[k]={v:0,mt:getMeta(e.m,e.f,e.prec||0)};byF[k].v+=e.v;
   });
   const labels=Object.keys(byF).slice(0,10);
   const mul=period==='semana'?7:period==='mes'?30:1;
@@ -1987,7 +2008,7 @@ function renderFunil(f) {
 function calcStreak(m, f) {
   // Returns consecutive days below 90% of target (counting back from yesterday)
   const all = getE();
-  const mt = METAS[`${m}|${f}`] || 10;
+  const mt = getMeta(m, f, 0); // streak: sem leads disponíveis, usa fixo
   let streak = 0;
   const t = new Date();
   for(let i = 1; i <= 30; i++) {
@@ -2006,7 +2027,7 @@ function calcStreak(m, f) {
 function renderAlerts(f) {
   const td=f.filter(e=>e.ds===today());
   const byF={};td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
-  const rows=Object.values(byF).map(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;return{...x,mt,pct:Math.round((x.v/mt)*100)};}).sort((a,b)=>a.pct-b.pct);
+  const rows=Object.values(byF).map(x=>{const mt=getMeta(x.m,x.f,x.prec||0);return{...x,mt,pct:Math.round((x.v/mt)*100)};}).sort((a,b)=>a.pct-b.pct);
   const bad=rows.filter(r=>r.pct<90);
   const bn=document.getElementById('alert-banner');
   if(bad.length>0){bn.style.display='flex';document.getElementById('alert-txt').textContent=`${bad.length} filial(is) abaixo de 90% da meta`;document.getElementById('alert-cnt').textContent=bad.length+' alertas';}
@@ -2235,7 +2256,7 @@ function renderCons() {
     {l:'Taxa de conversão',v:tc.toFixed(2)+'%',c:ft.cor,sub:ft.label,bg:ft.bg}
   ].map(x=>`<div style="background:var(--bg3);border-radius:8px;padding:11px 13px"><div style="font-size:11px;color:var(--muted);margin-bottom:5px">${x.l}</div><div style="font-size:21px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>${x.sub?`<div style="font-size:10px;font-weight:600;margin-top:4px;padding:2px 7px;border-radius:4px;display:inline-block;background:${x.bg};color:${x.c}">${x.sub}</div>`:''}</div>`).join('');
 
-  const order=['FIAT','BYD','VW','Peugeot','Jeep','Denza','Leapmotor'];
+  const order=['FIAT','BYD','VW','Peugeot','Jeep','Denza','Leapmotor','Seminovos'];
   let full=`📋 *RELATÓRIO CONSOLIDADO — ${dl}*\n\n`;
   window._cm={};
   document.getElementById('cons-marcas').innerHTML=order.map(m=>{
