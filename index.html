@@ -923,7 +923,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
   <div class="auth-box">
     <div class="auth-logo">C</div>
     <div class="auth-ttl">Painel Concessionárias</div>
-    <div class="auth-sub">Digite a senha de acesso para continuar</div>
+    <div class="auth-sub" id="auth-sub">Digite a senha de acesso para continuar</div>
     <input class="auth-inp" type="password" id="auth-pw" placeholder="Senha de acesso"
       onkeydown="if(event.key==='Enter')authSubmit()">
     <div class="auth-err" id="auth-err"></div>
@@ -1463,6 +1463,11 @@ function _initAuth() {
   const saved = localStorage.getItem('auth_role');
   if (saved === 'operador') { _authRole='operador'; _applyAuth(); return; }
 
+  // Sem sessão: acesso como operador (mostrar login é opcional)
+  // Para ativar o bloqueio por senha, defina AUTH_REQUIRED = true
+  const AUTH_REQUIRED = false;
+  if (!AUTH_REQUIRED) { _authRole='operador'; _applyAuth(); return; }
+
   // Sem auth: exibir login
   _showLogin();
 }
@@ -1491,11 +1496,24 @@ function authSubmit() {
     _authRole = 'operador';
     localStorage.setItem('auth_role', 'operador');
     _applyAuth();
+    // Se havia ação pendente que exigia operador, executa agora
+    const pending = window._pendingView;
+    if (pending) { window._pendingView = null; gv(pending); }
+    const cb = window._pendingCallback;
+    if (cb) { window._pendingCallback = null; cb(); }
   } else {
     err.textContent = 'Senha incorreta. Tente novamente.';
     document.getElementById('auth-pw').value = '';
     document.getElementById('auth-pw').focus();
   }
+}
+
+// Solicita senha ao tentar acessar ação que requer operador
+function _requireOperador(callback) {
+  if (_authRole === 'operador') { callback(); return; }
+  window._pendingCallback = callback;
+  document.getElementById('auth-sub').textContent = 'Insira a senha de operador para continuar.';
+  _showLogin();
 }
 
 function authLogout() {
@@ -2394,9 +2412,7 @@ function copyPVAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
-  txt += '
-
-🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
   cpTxt(txt, 'Pré-venda copiado!');
 }
 
@@ -2583,9 +2599,7 @@ function copyResgateAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
-  txt += '
-
-🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
   cpTxt(txt, `${tipo} copiado!`);
 }
 
