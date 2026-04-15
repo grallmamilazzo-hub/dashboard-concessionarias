@@ -1300,32 +1300,6 @@ const FILIAIS = {
   Leapmotor: ['Santos'],
   Seminovos: ['São José do Rio Preto']
 };
-const METAS = {
-  'FIAT|Bauru':20,'FIAT|Botucatu':14,'FIAT|Jaú':12,'FIAT|Marília':16,'FIAT|Santos':22,'FIAT|Taguatinga':10,
-  'BYD|Bauru':12,'BYD|Marília':10,'BYD|Botucatu':9,'BYD|São José do Rio Preto':14,'BYD|Araçatuba':11,
-  'Peugeot|Bauru':9,'Peugeot|Marília':8,'Peugeot|Ribeirão Preto':11,
-  'Jeep|São José do Rio Preto':10,'Jeep|Barretos':8,'Jeep|Votuporanga':7,
-  'Denza|Ribeirão Preto':6,
-  'VW|Bauru':16,'VW|Orlândia':10,
-  'Leapmotor|Santos':5
-  // Seminovos: meta dinâmica (5% leads) — calculada via METAS_PCT
-};
-
-// ── METAS PERCENTUAIS (% dos leads recebidos no período) ──────────────────────
-const METAS_PCT = {
-  'Seminovos|São José do Rio Preto': 5   // 5% dos leads recebidos
-};
-/** Retorna a meta para m|f.
- *  Se METAS_PCT existir: meta = Math.max(1, Math.round(leadsRec * pct/100))
- *  Senão: usa METAS fixo, fallback 10. */
-function getMeta(m, f, leadsRec) {
-  const k = `${m}|${f}`;
-  if (METAS_PCT[k] != null) {
-    const base = typeof leadsRec === 'number' ? leadsRec : 0;
-    return Math.max(1, Math.round(base * METAS_PCT[k] / 100));
-  }
-  return METAS[k] || 10;
-}
 
 // ── GERENTES POR FILIAL ───────────────────────────────────────────────────────
 const GERENTES = {
@@ -1750,11 +1724,11 @@ function fmtD(ds){const[y,mo,d]=ds.split('-');return`${d}/${mo}/${y}`}
 
 // ── FAIXAS DE CONVERSÃO ──────────────────────────────────────────────────────
 function getFaixa(pct) {
-  if (pct <= 2.50) return { label:'Crítico / Abaixo da Meta', cor:'#f05252', bg:'rgba(240,82,82,.12)' };
-  if (pct <= 3.00) return { label:'Em Desenvolvimento', cor:'#f5a623', bg:'rgba(245,166,35,.12)' };
-  if (pct <= 3.50) return { label:'Eficiente / Pleno', cor:'#4f8ef7', bg:'rgba(79,142,247,.12)' };
-  if (pct <= 5.00) return { label:'Excelência / Alta Performance', cor:'#2ec98a', bg:'rgba(46,201,138,.12)' };
-  return { label:'Exponencial / Outlier', cor:'#7c5fe6', bg:'rgba(124,95,230,.12)' };
+  // Faixas de conversão (vendas / leads recebidos no período)
+  if (pct < 2.6)  return { label:'Crítico',   cor:'#f05252', bg:'rgba(240,82,82,.12)'   };
+  if (pct < 3.6)  return { label:'Atenção',   cor:'#f5a623', bg:'rgba(245,166,35,.12)'  };
+  if (pct <= 5.0) return { label:'Objetivo',  cor:'#2ec98a', bg:'rgba(46,201,138,.12)'  };
+  return           { label:'Excelência', cor:'#0a7c4e', bg:'rgba(10,124,78,.15)'    };
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -1838,11 +1812,6 @@ function calcKPIs(f) {
   const txConvOk=trec>0?parseFloat((tok/trec*100).toFixed(2)):0;
   const txConvSy=trec>0?parseFloat((tsy/trec*100).toFixed(2)):0;
   const txConvMa=trec>0?parseFloat((tma/trec*100).toFixed(2)):0;
-  const td=f.filter(e=>e.ds===today());
-  const byF={};
-  td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
-  let nm=0,nt=0;
-  Object.values(byF).forEach(x=>{const mt=getMeta(x.m,x.f,x.prec||0);if(x.v>=mt*.9)nm++;nt++;});
   return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
 }
 function renderKPIs(k,pk) {
@@ -1902,15 +1871,22 @@ function renderKPIs(k,pk) {
 function renderChartF(f) {
   const byF={};
   f.filter(e=>e.ds===today()||period!=='hoje').forEach(e=>{
-    const k=`${e.f} (${e.m})`;if(!byF[k])byF[k]={v:0,mt:getMeta(e.m,e.f,e.prec||0)};byF[k].v+=e.v;
+    const k=`${e.f} (${e.m})`;
+    if(!byF[k]) byF[k]={v:0,prec:0};
+    byF[k].v    += e.v;
+    byF[k].prec += (e.prec||0);
   });
   const labels=Object.keys(byF).slice(0,10);
-  const mul=period==='semana'?7:period==='mes'?30:1;
+  // Barras coloridas pela faixa de conversão de cada filial
+  const barColors=labels.map(k=>{
+    const x=byF[k];
+    const conv=x.prec>0?(x.v/x.prec*100):0;
+    return getFaixa(conv).cor+'bb';
+  });
   const ctx=document.getElementById('ch-filiais').getContext('2d');
   if(charts.f)charts.f.destroy();
   charts.f=new Chart(ctx,{type:'bar',data:{labels,datasets:[
-    {data:labels.map(k=>byF[k].v),backgroundColor:'#4f8ef7bb',borderRadius:4,borderSkipped:false},
-    {data:labels.map(k=>byF[k].mt*mul),type:'line',borderColor:'rgba(255,255,255,.2)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false}
+    {data:labels.map(k=>byF[k].v),backgroundColor:barColors,borderRadius:4,borderSkipped:false}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
     x:{ticks:{color:'#7a8094',font:{size:10},maxRotation:35},grid:{color:'rgba(255,255,255,.04)'}},
     y:{ticks:{color:'#7a8094',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'},beginAtZero:true}
@@ -2006,18 +1982,20 @@ function renderFunil(f) {
 
 // ── STREAK ────────────────────────────────────────────────────────────────────
 function calcStreak(m, f) {
-  // Returns consecutive days below 90% of target (counting back from yesterday)
+  // Dias consecutivos com conversão em faixa Crítica (<2.6%), contando de ontem
   const all = getE();
-  const mt = getMeta(m, f, 0); // streak: sem leads disponíveis, usa fixo
   let streak = 0;
   const t = new Date();
   for(let i = 1; i <= 30; i++) {
     const d = new Date(t); d.setDate(d.getDate()-i);
     const ds = d.toISOString().split('T')[0];
     const dayEntries = all.filter(e=>e.ds===ds&&e.m===m&&e.f===f);
-    if(dayEntries.length===0) break; // no data = stop counting
-    const v = dayEntries.reduce((s,e)=>s+e.v, 0);
-    if(v >= mt * 0.9) break; // hit target = stop
+    if(dayEntries.length===0) break;
+    const v    = dayEntries.reduce((s,e)=>s+e.v,       0);
+    const prec = dayEntries.reduce((s,e)=>s+(e.prec||0),0);
+    if(prec===0) break; // sem leads no dia, não conta
+    const conv = (v/prec)*100;
+    if(conv >= 2.6) break; // saiu da faixa Crítica
     streak++;
   }
   return streak;
@@ -2025,13 +2003,38 @@ function calcStreak(m, f) {
 
 // ── ALERTS ────────────────────────────────────────────────────────────────────
 function renderAlerts(f) {
-  const td=f.filter(e=>e.ds===today());
-  const byF={};td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
-  const rows=Object.values(byF).map(x=>{const mt=getMeta(x.m,x.f,x.prec||0);return{...x,mt,pct:Math.round((x.v/mt)*100)};}).sort((a,b)=>a.pct-b.pct);
-  const bad=rows.filter(r=>r.pct<90);
+  // Agrega por filial no período filtrado (não apenas hoje)
+  const byF={};
+  f.forEach(e=>{
+    const k=`${e.m}|${e.f}`;
+    if(!byF[k]) byF[k]={v:0,prec:0,m:e.m,f:e.f};
+    byF[k].v    += e.v;
+    byF[k].prec += (e.prec||0);
+  });
+  const rows=Object.values(byF)
+    .filter(x=>x.prec>0)
+    .map(x=>{
+      const conv=parseFloat((x.v/x.prec*100).toFixed(2));
+      return{...x, conv, faixa:getFaixa(conv)};
+    })
+    .sort((a,b)=>a.conv-b.conv);
+
+  // Banner: crítico tem prioridade sobre atenção
+  const criticas=rows.filter(r=>r.conv<2.6);
+  const atencao =rows.filter(r=>r.conv>=2.6&&r.conv<3.6);
   const bn=document.getElementById('alert-banner');
-  if(bad.length>0){bn.style.display='flex';document.getElementById('alert-txt').textContent=`${bad.length} filial(is) abaixo de 90% da meta`;document.getElementById('alert-cnt').textContent=bad.length+' alertas';}
-  else bn.style.display='none';
+  if(criticas.length>0){
+    bn.style.display='flex';
+    document.getElementById('alert-txt').textContent=`${criticas.length} filial(is) em conversão crítica`;
+    document.getElementById('alert-cnt').textContent=criticas.length+' alertas';
+  } else if(atencao.length>0){
+    bn.style.display='flex';
+    document.getElementById('alert-txt').textContent=`${atencao.length} filial(is) em atenção`;
+    document.getElementById('alert-cnt').textContent=atencao.length+' alertas';
+  } else {
+    bn.style.display='none';
+  }
+
   // Detectar filiais sem relatório hoje (apenas se period==='hoje')
   const srBanner = document.getElementById('alert-sem-relatorio');
   if(srBanner) {
@@ -2044,7 +2047,6 @@ function renderAlerts(f) {
     if(period==='hoje' && missing.length>0) {
       srBanner.style.display='flex';
       document.getElementById('alert-sr-cnt').textContent = missing.length+' sem relatório';
-      // Show up to 4 names then "e mais N"
       const names = missing.map(x=>`${x.f} (${x.m})`);
       const shown = names.length<=4 ? names.join(', ') : names.slice(0,4).join(', ')+` e mais ${names.length-4}`;
       document.getElementById('alert-sr-nomes').textContent = shown;
@@ -2052,12 +2054,13 @@ function renderAlerts(f) {
       srBanner.style.display='none';
     }
   }
+
   document.getElementById('alerts-list').innerHTML=rows.slice(0,8).map(r=>{
-    const dc=r.pct<70?'dot-r':r.pct<90?'dot-a':'dot-g';
-    const pc=r.pct<70?'var(--red)':r.pct<90?'var(--amber)':'var(--green)';
+    const dc=r.conv<2.6?'dot-r':r.conv<3.6?'dot-a':'dot-g';
     const streak=calcStreak(r.m,r.f);
-    const streakHtml=streak>=2?`<span title="${streak} dias seguidos abaixo da meta" style="font-size:10px;font-weight:700;color:var(--red);background:rgba(240,82,82,.12);padding:1px 6px;border-radius:4px;margin-left:4px">🔥${streak}d</span>`:'';
-    return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center">${r.f}${streakHtml}</div><div style="font-size:11px;color:var(--muted)">${r.m} · meta:${r.mt} · Ger: ${GERENTES[r.m+'|'+r.f]||'—'}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v} vendas</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(100,r.pct)}%;background:${pc};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:38px;text-align:right;color:${pc}">${r.pct}%</div></div></div>`;
+    const streakHtml=streak>=2?`<span title="${streak} dias seguidos em crítico" style="font-size:10px;font-weight:700;color:var(--red);background:rgba(240,82,82,.12);padding:1px 6px;border-radius:4px;margin-left:4px">🔥${streak}d</span>`:'';
+    const barW=Math.min(100,(r.conv/5)*100);
+    return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center">${r.f}${streakHtml}</div><div style="font-size:11px;color:var(--muted)">${r.m} · ${r.faixa.label} · Ger: ${GERENTES[r.m+'|'+r.f]||'—'}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v}v / ${r.prec}L</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${barW.toFixed(0)}%;background:${r.faixa.cor};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:42px;text-align:right;color:${r.faixa.cor}">${r.conv.toFixed(1)}%</div></div></div>`;
   }).join('');
 }
 
@@ -2084,8 +2087,8 @@ function renderRank(by='conv') {
     byF[k].frec += (e.frec||0);
   });
   const rows=Object.values(byF).map(x=>{
-    // Base de conversão = pré-venda recebida + resgate de insucesso
-    const base = x.prec + x.rrec;
+    // Base de conversão = leads recebidos no período (prec)
+    const base = x.prec;
     const conv = base > 0 ? parseFloat((x.v / base * 100).toFixed(2)) : 0;
     const convOk = base > 0 ? parseFloat((x.ok / base * 100).toFixed(2)) : 0;
     const convSy = base > 0 ? parseFloat((x.sy / base * 100).toFixed(2)) : 0;
@@ -2103,7 +2106,7 @@ function renderRank(by='conv') {
       + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
       + '<div class="rank-name">'
         + '<div class="rank-fil">'+r.f+'</div>'
-        + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d sem meta</span>':'')+'</div>';})()
+        + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d crítico</span>':'')+'</div>';})()
       + '</div>'
       + '<div style="flex:1;min-width:60px;padding:0 10px">'
         + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
