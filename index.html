@@ -1459,16 +1459,18 @@ function _initAuth() {
     _applyAuth(); return;
   }
 
-  // Sessão salva
-  const saved = localStorage.getItem('auth_role');
-  if (saved === 'operador') { _authRole='operador'; _applyAuth(); return; }
+  // Sessão salva — verifica expiração de 6 horas
+  const saved    = localStorage.getItem('auth_role');
+  const savedExp = parseInt(localStorage.getItem('auth_exp') || '0', 10);
+  const SESSION_MS = 6 * 60 * 60 * 1000; // 6 horas
+  if (saved === 'operador' && Date.now() < savedExp) {
+    _authRole = 'operador'; _applyAuth(); return;
+  }
+  // Sessão expirada ou inexistente — limpa e exige senha
+  localStorage.removeItem('auth_role');
+  localStorage.removeItem('auth_exp');
 
-  // Sem sessão: acesso como operador (mostrar login é opcional)
-  // Para ativar o bloqueio por senha, defina AUTH_REQUIRED = true
-  const AUTH_REQUIRED = false;
-  if (!AUTH_REQUIRED) { _authRole='operador'; _applyAuth(); return; }
-
-  // Sem auth: exibir login
+  // Exibir login
   _showLogin();
 }
 
@@ -1495,6 +1497,7 @@ function authSubmit() {
   if (pw === OP_PASSWORD_HASH) {
     _authRole = 'operador';
     localStorage.setItem('auth_role', 'operador');
+    localStorage.setItem('auth_exp', Date.now() + 6 * 60 * 60 * 1000);
     _applyAuth();
     // Se havia ação pendente que exigia operador, executa agora
     const pending = window._pendingView;
