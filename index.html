@@ -841,7 +841,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
                 <input class="form-inp" type="date" id="vv-dtcriacao" oninput="vvUpdateJanela()">
               </div>
               <div class="form-fld" id="fld-dtins" style="display:none">
-                <label class="form-lbl">Data Encerr. como INSUCESSO</label>
+                <label class="form-lbl">Data Encerramento do Lead</label>
                 <input class="form-inp" type="date" id="vv-dtins" oninput="vvUpdateJanela()">
               </div>
             </div>
@@ -1406,7 +1406,7 @@ function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
     if (dc !== null && dc > 90)
       return {valido:false, label:`❌ Lead sem tratativa há ${dc} dias — inválido (máx 90)`, cor:'err'};
     const di = diffDias(dtInsucesso);
-    if (di === null) return {valido:null, label:'Informe a data de encerramento como INSUCESSO', cor:'warn'};
+    if (di === null) return {valido:null, label:'Informe a data de encerramento do lead', cor:'warn'};
     const ok = di <= 31;
     return {valido:ok, dias:di, label: ok ? `✅ ${di} dias após insucesso (máx 31)` : `❌ Fora da janela: ${di} dias após insucesso (máx 31)`, cor: ok?'ok':'err'};
   }
@@ -2245,7 +2245,7 @@ function renderCons() {
     return `<div class="chart-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div style="display:flex;align-items:center;gap:8px"><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600">${MLABELS[m]||m}</span><span style="font-size:12px;color:var(--muted)">${me.length} filiais · ${me.reduce((s,e)=>s+e.v,0)} vendas</span></div><button class="btn-g" onclick="copyMarca('${m}')" style="font-size:11px;padding:4px 9px">Copiar marca</button></div><pre style="font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6;background:var(--bg3);border-radius:6px;padding:11px;border:1px solid var(--border)">${txt.trim()}</pre></div>`;
   }).join('');
   full+=[`——————————————————————————————`,'*FUNIL DO DIA — '+dl+'*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
-  full+='\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
+  full+='\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   document.getElementById('cons-txt').textContent=full;
   window._cf=full;
 }
@@ -2415,7 +2415,7 @@ function copyPVAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
-  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, 'Pré-venda copiado!');
 }
 
@@ -2602,7 +2602,7 @@ function copyResgateAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
-  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, `${tipo} copiado!`);
 }
 
