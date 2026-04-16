@@ -2243,7 +2243,7 @@ function renderRank(by='conv') {
           + (r.convSy>0?'<span style="color:#4f8ef7">Sy:'+r.convSy.toFixed(1)+'% </span>':'')
           + (r.convMa>0?'<span style="color:#f5a623">Ma:'+r.convMa.toFixed(1)+'%</span>':'')
         + '</div>'
-        + '<button onclick="toggleDrill(''+r.m+'',''+r.f+'')" title="Ver mídias" style="margin-left:8px;flex-shrink:0;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer;font-family:var(--font)">▼ Mídias</button>'
+        + '<button data-m="'+r.m+'" data-f="'+r.f+'" onclick="toggleDrill(this.dataset.m,this.dataset.f)" title="Ver mídias" style="margin-left:8px;flex-shrink:0;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer;font-family:var(--font)">▼ Mídias</button>'
       + '</div>'
       + '<div id="'+drillId+'" style="display:none;padding:0 12px 4px 44px"></div>'
     + '</div>';
