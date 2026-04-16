@@ -1830,8 +1830,8 @@ function renderKPIs(k,pk) {
   // Conversão total
   document.getElementById('kc').textContent=k.txConv.toFixed(2)+'%';
   const fTotal=getFaixa(k.txConv); const kcb=document.getElementById('kcb');
-  kcb.textContent='pré-venda→venda'; kcb.className='badge '+(k.txConv>=3.01?'up':k.txConv>=2.51?'nt':'dn');
-  document.getElementById('kcbar').style.width=Math.min(100,k.txConv*10)+'%';
+  kcb.textContent='pré-venda→venda'; kcb.className='badge '+(k.txConv>=3.6?'up':k.txConv>=2.6?'nt':'dn');
+  document.getElementById('kcbar').style.width=Math.min(100,(k.txConv/5)*100)+'%';
   document.getElementById('kcbar').style.background=fTotal.cor;
   const fEl=document.getElementById('kc-faixa'); if(fEl){fEl.textContent=fTotal.label;fEl.style.background=fTotal.bg;fEl.style.color=fTotal.cor;}
   // Conversão por tipo
@@ -2101,7 +2101,7 @@ function renderRank(by='conv') {
   else if(by==='ok')    rows.sort((a,b)=>b.convOk-a.convOk);
   const pcls=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
   document.getElementById('rank-list').innerHTML=rows.map((r,i)=>{
-    const barW = Math.min(100, r.conv * 10);
+    const barW = Math.min(100, (r.conv/5)*100);
     return '<div class="rank-row">'
       + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
       + '<div class="rank-name">'
@@ -2250,7 +2250,7 @@ function renderCons() {
   const tnao=entries.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
   const tatend=trec-tnao;
   const tv=entries.reduce((s,e)=>s+e.v,0);
-  const tc=trec>0?Math.round((tv/trec)*100):0;
+  const tc=trec>0?parseFloat((tv/trec*100).toFixed(2)):0;
   const ft=getFaixa(tc);
   document.getElementById('cons-funil').innerHTML=[
     {l:'Pré-vendas recebidas',v:trec,c:'var(--accent)'},
