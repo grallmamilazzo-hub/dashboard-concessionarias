@@ -586,6 +586,16 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         </div>
         <div id="sparklines-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px"></div>
       </div>
+      <!-- COMPARATIVO MÊS A MÊS -->
+      <div class="chart-card" style="margin-bottom:20px" id="month-comp-card">
+        <div class="chart-hdr" style="margin-bottom:12px">
+          <div>
+            <div class="chart-ttl">Comparativo mês a mês</div>
+            <div style="font-size:11px;color:var(--muted)" id="month-comp-lbl">acumulado até hoje vs. mesmo período mês anterior</div>
+          </div>
+        </div>
+        <div id="month-comp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
+      </div>
     </div>
 
     <!-- INSERIR DADOS -->
@@ -741,10 +751,21 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
         <div>
           <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Relatório Consolidado</div>
-          <div style="font-size:12px;color:var(--muted)">Todas as marcas · pronto para WhatsApp</div>
+          <div style="font-size:12px;color:var(--muted)" id="cons-sub">Todas as marcas · pronto para WhatsApp</div>
         </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-          <input type="date" id="cons-dt" onchange="renderCons()">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <!-- Modo toggle -->
+          <div style="display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+            <button id="cons-mode-dia" onclick="setConsMode('dia')"
+              style="padding:5px 11px;font-size:11px;font-weight:600;font-family:var(--font);background:var(--accent);color:#fff;border:none;cursor:pointer">
+              📅 Dia
+            </button>
+            <button id="cons-mode-per" onclick="setConsMode('periodo')"
+              style="padding:5px 11px;font-size:11px;font-weight:600;font-family:var(--font);background:transparent;color:var(--muted);border:none;cursor:pointer">
+              📊 Período
+            </button>
+          </div>
+          <input type="date" id="cons-dt" onchange="renderCons()" style="display:block">
           <button class="btn-p" onclick="copyCons()">
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="white" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="white" stroke-width="1.2"/></svg>
             Copiar tudo
@@ -766,7 +787,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <div id="v-ranking" style="display:none">
       <div class="chart-card">
         <div class="sec-hdr" style="margin-bottom:14px">
-          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso) · <span id="rank-period-lbl" style="color:var(--amber)">Hoje</span></div></div>
+          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ leads recebidos no período · <span id="rank-period-lbl" style="color:var(--amber)">Hoje</span></div></div>
           <select onchange="renderRank(this.value)" style="font-size:12px">
             <option value="conv">% Conversão total</option><option value="vendas">Vendas identificadas</option><option value="ok">Conversão Processo OK</option>
           </select>
@@ -1444,6 +1465,10 @@ function _initAuth() {
     _roMode    = true;
     localStorage.setItem('auth_role', _authRole);
     localStorage.setItem('auth_token', tk);
+    // Diretores: sem expiração. Gerentes: 2h
+    if (_authRole !== 'diretor') {
+      localStorage.setItem('auth_exp', Date.now() + 2 * 60 * 60 * 1000);
+    }
     _applyAuth();
     return;
   }
@@ -1454,15 +1479,21 @@ function _initAuth() {
     _applyAuth(); return;
   }
 
-  // Sessão salva — verifica expiração de 6 horas
+  // Sessão salva — verifica expiração de 2 horas
   const saved    = localStorage.getItem('auth_role');
+  const savedTk  = localStorage.getItem('auth_token');
   const savedExp = parseInt(localStorage.getItem('auth_exp') || '0', 10);
-  const SESSION_MS = 6 * 60 * 60 * 1000; // 6 horas
-  if (saved === 'operador' && Date.now() < savedExp) {
-    _authRole = 'operador'; _applyAuth(); return;
+  if ((saved === 'operador' || saved === 'gerente') && Date.now() < savedExp) {
+    if (saved === 'gerente' && savedTk && TOKENS_RO[savedTk]) {
+      _authToken = TOKENS_RO[savedTk]; _authRole = 'gerente'; _roMode = true;
+    } else {
+      _authRole = 'operador';
+    }
+    _applyAuth(); return;
   }
   // Sessão expirada ou inexistente — limpa e exige senha
   localStorage.removeItem('auth_role');
+  localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_exp');
 
   // Exibir login
@@ -1492,7 +1523,7 @@ function authSubmit() {
   if (pw === OP_PASSWORD_HASH) {
     _authRole = 'operador';
     localStorage.setItem('auth_role', 'operador');
-    localStorage.setItem('auth_exp', Date.now() + 6 * 60 * 60 * 1000);
+    localStorage.setItem('auth_exp', Date.now() + 2 * 60 * 60 * 1000);
     _applyAuth();
     // Se havia ação pendente que exigia operador, executa agora
     const pending = window._pendingView;
@@ -1517,7 +1548,23 @@ function _requireOperador(callback) {
 function authLogout() {
   localStorage.removeItem('auth_role');
   localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_exp');
   location.href = location.pathname;
+}
+
+// ── VERIFICAÇÃO DE EXPIRAÇÃO DE SESSÃO (chamada em refresh e gv) ─────────────
+function _checkSessionExpiry() {
+  if (_authRole === 'diretor') return; // diretores isentos — sem expiração
+  if (!_authRole) return;
+  const exp = parseInt(localStorage.getItem('auth_exp') || '0', 10);
+  if (exp && Date.now() > exp) {
+    localStorage.removeItem('auth_role');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_exp');
+    _authRole = null; _authToken = null; _roMode = false;
+    toast('Sessão expirada — faça login novamente');
+    setTimeout(() => location.reload(), 1800);
+  }
 }
 
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
@@ -1734,6 +1781,18 @@ function getFaixa(pct) {
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let period='hoje', marca='todas', charts={}, hPage=0, pendingDel=null;
 let customFrom='', customTo='';
+let consMode='dia'; // 'dia' | 'periodo'
+
+function setConsMode(m) {
+  consMode = m;
+  const dtEl  = document.getElementById('cons-dt');
+  const btnD  = document.getElementById('cons-mode-dia');
+  const btnP  = document.getElementById('cons-mode-per');
+  if (dtEl)  dtEl.style.display  = m === 'dia' ? 'block' : 'none';
+  if (btnD) { btnD.style.background = m==='dia'?'var(--accent)':'transparent'; btnD.style.color=m==='dia'?'#fff':'var(--muted)'; }
+  if (btnP) { btnP.style.background = m==='periodo'?'var(--accent)':'transparent'; btnP.style.color=m==='periodo'?'#fff':'var(--muted)'; }
+  renderCons();
+}
 const PG=15;
 
 function getDates(p) {
@@ -1963,6 +2022,66 @@ function renderSparklines() {
   }).join('');
 }
 
+// ── COMPARATIVO MÊS A MÊS ────────────────────────────────────────────────────
+function renderMonthComp() {
+  const card = document.getElementById('month-comp-card');
+  if (!card) return;
+  const all = getE();
+  const t   = new Date();
+  const day = t.getDate(); // dia atual (ex: 15)
+  // Mês atual: 01 a DD do mês corrente
+  const yCur = t.getFullYear(), mCur = String(t.getMonth()+1).padStart(2,'0');
+  // Mês anterior
+  const tPrev = new Date(t.getFullYear(), t.getMonth()-1, 1);
+  const yPrev = tPrev.getFullYear(), mPrev = String(tPrev.getMonth()+1).padStart(2,'0');
+  // Filtro marca
+  const mf = marca === 'todas' ? null : marca;
+  function inRange(ds, y, m) {
+    const d = parseInt(ds.split('-')[2],10);
+    return ds.startsWith(`${y}-${m}-`) && d <= day;
+  }
+  const cur  = all.filter(e => inRange(e.ds, yCur, mCur)  && (!mf || e.m === mf));
+  const prev = all.filter(e => inRange(e.ds, yPrev, mPrev) && (!mf || e.m === mf));
+  function agg(arr) {
+    const v    = arr.reduce((s,e)=>s+e.v,0);
+    const prec = arr.reduce((s,e)=>s+(e.prec||0),0);
+    const ok   = arr.reduce((s,e)=>s+(e.ok||0),0);
+    const tatend = prec - arr.reduce((s,e)=>s+Math.max(0,(e.prec||0)-(e.patend||0)),0);
+    const conv = prec > 0 ? parseFloat((v/prec*100).toFixed(2)) : 0;
+    const atend = prec > 0 ? Math.round((tatend/prec)*100) : 0;
+    return { v, prec, conv, atend };
+  }
+  const a = agg(cur), b = agg(prev);
+  const lCur  = `${String(day).padStart(2,'0')}/${mCur}/${yCur}`;
+  const lPrev = `01–${String(day).padStart(2,'0')}/${mPrev}/${yPrev}`;
+  document.getElementById('month-comp-lbl').textContent =
+    `Acumulado 01–${lCur} vs. mesmo período mês anterior`;
+  function delta(va, vb) {
+    if (!vb) return { txt: '—', cls: '' };
+    const d = parseFloat(((va - vb) / vb * 100).toFixed(1));
+    return { txt: (d >= 0 ? '+' : '') + d + '%', cls: d >= 0 ? 'up' : 'dn' };
+  }
+  const metrics = [
+    { lbl:'Vendas',           cur:a.v,    prev:b.v,    fmt:v=>v,             unit:'' },
+    { lbl:'Leads recebidos',  cur:a.prec, prev:b.prec, fmt:v=>v,             unit:'' },
+    { lbl:'Taxa conversão',   cur:a.conv, prev:b.conv, fmt:v=>v.toFixed(2)+'%', unit:'%', faixa:true },
+    { lbl:'Taxa atendimento', cur:a.atend,prev:b.atend,fmt:v=>v+'%',         unit:'%' }
+  ];
+  document.getElementById('month-comp-grid').innerHTML = metrics.map(mt => {
+    const d = delta(mt.cur, mt.prev);
+    const mainClr = mt.faixa ? getFaixa(mt.cur).cor : 'var(--text)';
+    const prevClr = mt.faixa ? getFaixa(mt.prev||0).cor : 'var(--muted)';
+    return `<div style="background:var(--bg3);border-radius:8px;padding:11px 13px;border:1px solid var(--border)">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:5px">${mt.lbl}</div>
+      <div style="font-size:20px;font-weight:600;font-family:var(--mono);color:${mainClr}">${mt.fmt(mt.cur)}</div>
+      <div style="display:flex;align-items:center;gap:7px;margin-top:5px">
+        ${d.cls ? `<span class="badge ${d.cls}" style="font-size:10px;padding:1px 6px">${d.txt}</span>` : ''}
+        <span style="font-size:11px;color:${prevClr}">ant: ${mt.fmt(mt.prev)}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 // ── FUNIL ─────────────────────────────────────────────────────────────────────
 function renderFunil(f) {
   const rec=f.reduce((s,e)=>s+e.prec,0);
@@ -2100,28 +2219,100 @@ function renderRank(by='conv') {
   else if(by==='vendas') rows.sort((a,b)=>b.v-a.v);
   else if(by==='ok')    rows.sort((a,b)=>b.convOk-a.convOk);
   const pcls=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
+  // Reset drill states ao re-renderizar
+  Object.keys(_drillState).forEach(k=>{ _drillState[k]={open:false,loaded:false}; });
   document.getElementById('rank-list').innerHTML=rows.map((r,i)=>{
     const barW = Math.min(100, (r.conv/5)*100);
-    return '<div class="rank-row">'
-      + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
-      + '<div class="rank-name">'
-        + '<div class="rank-fil">'+r.f+'</div>'
-        + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d crítico</span>':'')+'</div>';})()
-      + '</div>'
-      + '<div style="flex:1;min-width:60px;padding:0 10px">'
-        + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
-          + '<div style="height:100%;width:'+barW+'%;background:'+r.faixa.cor+';border-radius:3px"></div>'
+    const drillId = 'drill-' + (r.m+'|'+r.f).replace(/[|]/g,'_');
+    return '<div style="border-bottom:1px solid var(--border)">'
+      + '<div class="rank-row" style="border-bottom:none">'
+        + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
+        + '<div class="rank-name">'
+          + '<div class="rank-fil">'+r.f+'</div>'
+          + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d crítico</span>':'')+'</div>';})()
         + '</div>'
-        + '<div style="font-size:10px;color:'+r.faixa.cor+';margin-top:3px;font-weight:500">'+r.faixa.label+'</div>'
+        + '<div style="flex:1;min-width:60px;padding:0 10px">'
+          + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
+            + '<div style="height:100%;width:'+barW+'%;background:'+r.faixa.cor+';border-radius:3px"></div>'
+          + '</div>'
+          + '<div style="font-size:10px;color:'+r.faixa.cor+';margin-top:3px;font-weight:500">'+r.faixa.label+'</div>'
+        + '</div>'
+        + '<div style="font-size:13px;font-family:var(--mono);font-weight:600;color:'+r.faixa.cor+';flex-shrink:0;width:52px;text-align:right">'+r.conv.toFixed(2)+'%</div>'
+        + '<div style="font-size:11px;color:var(--muted);flex-shrink:0;width:80px;text-align:right">'
+          + (r.convOk>0?'<span style="color:#2ec98a">OK:'+r.convOk.toFixed(1)+'% </span>':'')
+          + (r.convSy>0?'<span style="color:#4f8ef7">Sy:'+r.convSy.toFixed(1)+'% </span>':'')
+          + (r.convMa>0?'<span style="color:#f5a623">Ma:'+r.convMa.toFixed(1)+'%</span>':'')
+        + '</div>'
+        + '<button onclick="toggleDrill(''+r.m+'',''+r.f+'')" title="Ver mídias" style="margin-left:8px;flex-shrink:0;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer;font-family:var(--font)">▼ Mídias</button>'
       + '</div>'
-      + '<div style="font-size:13px;font-family:var(--mono);font-weight:600;color:'+r.faixa.cor+';flex-shrink:0;width:52px;text-align:right">'+r.conv.toFixed(2)+'%</div>'
-      + '<div style="font-size:11px;color:var(--muted);flex-shrink:0;width:80px;text-align:right">'
-        + (r.convOk>0?'<span style="color:#2ec98a">OK:'+r.convOk.toFixed(1)+'% </span>':'')
-        + (r.convSy>0?'<span style="color:#4f8ef7">Sy:'+r.convSy.toFixed(1)+'% </span>':'')
-        + (r.convMa>0?'<span style="color:#f5a623">Ma:'+r.convMa.toFixed(1)+'%</span>':'')
-      + '</div>'
-      + '</div>';
+      + '<div id="'+drillId+'" style="display:none;padding:0 12px 4px 44px"></div>'
+    + '</div>';
   }).join('');
+}
+
+// ── DRILL-DOWN POR MÍDIA (Ranking) ──────────────────────────────────────────
+const _drillState = {}; // 'marca|filial' → {open, loaded}
+
+async function toggleDrill(m, f) {
+  const key  = m + '|' + f;
+  const panel = document.getElementById('drill-' + key.replace(/[|]/g,'_'));
+  if (!panel) return;
+  const st = _drillState[key] = _drillState[key] || {open:false, loaded:false};
+  st.open = !st.open;
+  panel.style.display = st.open ? 'block' : 'none';
+  if (!st.open) return;
+  if (st.loaded) return; // já carregou
+  panel.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 0">Carregando mídias…</div>';
+  try {
+    if (!await initFirebase()) throw new Error('Firebase offline');
+    // Datas do período ativo
+    const dates = getDates(period);
+    const fromDt = dates[0], toDt = dates[dates.length-1];
+    let q = fbDb.collection('vendas')
+      .where('marca', '==', m)
+      .where('filial', '==', f)
+      .where('dtFat', '>=', fromDt)
+      .where('dtFat', '<=', toDt);
+    const snap = await q.get();
+    const docs = snap.docs.map(d=>d.data());
+    if (!docs.length) {
+      panel.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 0">Nenhuma venda registrada neste período.</div>';
+      st.loaded = true; return;
+    }
+    // Agrupa por mídia
+    const byM = {};
+    docs.forEach(d => {
+      const mid = (d.midia || 'Não informado').toUpperCase();
+      if (!byM[mid]) byM[mid] = {v:0, cons:0};
+      byM[mid].v++;
+      if (d.dentroJanela) byM[mid].cons++;
+    });
+    const sorted = Object.entries(byM).sort((a,b)=>b[1].v-a[1].v);
+    const total  = docs.length;
+    const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últ. 7d',mes:'Últ. 30d','semana-atual':'Esta semana','mes-atual':'Este mês',custom:'Período'};
+    const pLbl = pMap[period]||period;
+    panel.innerHTML = '<div style="padding:10px 0 4px">'
+      + '<div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:8px;letter-spacing:.5px">MÍDIAS — ' + total + ' vendas · ' + pLbl + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:6px">'
+      + sorted.map(([mid, data]) => {
+          const pct = Math.round((data.v/total)*100);
+          const barW = Math.min(100, pct);
+          return '<div style="min-width:180px;flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
+              + '<span style="font-size:10px;font-weight:600;color:var(--text)">' + mid + '</span>'
+              + '<span style="font-size:11px;font-family:var(--mono);font-weight:600;color:var(--accent)">' + data.v + 'v</span>'
+            + '</div>'
+            + '<div style="height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:4px">'
+              + '<div style="height:100%;width:' + barW + '%;background:var(--accent);border-radius:2px"></div>'
+            + '</div>'
+            + '<div style="font-size:9px;color:var(--muted)">' + pct + '% das vendas · ' + data.cons + ' considerada(s)</div>'
+          + '</div>';
+        }).join('')
+      + '</div></div>';
+    st.loaded = true;
+  } catch(e) {
+    panel.innerHTML = '<div style="font-size:11px;color:var(--red);padding:8px 0">Erro ao carregar: ' + e.message + '</div>';
+  }
 }
 
 // ── FORM ─────────────────────────────────────────────────────────────────────
@@ -2243,9 +2434,23 @@ document.getElementById('del-modal').addEventListener('click',e=>{if(e.target===
 
 // ── CONSOLIDADO ───────────────────────────────────────────────────────────────
 function renderCons() {
-  const ds=document.getElementById('cons-dt')?.value||today();
-  const entries=getE().filter(e=>e.ds===ds);
-  const dl=fmtD(ds);
+  let entries, dl;
+  if (consMode === 'periodo') {
+    const mf = marca === 'todas' ? null : marca;
+    entries = filterE(getE(), period, marca);
+    const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês',custom:'Período personalizado'};
+    dl = period==='custom'&&customFrom&&customTo
+      ? (customFrom===customTo ? fmtD(customFrom) : fmtD(customFrom)+'–'+fmtD(customTo))
+      : (pMap[period]||period);
+    const subEl = document.getElementById('cons-sub');
+    if(subEl) subEl.textContent = 'Período filtrado · ' + dl;
+  } else {
+    const ds=document.getElementById('cons-dt')?.value||today();
+    entries=getE().filter(e=>e.ds===ds);
+    dl=fmtD(ds);
+    const subEl = document.getElementById('cons-sub');
+    if(subEl) subEl.textContent = 'Todas as marcas · pronto para WhatsApp';
+  }
   const trec=entries.reduce((s,e)=>s+e.prec,0);
   const tnao=entries.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
   const tatend=trec-tnao;
@@ -2269,7 +2474,7 @@ function renderCons() {
     return `<div class="chart-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div style="display:flex;align-items:center;gap:8px"><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600">${MLABELS[m]||m}</span><span style="font-size:12px;color:var(--muted)">${me.length} filiais · ${me.reduce((s,e)=>s+e.v,0)} vendas</span></div><button class="btn-g" onclick="copyMarca('${m}')" style="font-size:11px;padding:4px 9px">Copiar marca</button></div><pre style="font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6;background:var(--bg3);border-radius:6px;padding:11px;border:1px solid var(--border)">${txt.trim()}</pre></div>`;
   }).join('');
   full+=[`——————————————————————————————`,'*FUNIL DO DIA — '+dl+'*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
-  full+='\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  full+='\n\n🔗 https://bit.ly/4vy8RMg\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   document.getElementById('cons-txt').textContent=full;
   window._cf=full;
 }
@@ -2439,7 +2644,7 @@ function copyPVAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
-  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  txt += '\n\n🔗 https://bit.ly/4vy8RMg\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, 'Pré-venda copiado!');
 }
 
@@ -2626,7 +2831,7 @@ function copyResgateAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
-  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  txt += '\n\n🔗 https://bit.ly/4vy8RMg\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, `${tipo} copiado!`);
 }
 
@@ -2645,6 +2850,7 @@ function copyResgateRow(m, f) {
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function gv(v) {
+  _checkSessionExpiry();
   if(_formDirty && document.getElementById('v-input').style.display!=='none' && v!=='input'){
     if(!confirm('Há dados não salvos no formulário. Deseja sair mesmo assim?')) return;
     _clearDirty();
@@ -2684,6 +2890,7 @@ function lastWorkday() {
 
 // ── REFRESH ───────────────────────────────────────────────────────────────────
 function refresh() {
+  _checkSessionExpiry();
   const all=getE(), f=filterE(all,period,marca);
   const yf=all.filter(e=>e.ds===lastWorkday()&&(marca==='todas'||e.m===marca));
   renderKPIs(calcKPIs(f),calcKPIs(yf));
@@ -2691,7 +2898,7 @@ function refresh() {
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
   renderChartF(f); renderChartEv(); renderSparklines();
-  renderFunil(f); renderAlerts(f);
+  renderFunil(f); renderAlerts(f); renderMonthComp();
   const lu=localStorage.getItem('db_last');
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
 }
