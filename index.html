@@ -425,7 +425,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <select id="marca-flt" onchange="setMarca(this.value)">
         <option value="todas">Todas as marcas</option>
         <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
+        <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
       </select>
       <!-- Mobile: período pill shown inline -->
       <button id="mob-period-pill" onclick="openDateModal()"
@@ -586,16 +586,6 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         </div>
         <div id="sparklines-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px"></div>
       </div>
-      <!-- COMPARATIVO MÊS A MÊS -->
-      <div class="chart-card" style="margin-bottom:20px" id="month-comp-card">
-        <div class="chart-hdr" style="margin-bottom:12px">
-          <div>
-            <div class="chart-ttl">Comparativo mês a mês</div>
-            <div style="font-size:11px;color:var(--muted)" id="month-comp-lbl">acumulado até hoje vs. mesmo período mês anterior</div>
-          </div>
-        </div>
-        <div id="month-comp-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
-      </div>
     </div>
 
     <!-- INSERIR DADOS -->
@@ -608,7 +598,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="form-grid">
           <div class="form-fld"><label class="form-lbl">Marca</label>
             <select class="form-inp" id="in-marca" onchange="upFiliais()">
-              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
+              <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
             </select>
           </div>
           <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="in-filial"></select></div>
@@ -716,7 +706,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="hist-flt">
           <select id="hf-mrc" onchange="renderHist()" style="font-size:12px">
             <option value="">Todas as marcas</option>
-            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
+            <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
           </select>
           <select id="hf-fil" onchange="renderHist()" style="font-size:12px"><option value="">Todas as filiais</option></select>
           <input type="date" id="hf-de" onchange="renderHist()">
@@ -751,21 +741,10 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
         <div>
           <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Relatório Consolidado</div>
-          <div style="font-size:12px;color:var(--muted)" id="cons-sub">Todas as marcas · pronto para WhatsApp</div>
+          <div style="font-size:12px;color:var(--muted)">Todas as marcas · pronto para WhatsApp</div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <!-- Modo toggle -->
-          <div style="display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden">
-            <button id="cons-mode-dia" onclick="setConsMode('dia')"
-              style="padding:5px 11px;font-size:11px;font-weight:600;font-family:var(--font);background:var(--accent);color:#fff;border:none;cursor:pointer">
-              📅 Dia
-            </button>
-            <button id="cons-mode-per" onclick="setConsMode('periodo')"
-              style="padding:5px 11px;font-size:11px;font-weight:600;font-family:var(--font);background:transparent;color:var(--muted);border:none;cursor:pointer">
-              📊 Período
-            </button>
-          </div>
-          <input type="date" id="cons-dt" onchange="renderCons()" style="display:block">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <input type="date" id="cons-dt" onchange="renderCons()">
           <button class="btn-p" onclick="copyCons()">
             <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="white" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="white" stroke-width="1.2"/></svg>
             Copiar tudo
@@ -787,7 +766,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <div id="v-ranking" style="display:none">
       <div class="chart-card">
         <div class="sec-hdr" style="margin-bottom:14px">
-          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ leads recebidos no período · <span id="rank-period-lbl" style="color:var(--amber)">Hoje</span></div></div>
+          <div><div class="sec-ttl">Ranking de filiais</div><div class="sec-sub">conversão = vendas ÷ (pré-venda + resgate de insucesso) · <span id="rank-period-lbl" style="color:var(--amber)">Hoje</span></div></div>
           <select onchange="renderRank(this.value)" style="font-size:12px">
             <option value="conv">% Conversão total</option><option value="vendas">Vendas identificadas</option><option value="ok">Conversão Processo OK</option>
           </select>
@@ -816,11 +795,11 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="form-fld"><label class="form-lbl">Marca</label>
               <select class="form-inp" id="vv-marca" onchange="vvUpFiliais()">
                 <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
               </select>
             </div>
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
-            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
+            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat" oninput="vvUpdateJanela()"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
             <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
@@ -912,7 +891,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               <select id="vvf-marca" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
                 <option value="">Todas marcas</option>
                 <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option>
-                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
+                <option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
               </select>
               <select id="vvf-status" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
                 <option value="">Todos status</option>
@@ -1047,7 +1026,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:14px">
       <div class="form-fld"><label class="form-lbl">Marca</label>
         <select class="form-inp" id="m-mrc" onchange="upMFiliais()">
-          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option><option>Seminovos</option>
+          <option>FIAT</option><option>BYD</option><option value="Peugeot">Peugeot/Citroen</option><option>Jeep</option><option>Denza</option><option>VW</option><option>Leapmotor</option>
         </select>
       </div>
       <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="m-fil"></select></div>
@@ -1318,8 +1297,16 @@ const FILIAIS = {
   Jeep:    ['São José do Rio Preto','Barretos','Votuporanga'],
   Denza:   ['Ribeirão Preto'],
   VW:      ['Bauru','Orlândia'],
-  Leapmotor: ['Santos'],
-  Seminovos: ['São José do Rio Preto']
+  Leapmotor: ['Santos']
+};
+const METAS = {
+  'FIAT|Bauru':20,'FIAT|Botucatu':14,'FIAT|Jaú':12,'FIAT|Marília':16,'FIAT|Santos':22,'FIAT|Taguatinga':10,
+  'BYD|Bauru':12,'BYD|Marília':10,'BYD|Botucatu':9,'BYD|São José do Rio Preto':14,'BYD|Araçatuba':11,
+  'Peugeot|Bauru':9,'Peugeot|Marília':8,'Peugeot|Ribeirão Preto':11,
+  'Jeep|São José do Rio Preto':10,'Jeep|Barretos':8,'Jeep|Votuporanga':7,
+  'Denza|Ribeirão Preto':6,
+  'VW|Bauru':16,'VW|Orlândia':10,
+  'Leapmotor|Santos':5
 };
 
 // ── GERENTES POR FILIAL ───────────────────────────────────────────────────────
@@ -1344,8 +1331,7 @@ const GERENTES = {
   'Jeep|Votuporanga':     'Eduardo',
   'Jeep|Barretos':        'Clovis',
   'Denza|Ribeirão Preto': 'S/ Gerente',
-  'Leapmotor|Santos':     'Rodrigo',
-  'Seminovos|São José do Rio Preto': 'André Luis'
+  'Leapmotor|Santos':     'Rodrigo'
 };
 
 // ── AGENTES DE PRÉ-VENDA (OPERADORES) ────────────────────────────────────────
@@ -1369,8 +1355,7 @@ const AGENTES = {
   'Jeep|Barretos':                 'Cintia e Lurde',
   'Jeep|Votuporanga':              'Cintia e Lurde',
   'VW|Bauru':                      'Ana Beatriz',
-  'VW|Orlândia':                   'Ana Beatriz',
-  'Seminovos|São José do Rio Preto': 'Cintia e Lurde'
+  'VW|Orlândia':                   'Ana Beatriz'
 };
 // ── MÍDIAS — lista completa CAIXA ALTA ───────────────────────────────────────
 const MIDIAS = [
@@ -1389,13 +1374,15 @@ const MIDIAS_30_INS     = ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS
 const MIDIAS_30_CORR    = ['CAMPANHA/WHATSAPP'];
 
 // ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
-function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
+function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem, dtFaturamento) {
   const m = isResgate ? (midiaOrigem || midia) : midia;
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  // Referência = data de faturamento (quando disponível) ou hoje
+  const ref = dtFaturamento ? (() => { const d = new Date(dtFaturamento); d.setHours(0,0,0,0); return d; })()
+                            : (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
   function diffDias(ds) {
     if(!ds) return null;
     const d = new Date(ds); d.setHours(0,0,0,0);
-    return Math.floor((hoje - d) / 86400000);
+    return Math.floor((ref - d) / 86400000);
   }
 
   // ── Montadora / Site: 150 dias da criação ────────────────────────────────
@@ -1447,7 +1434,6 @@ const TOKENS_RO = {
   'GM-FIAT':          { nome:'Gerência FIAT',      role:'gerente', marcas:['FIAT'] },
   'GM-PSA':           { nome:'Gerência Peugeot',   role:'gerente', marcas:['Peugeot'] },
   'GM-LEAP':          { nome:'Gerência Leapmotor', role:'gerente', marcas:['Leapmotor'] },
-  'GM-SEMINO':        { nome:'Gerência Seminovos',  role:'gerente', marcas:['Seminovos'] },
 };
 
 let _authRole  = null; // 'operador' | 'gerente' | 'diretor'
@@ -1465,10 +1451,6 @@ function _initAuth() {
     _roMode    = true;
     localStorage.setItem('auth_role', _authRole);
     localStorage.setItem('auth_token', tk);
-    // Diretores: sem expiração. Gerentes: 2h
-    if (_authRole !== 'diretor') {
-      localStorage.setItem('auth_exp', Date.now() + 2 * 60 * 60 * 1000);
-    }
     _applyAuth();
     return;
   }
@@ -1479,21 +1461,15 @@ function _initAuth() {
     _applyAuth(); return;
   }
 
-  // Sessão salva — verifica expiração de 2 horas
+  // Sessão salva — verifica expiração de 6 horas
   const saved    = localStorage.getItem('auth_role');
-  const savedTk  = localStorage.getItem('auth_token');
   const savedExp = parseInt(localStorage.getItem('auth_exp') || '0', 10);
-  if ((saved === 'operador' || saved === 'gerente') && Date.now() < savedExp) {
-    if (saved === 'gerente' && savedTk && TOKENS_RO[savedTk]) {
-      _authToken = TOKENS_RO[savedTk]; _authRole = 'gerente'; _roMode = true;
-    } else {
-      _authRole = 'operador';
-    }
-    _applyAuth(); return;
+  const SESSION_MS = 6 * 60 * 60 * 1000; // 6 horas
+  if (saved === 'operador' && Date.now() < savedExp) {
+    _authRole = 'operador'; _applyAuth(); return;
   }
   // Sessão expirada ou inexistente — limpa e exige senha
   localStorage.removeItem('auth_role');
-  localStorage.removeItem('auth_token');
   localStorage.removeItem('auth_exp');
 
   // Exibir login
@@ -1523,7 +1499,7 @@ function authSubmit() {
   if (pw === OP_PASSWORD_HASH) {
     _authRole = 'operador';
     localStorage.setItem('auth_role', 'operador');
-    localStorage.setItem('auth_exp', Date.now() + 2 * 60 * 60 * 1000);
+    localStorage.setItem('auth_exp', Date.now() + 6 * 60 * 60 * 1000);
     _applyAuth();
     // Se havia ação pendente que exigia operador, executa agora
     const pending = window._pendingView;
@@ -1548,23 +1524,7 @@ function _requireOperador(callback) {
 function authLogout() {
   localStorage.removeItem('auth_role');
   localStorage.removeItem('auth_token');
-  localStorage.removeItem('auth_exp');
   location.href = location.pathname;
-}
-
-// ── VERIFICAÇÃO DE EXPIRAÇÃO DE SESSÃO (chamada em refresh e gv) ─────────────
-function _checkSessionExpiry() {
-  if (_authRole === 'diretor') return; // diretores isentos — sem expiração
-  if (!_authRole) return;
-  const exp = parseInt(localStorage.getItem('auth_exp') || '0', 10);
-  if (exp && Date.now() > exp) {
-    localStorage.removeItem('auth_role');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_exp');
-    _authRole = null; _authToken = null; _roMode = false;
-    toast('Sessão expirada — faça login novamente');
-    setTimeout(() => location.reload(), 1800);
-  }
 }
 
 // ── FIREBASE CONFIG ───────────────────────────────────────────────────────────
@@ -1735,8 +1695,8 @@ async function saveFbConfig(migrate) {
   else          { setTimeout(fbSync, 800); }
 }
 
-const COLORS = {FIAT:'#4f8ef7',BYD:'#2ec98a',Peugeot:'#f5a623',Jeep:'#f05252',Denza:'#38b2d8',VW:'#7c5fe6',Leapmotor:'#e8500a',Seminovos:'#e8439a'};
-const MLABELS = {FIAT:'FIAT',BYD:'BYD',Peugeot:'PEUGEOT/CITROËN',Jeep:'JEEP',Denza:'DENZA',VW:'ALLMA VOLKSWAGEN',Leapmotor:'LEAPMOTOR',Seminovos:'ALLMA SEMINOVOS'};
+const COLORS = {FIAT:'#4f8ef7',BYD:'#2ec98a',Peugeot:'#f5a623',Jeep:'#f05252',Denza:'#38b2d8',VW:'#7c5fe6',Leapmotor:'#e8500a'};
+const MLABELS = {FIAT:'FIAT',BYD:'BYD',Peugeot:'PEUGEOT/CITROËN',Jeep:'JEEP',Denza:'DENZA',VW:'ALLMA VOLKSWAGEN',Leapmotor:'LEAPMOTOR'};
 
 function seed() {
   // Dados de exemplo removidos — os dados reais vêm do Firebase
@@ -1771,28 +1731,16 @@ function fmtD(ds){const[y,mo,d]=ds.split('-');return`${d}/${mo}/${y}`}
 
 // ── FAIXAS DE CONVERSÃO ──────────────────────────────────────────────────────
 function getFaixa(pct) {
-  // Faixas de conversão (vendas / leads recebidos no período)
-  if (pct < 2.6)  return { label:'Crítico',   cor:'#f05252', bg:'rgba(240,82,82,.12)'   };
-  if (pct < 3.6)  return { label:'Atenção',   cor:'#f5a623', bg:'rgba(245,166,35,.12)'  };
-  if (pct <= 5.0) return { label:'Objetivo',  cor:'#2ec98a', bg:'rgba(46,201,138,.12)'  };
-  return           { label:'Excelência', cor:'#0a7c4e', bg:'rgba(10,124,78,.15)'    };
+  if (pct <= 2.50) return { label:'Crítico / Abaixo da Meta', cor:'#f05252', bg:'rgba(240,82,82,.12)' };
+  if (pct <= 3.00) return { label:'Em Desenvolvimento', cor:'#f5a623', bg:'rgba(245,166,35,.12)' };
+  if (pct <= 3.50) return { label:'Eficiente / Pleno', cor:'#4f8ef7', bg:'rgba(79,142,247,.12)' };
+  if (pct <= 5.00) return { label:'Excelência / Alta Performance', cor:'#2ec98a', bg:'rgba(46,201,138,.12)' };
+  return { label:'Exponencial / Outlier', cor:'#7c5fe6', bg:'rgba(124,95,230,.12)' };
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let period='hoje', marca='todas', charts={}, hPage=0, pendingDel=null;
 let customFrom='', customTo='';
-let consMode='dia'; // 'dia' | 'periodo'
-
-function setConsMode(m) {
-  consMode = m;
-  const dtEl  = document.getElementById('cons-dt');
-  const btnD  = document.getElementById('cons-mode-dia');
-  const btnP  = document.getElementById('cons-mode-per');
-  if (dtEl)  dtEl.style.display  = m === 'dia' ? 'block' : 'none';
-  if (btnD) { btnD.style.background = m==='dia'?'var(--accent)':'transparent'; btnD.style.color=m==='dia'?'#fff':'var(--muted)'; }
-  if (btnP) { btnP.style.background = m==='periodo'?'var(--accent)':'transparent'; btnP.style.color=m==='periodo'?'#fff':'var(--muted)'; }
-  renderCons();
-}
 const PG=15;
 
 function getDates(p) {
@@ -1871,6 +1819,11 @@ function calcKPIs(f) {
   const txConvOk=trec>0?parseFloat((tok/trec*100).toFixed(2)):0;
   const txConvSy=trec>0?parseFloat((tsy/trec*100).toFixed(2)):0;
   const txConvMa=trec>0?parseFloat((tma/trec*100).toFixed(2)):0;
+  const td=f.filter(e=>e.ds===today());
+  const byF={};
+  td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
+  let nm=0,nt=0;
+  Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
   return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
 }
 function renderKPIs(k,pk) {
@@ -1889,8 +1842,8 @@ function renderKPIs(k,pk) {
   // Conversão total
   document.getElementById('kc').textContent=k.txConv.toFixed(2)+'%';
   const fTotal=getFaixa(k.txConv); const kcb=document.getElementById('kcb');
-  kcb.textContent='pré-venda→venda'; kcb.className='badge '+(k.txConv>=3.6?'up':k.txConv>=2.6?'nt':'dn');
-  document.getElementById('kcbar').style.width=Math.min(100,(k.txConv/5)*100)+'%';
+  kcb.textContent='pré-venda→venda'; kcb.className='badge '+(k.txConv>=3.01?'up':k.txConv>=2.51?'nt':'dn');
+  document.getElementById('kcbar').style.width=Math.min(100,k.txConv*10)+'%';
   document.getElementById('kcbar').style.background=fTotal.cor;
   const fEl=document.getElementById('kc-faixa'); if(fEl){fEl.textContent=fTotal.label;fEl.style.background=fTotal.bg;fEl.style.color=fTotal.cor;}
   // Conversão por tipo
@@ -1930,22 +1883,15 @@ function renderKPIs(k,pk) {
 function renderChartF(f) {
   const byF={};
   f.filter(e=>e.ds===today()||period!=='hoje').forEach(e=>{
-    const k=`${e.f} (${e.m})`;
-    if(!byF[k]) byF[k]={v:0,prec:0};
-    byF[k].v    += e.v;
-    byF[k].prec += (e.prec||0);
+    const k=`${e.f} (${e.m})`;if(!byF[k])byF[k]={v:0,mt:METAS[`${e.m}|${e.f}`]||10};byF[k].v+=e.v;
   });
   const labels=Object.keys(byF).slice(0,10);
-  // Barras coloridas pela faixa de conversão de cada filial
-  const barColors=labels.map(k=>{
-    const x=byF[k];
-    const conv=x.prec>0?(x.v/x.prec*100):0;
-    return getFaixa(conv).cor+'bb';
-  });
+  const mul=period==='semana'?7:period==='mes'?30:1;
   const ctx=document.getElementById('ch-filiais').getContext('2d');
   if(charts.f)charts.f.destroy();
   charts.f=new Chart(ctx,{type:'bar',data:{labels,datasets:[
-    {data:labels.map(k=>byF[k].v),backgroundColor:barColors,borderRadius:4,borderSkipped:false}
+    {data:labels.map(k=>byF[k].v),backgroundColor:'#4f8ef7bb',borderRadius:4,borderSkipped:false},
+    {data:labels.map(k=>byF[k].mt*mul),type:'line',borderColor:'rgba(255,255,255,.2)',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false}
   ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
     x:{ticks:{color:'#7a8094',font:{size:10},maxRotation:35},grid:{color:'rgba(255,255,255,.04)'}},
     y:{ticks:{color:'#7a8094',font:{size:10}},grid:{color:'rgba(255,255,255,.06)'},beginAtZero:true}
@@ -2022,66 +1968,6 @@ function renderSparklines() {
   }).join('');
 }
 
-// ── COMPARATIVO MÊS A MÊS ────────────────────────────────────────────────────
-function renderMonthComp() {
-  const card = document.getElementById('month-comp-card');
-  if (!card) return;
-  const all = getE();
-  const t   = new Date();
-  const day = t.getDate(); // dia atual (ex: 15)
-  // Mês atual: 01 a DD do mês corrente
-  const yCur = t.getFullYear(), mCur = String(t.getMonth()+1).padStart(2,'0');
-  // Mês anterior
-  const tPrev = new Date(t.getFullYear(), t.getMonth()-1, 1);
-  const yPrev = tPrev.getFullYear(), mPrev = String(tPrev.getMonth()+1).padStart(2,'0');
-  // Filtro marca
-  const mf = marca === 'todas' ? null : marca;
-  function inRange(ds, y, m) {
-    const d = parseInt(ds.split('-')[2],10);
-    return ds.startsWith(`${y}-${m}-`) && d <= day;
-  }
-  const cur  = all.filter(e => inRange(e.ds, yCur, mCur)  && (!mf || e.m === mf));
-  const prev = all.filter(e => inRange(e.ds, yPrev, mPrev) && (!mf || e.m === mf));
-  function agg(arr) {
-    const v    = arr.reduce((s,e)=>s+e.v,0);
-    const prec = arr.reduce((s,e)=>s+(e.prec||0),0);
-    const ok   = arr.reduce((s,e)=>s+(e.ok||0),0);
-    const tatend = prec - arr.reduce((s,e)=>s+Math.max(0,(e.prec||0)-(e.patend||0)),0);
-    const conv = prec > 0 ? parseFloat((v/prec*100).toFixed(2)) : 0;
-    const atend = prec > 0 ? Math.round((tatend/prec)*100) : 0;
-    return { v, prec, conv, atend };
-  }
-  const a = agg(cur), b = agg(prev);
-  const lCur  = `${String(day).padStart(2,'0')}/${mCur}/${yCur}`;
-  const lPrev = `01–${String(day).padStart(2,'0')}/${mPrev}/${yPrev}`;
-  document.getElementById('month-comp-lbl').textContent =
-    `Acumulado 01–${lCur} vs. mesmo período mês anterior`;
-  function delta(va, vb) {
-    if (!vb) return { txt: '—', cls: '' };
-    const d = parseFloat(((va - vb) / vb * 100).toFixed(1));
-    return { txt: (d >= 0 ? '+' : '') + d + '%', cls: d >= 0 ? 'up' : 'dn' };
-  }
-  const metrics = [
-    { lbl:'Vendas',           cur:a.v,    prev:b.v,    fmt:v=>v,             unit:'' },
-    { lbl:'Leads recebidos',  cur:a.prec, prev:b.prec, fmt:v=>v,             unit:'' },
-    { lbl:'Taxa conversão',   cur:a.conv, prev:b.conv, fmt:v=>v.toFixed(2)+'%', unit:'%', faixa:true },
-    { lbl:'Taxa atendimento', cur:a.atend,prev:b.atend,fmt:v=>v+'%',         unit:'%' }
-  ];
-  document.getElementById('month-comp-grid').innerHTML = metrics.map(mt => {
-    const d = delta(mt.cur, mt.prev);
-    const mainClr = mt.faixa ? getFaixa(mt.cur).cor : 'var(--text)';
-    const prevClr = mt.faixa ? getFaixa(mt.prev||0).cor : 'var(--muted)';
-    return `<div style="background:var(--bg3);border-radius:8px;padding:11px 13px;border:1px solid var(--border)">
-      <div style="font-size:11px;color:var(--muted);margin-bottom:5px">${mt.lbl}</div>
-      <div style="font-size:20px;font-weight:600;font-family:var(--mono);color:${mainClr}">${mt.fmt(mt.cur)}</div>
-      <div style="display:flex;align-items:center;gap:7px;margin-top:5px">
-        ${d.cls ? `<span class="badge ${d.cls}" style="font-size:10px;padding:1px 6px">${d.txt}</span>` : ''}
-        <span style="font-size:11px;color:${prevClr}">ant: ${mt.fmt(mt.prev)}</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
 // ── FUNIL ─────────────────────────────────────────────────────────────────────
 function renderFunil(f) {
   const rec=f.reduce((s,e)=>s+e.prec,0);
@@ -2101,20 +1987,18 @@ function renderFunil(f) {
 
 // ── STREAK ────────────────────────────────────────────────────────────────────
 function calcStreak(m, f) {
-  // Dias consecutivos com conversão em faixa Crítica (<2.6%), contando de ontem
+  // Returns consecutive days below 90% of target (counting back from yesterday)
   const all = getE();
+  const mt = METAS[`${m}|${f}`] || 10;
   let streak = 0;
   const t = new Date();
   for(let i = 1; i <= 30; i++) {
     const d = new Date(t); d.setDate(d.getDate()-i);
     const ds = d.toISOString().split('T')[0];
     const dayEntries = all.filter(e=>e.ds===ds&&e.m===m&&e.f===f);
-    if(dayEntries.length===0) break;
-    const v    = dayEntries.reduce((s,e)=>s+e.v,       0);
-    const prec = dayEntries.reduce((s,e)=>s+(e.prec||0),0);
-    if(prec===0) break; // sem leads no dia, não conta
-    const conv = (v/prec)*100;
-    if(conv >= 2.6) break; // saiu da faixa Crítica
+    if(dayEntries.length===0) break; // no data = stop counting
+    const v = dayEntries.reduce((s,e)=>s+e.v, 0);
+    if(v >= mt * 0.9) break; // hit target = stop
     streak++;
   }
   return streak;
@@ -2122,38 +2006,13 @@ function calcStreak(m, f) {
 
 // ── ALERTS ────────────────────────────────────────────────────────────────────
 function renderAlerts(f) {
-  // Agrega por filial no período filtrado (não apenas hoje)
-  const byF={};
-  f.forEach(e=>{
-    const k=`${e.m}|${e.f}`;
-    if(!byF[k]) byF[k]={v:0,prec:0,m:e.m,f:e.f};
-    byF[k].v    += e.v;
-    byF[k].prec += (e.prec||0);
-  });
-  const rows=Object.values(byF)
-    .filter(x=>x.prec>0)
-    .map(x=>{
-      const conv=parseFloat((x.v/x.prec*100).toFixed(2));
-      return{...x, conv, faixa:getFaixa(conv)};
-    })
-    .sort((a,b)=>a.conv-b.conv);
-
-  // Banner: crítico tem prioridade sobre atenção
-  const criticas=rows.filter(r=>r.conv<2.6);
-  const atencao =rows.filter(r=>r.conv>=2.6&&r.conv<3.6);
+  const td=f.filter(e=>e.ds===today());
+  const byF={};td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
+  const rows=Object.values(byF).map(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;return{...x,mt,pct:Math.round((x.v/mt)*100)};}).sort((a,b)=>a.pct-b.pct);
+  const bad=rows.filter(r=>r.pct<90);
   const bn=document.getElementById('alert-banner');
-  if(criticas.length>0){
-    bn.style.display='flex';
-    document.getElementById('alert-txt').textContent=`${criticas.length} filial(is) em conversão crítica`;
-    document.getElementById('alert-cnt').textContent=criticas.length+' alertas';
-  } else if(atencao.length>0){
-    bn.style.display='flex';
-    document.getElementById('alert-txt').textContent=`${atencao.length} filial(is) em atenção`;
-    document.getElementById('alert-cnt').textContent=atencao.length+' alertas';
-  } else {
-    bn.style.display='none';
-  }
-
+  if(bad.length>0){bn.style.display='flex';document.getElementById('alert-txt').textContent=`${bad.length} filial(is) abaixo de 90% da meta`;document.getElementById('alert-cnt').textContent=bad.length+' alertas';}
+  else bn.style.display='none';
   // Detectar filiais sem relatório hoje (apenas se period==='hoje')
   const srBanner = document.getElementById('alert-sem-relatorio');
   if(srBanner) {
@@ -2166,6 +2025,7 @@ function renderAlerts(f) {
     if(period==='hoje' && missing.length>0) {
       srBanner.style.display='flex';
       document.getElementById('alert-sr-cnt').textContent = missing.length+' sem relatório';
+      // Show up to 4 names then "e mais N"
       const names = missing.map(x=>`${x.f} (${x.m})`);
       const shown = names.length<=4 ? names.join(', ') : names.slice(0,4).join(', ')+` e mais ${names.length-4}`;
       document.getElementById('alert-sr-nomes').textContent = shown;
@@ -2173,13 +2033,12 @@ function renderAlerts(f) {
       srBanner.style.display='none';
     }
   }
-
   document.getElementById('alerts-list').innerHTML=rows.slice(0,8).map(r=>{
-    const dc=r.conv<2.6?'dot-r':r.conv<3.6?'dot-a':'dot-g';
+    const dc=r.pct<70?'dot-r':r.pct<90?'dot-a':'dot-g';
+    const pc=r.pct<70?'var(--red)':r.pct<90?'var(--amber)':'var(--green)';
     const streak=calcStreak(r.m,r.f);
-    const streakHtml=streak>=2?`<span title="${streak} dias seguidos em crítico" style="font-size:10px;font-weight:700;color:var(--red);background:rgba(240,82,82,.12);padding:1px 6px;border-radius:4px;margin-left:4px">🔥${streak}d</span>`:'';
-    const barW=Math.min(100,(r.conv/5)*100);
-    return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center">${r.f}${streakHtml}</div><div style="font-size:11px;color:var(--muted)">${r.m} · ${r.faixa.label} · Ger: ${GERENTES[r.m+'|'+r.f]||'—'}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v}v / ${r.prec}L</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${barW.toFixed(0)}%;background:${r.faixa.cor};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:42px;text-align:right;color:${r.faixa.cor}">${r.conv.toFixed(1)}%</div></div></div>`;
+    const streakHtml=streak>=2?`<span title="${streak} dias seguidos abaixo da meta" style="font-size:10px;font-weight:700;color:var(--red);background:rgba(240,82,82,.12);padding:1px 6px;border-radius:4px;margin-left:4px">🔥${streak}d</span>`:'';
+    return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center">${r.f}${streakHtml}</div><div style="font-size:11px;color:var(--muted)">${r.m} · meta:${r.mt} · Ger: ${GERENTES[r.m+'|'+r.f]||'—'}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v} vendas</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(100,r.pct)}%;background:${pc};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:38px;text-align:right;color:${pc}">${r.pct}%</div></div></div>`;
   }).join('');
 }
 
@@ -2206,8 +2065,8 @@ function renderRank(by='conv') {
     byF[k].frec += (e.frec||0);
   });
   const rows=Object.values(byF).map(x=>{
-    // Base de conversão = leads recebidos no período (prec)
-    const base = x.prec;
+    // Base de conversão = pré-venda recebida + resgate de insucesso
+    const base = x.prec + x.rrec;
     const conv = base > 0 ? parseFloat((x.v / base * 100).toFixed(2)) : 0;
     const convOk = base > 0 ? parseFloat((x.ok / base * 100).toFixed(2)) : 0;
     const convSy = base > 0 ? parseFloat((x.sy / base * 100).toFixed(2)) : 0;
@@ -2219,100 +2078,28 @@ function renderRank(by='conv') {
   else if(by==='vendas') rows.sort((a,b)=>b.v-a.v);
   else if(by==='ok')    rows.sort((a,b)=>b.convOk-a.convOk);
   const pcls=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
-  // Reset drill states ao re-renderizar
-  Object.keys(_drillState).forEach(k=>{ _drillState[k]={open:false,loaded:false}; });
   document.getElementById('rank-list').innerHTML=rows.map((r,i)=>{
-    const barW = Math.min(100, (r.conv/5)*100);
-    const drillId = 'drill-' + (r.m+'|'+r.f).replace(/[|]/g,'_');
-    return '<div style="border-bottom:1px solid var(--border)">'
-      + '<div class="rank-row" style="border-bottom:none">'
-        + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
-        + '<div class="rank-name">'
-          + '<div class="rank-fil">'+r.f+'</div>'
-          + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d crítico</span>':'')+'</div>';})()
-        + '</div>'
-        + '<div style="flex:1;min-width:60px;padding:0 10px">'
-          + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
-            + '<div style="height:100%;width:'+barW+'%;background:'+r.faixa.cor+';border-radius:3px"></div>'
-          + '</div>'
-          + '<div style="font-size:10px;color:'+r.faixa.cor+';margin-top:3px;font-weight:500">'+r.faixa.label+'</div>'
-        + '</div>'
-        + '<div style="font-size:13px;font-family:var(--mono);font-weight:600;color:'+r.faixa.cor+';flex-shrink:0;width:52px;text-align:right">'+r.conv.toFixed(2)+'%</div>'
-        + '<div style="font-size:11px;color:var(--muted);flex-shrink:0;width:80px;text-align:right">'
-          + (r.convOk>0?'<span style="color:#2ec98a">OK:'+r.convOk.toFixed(1)+'% </span>':'')
-          + (r.convSy>0?'<span style="color:#4f8ef7">Sy:'+r.convSy.toFixed(1)+'% </span>':'')
-          + (r.convMa>0?'<span style="color:#f5a623">Ma:'+r.convMa.toFixed(1)+'%</span>':'')
-        + '</div>'
-        + '<button data-m="'+r.m+'" data-f="'+r.f+'" onclick="toggleDrill(this.dataset.m,this.dataset.f)" title="Ver mídias" style="margin-left:8px;flex-shrink:0;background:transparent;border:1px solid var(--border2);color:var(--muted);border-radius:5px;padding:3px 7px;font-size:10px;cursor:pointer;font-family:var(--font)">▼ Mídias</button>'
+    const barW = Math.min(100, r.conv * 10);
+    return '<div class="rank-row">'
+      + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
+      + '<div class="rank-name">'
+        + '<div class="rank-fil">'+r.f+'</div>'
+        + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d sem meta</span>':'')+'</div>';})()
       + '</div>'
-      + '<div id="'+drillId+'" style="display:none;padding:0 12px 4px 44px"></div>'
-    + '</div>';
+      + '<div style="flex:1;min-width:60px;padding:0 10px">'
+        + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
+          + '<div style="height:100%;width:'+barW+'%;background:'+r.faixa.cor+';border-radius:3px"></div>'
+        + '</div>'
+        + '<div style="font-size:10px;color:'+r.faixa.cor+';margin-top:3px;font-weight:500">'+r.faixa.label+'</div>'
+      + '</div>'
+      + '<div style="font-size:13px;font-family:var(--mono);font-weight:600;color:'+r.faixa.cor+';flex-shrink:0;width:52px;text-align:right">'+r.conv.toFixed(2)+'%</div>'
+      + '<div style="font-size:11px;color:var(--muted);flex-shrink:0;width:80px;text-align:right">'
+        + (r.convOk>0?'<span style="color:#2ec98a">OK:'+r.convOk.toFixed(1)+'% </span>':'')
+        + (r.convSy>0?'<span style="color:#4f8ef7">Sy:'+r.convSy.toFixed(1)+'% </span>':'')
+        + (r.convMa>0?'<span style="color:#f5a623">Ma:'+r.convMa.toFixed(1)+'%</span>':'')
+      + '</div>'
+      + '</div>';
   }).join('');
-}
-
-// ── DRILL-DOWN POR MÍDIA (Ranking) ──────────────────────────────────────────
-const _drillState = {}; // 'marca|filial' → {open, loaded}
-
-async function toggleDrill(m, f) {
-  const key  = m + '|' + f;
-  const panel = document.getElementById('drill-' + key.replace(/[|]/g,'_'));
-  if (!panel) return;
-  const st = _drillState[key] = _drillState[key] || {open:false, loaded:false};
-  st.open = !st.open;
-  panel.style.display = st.open ? 'block' : 'none';
-  if (!st.open) return;
-  if (st.loaded) return; // já carregou
-  panel.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 0">Carregando mídias…</div>';
-  try {
-    if (!await initFirebase()) throw new Error('Firebase offline');
-    // Datas do período ativo
-    const dates = getDates(period);
-    const fromDt = dates[0], toDt = dates[dates.length-1];
-    let q = fbDb.collection('vendas')
-      .where('marca', '==', m)
-      .where('filial', '==', f)
-      .where('dtFat', '>=', fromDt)
-      .where('dtFat', '<=', toDt);
-    const snap = await q.get();
-    const docs = snap.docs.map(d=>d.data());
-    if (!docs.length) {
-      panel.innerHTML = '<div style="font-size:11px;color:var(--muted);padding:8px 0">Nenhuma venda registrada neste período.</div>';
-      st.loaded = true; return;
-    }
-    // Agrupa por mídia
-    const byM = {};
-    docs.forEach(d => {
-      const mid = (d.midia || 'Não informado').toUpperCase();
-      if (!byM[mid]) byM[mid] = {v:0, cons:0};
-      byM[mid].v++;
-      if (d.dentroJanela) byM[mid].cons++;
-    });
-    const sorted = Object.entries(byM).sort((a,b)=>b[1].v-a[1].v);
-    const total  = docs.length;
-    const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últ. 7d',mes:'Últ. 30d','semana-atual':'Esta semana','mes-atual':'Este mês',custom:'Período'};
-    const pLbl = pMap[period]||period;
-    panel.innerHTML = '<div style="padding:10px 0 4px">'
-      + '<div style="font-size:10px;font-weight:600;color:var(--muted);margin-bottom:8px;letter-spacing:.5px">MÍDIAS — ' + total + ' vendas · ' + pLbl + '</div>'
-      + '<div style="display:flex;flex-wrap:wrap;gap:6px">'
-      + sorted.map(([mid, data]) => {
-          const pct = Math.round((data.v/total)*100);
-          const barW = Math.min(100, pct);
-          return '<div style="min-width:180px;flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:7px 10px">'
-            + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">'
-              + '<span style="font-size:10px;font-weight:600;color:var(--text)">' + mid + '</span>'
-              + '<span style="font-size:11px;font-family:var(--mono);font-weight:600;color:var(--accent)">' + data.v + 'v</span>'
-            + '</div>'
-            + '<div style="height:3px;background:var(--bg3);border-radius:2px;overflow:hidden;margin-bottom:4px">'
-              + '<div style="height:100%;width:' + barW + '%;background:var(--accent);border-radius:2px"></div>'
-            + '</div>'
-            + '<div style="font-size:9px;color:var(--muted)">' + pct + '% das vendas · ' + data.cons + ' considerada(s)</div>'
-          + '</div>';
-        }).join('')
-      + '</div></div>';
-    st.loaded = true;
-  } catch(e) {
-    panel.innerHTML = '<div style="font-size:11px;color:var(--red);padding:8px 0">Erro ao carregar: ' + e.message + '</div>';
-  }
 }
 
 // ── FORM ─────────────────────────────────────────────────────────────────────
@@ -2434,28 +2221,14 @@ document.getElementById('del-modal').addEventListener('click',e=>{if(e.target===
 
 // ── CONSOLIDADO ───────────────────────────────────────────────────────────────
 function renderCons() {
-  let entries, dl;
-  if (consMode === 'periodo') {
-    const mf = marca === 'todas' ? null : marca;
-    entries = filterE(getE(), period, marca);
-    const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês',custom:'Período personalizado'};
-    dl = period==='custom'&&customFrom&&customTo
-      ? (customFrom===customTo ? fmtD(customFrom) : fmtD(customFrom)+'–'+fmtD(customTo))
-      : (pMap[period]||period);
-    const subEl = document.getElementById('cons-sub');
-    if(subEl) subEl.textContent = 'Período filtrado · ' + dl;
-  } else {
-    const ds=document.getElementById('cons-dt')?.value||today();
-    entries=getE().filter(e=>e.ds===ds);
-    dl=fmtD(ds);
-    const subEl = document.getElementById('cons-sub');
-    if(subEl) subEl.textContent = 'Todas as marcas · pronto para WhatsApp';
-  }
+  const ds=document.getElementById('cons-dt')?.value||today();
+  const entries=getE().filter(e=>e.ds===ds);
+  const dl=fmtD(ds);
   const trec=entries.reduce((s,e)=>s+e.prec,0);
   const tnao=entries.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
   const tatend=trec-tnao;
   const tv=entries.reduce((s,e)=>s+e.v,0);
-  const tc=trec>0?parseFloat((tv/trec*100).toFixed(2)):0;
+  const tc=trec>0?Math.round((tv/trec)*100):0;
   const ft=getFaixa(tc);
   document.getElementById('cons-funil').innerHTML=[
     {l:'Pré-vendas recebidas',v:trec,c:'var(--accent)'},
@@ -2464,7 +2237,7 @@ function renderCons() {
     {l:'Taxa de conversão',v:tc.toFixed(2)+'%',c:ft.cor,sub:ft.label,bg:ft.bg}
   ].map(x=>`<div style="background:var(--bg3);border-radius:8px;padding:11px 13px"><div style="font-size:11px;color:var(--muted);margin-bottom:5px">${x.l}</div><div style="font-size:21px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>${x.sub?`<div style="font-size:10px;font-weight:600;margin-top:4px;padding:2px 7px;border-radius:4px;display:inline-block;background:${x.bg};color:${x.c}">${x.sub}</div>`:''}</div>`).join('');
 
-  const order=['FIAT','BYD','VW','Peugeot','Jeep','Denza','Leapmotor','Seminovos'];
+  const order=['FIAT','BYD','VW','Peugeot','Jeep','Denza','Leapmotor'];
   let full=`📋 *RELATÓRIO CONSOLIDADO — ${dl}*\n\n`;
   window._cm={};
   document.getElementById('cons-marcas').innerHTML=order.map(m=>{
@@ -2474,7 +2247,7 @@ function renderCons() {
     return `<div class="chart-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div style="display:flex;align-items:center;gap:8px"><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600">${MLABELS[m]||m}</span><span style="font-size:12px;color:var(--muted)">${me.length} filiais · ${me.reduce((s,e)=>s+e.v,0)} vendas</span></div><button class="btn-g" onclick="copyMarca('${m}')" style="font-size:11px;padding:4px 9px">Copiar marca</button></div><pre style="font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6;background:var(--bg3);border-radius:6px;padding:11px;border:1px solid var(--border)">${txt.trim()}</pre></div>`;
   }).join('');
   full+=[`——————————————————————————————`,'*FUNIL DO DIA — '+dl+'*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
-  full+='\n\n🔗 https://bit.ly/4vy8RMg\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  full+='\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   document.getElementById('cons-txt').textContent=full;
   window._cf=full;
 }
@@ -2644,7 +2417,7 @@ function copyPVAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
-  txt += '\n\n🔗 https://bit.ly/4vy8RMg\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, 'Pré-venda copiado!');
 }
 
@@ -2831,7 +2604,7 @@ function copyResgateAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
-  txt += '\n\n🔗 https://bit.ly/4vy8RMg\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, `${tipo} copiado!`);
 }
 
@@ -2850,7 +2623,6 @@ function copyResgateRow(m, f) {
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function gv(v) {
-  _checkSessionExpiry();
   if(_formDirty && document.getElementById('v-input').style.display!=='none' && v!=='input'){
     if(!confirm('Há dados não salvos no formulário. Deseja sair mesmo assim?')) return;
     _clearDirty();
@@ -2890,7 +2662,6 @@ function lastWorkday() {
 
 // ── REFRESH ───────────────────────────────────────────────────────────────────
 function refresh() {
-  _checkSessionExpiry();
   const all=getE(), f=filterE(all,period,marca);
   const yf=all.filter(e=>e.ds===lastWorkday()&&(marca==='todas'||e.m===marca));
   renderKPIs(calcKPIs(f),calcKPIs(yf));
@@ -2898,7 +2669,7 @@ function refresh() {
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
   renderChartF(f); renderChartEv(); renderSparklines();
-  renderFunil(f); renderAlerts(f); renderMonthComp();
+  renderFunil(f); renderAlerts(f);
   const lu=localStorage.getItem('db_last');
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
 }
@@ -3107,6 +2878,7 @@ function vvUpdateJanela() {
   const dtIns       = document.getElementById('vv-dtins').value;
   const isResgate   = document.getElementById('vv-resgate').checked;
   const midiaOrig   = document.getElementById('vv-midiaorigem').value;
+  const dtFat       = document.getElementById('vv-dtfat').value;
 
   // Mostrar/ocultar campo insucesso
   const need30Ins = MIDIAS_30_INS.includes(midia) || (isResgate && MIDIAS_30_INS.includes(midiaOrig));
@@ -3119,7 +2891,7 @@ function vvUpdateJanela() {
   const janelaEl = document.getElementById('vv-janela');
   if (!midia) { janelaEl.style.display = 'none'; return; }
 
-  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig);
+  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig, dtFat);
   const cls = r.cor === 'ok' ? 'janela-ok' : r.cor === 'err' ? 'janela-err' : 'janela-warn';
   janelaEl.innerHTML = `<div class="${cls}">${r.label}</div>`;
   janelaEl.style.display = 'block';
@@ -3155,7 +2927,7 @@ async function saveVenda() {
 
   if (!dtFat || !cod || !midia) { toast('Preencha: Data de Faturamento, Cód. Lead e Mídia'); return; }
 
-  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig);
+  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig, dtFat);
   const dentroJanela = janela.valido === true;
 
   const venda = {
