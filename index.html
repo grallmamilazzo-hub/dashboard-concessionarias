@@ -403,10 +403,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <button onclick="showFbConfig()" class="ro-hide-on-ro" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 10px;font-size:11px;font-family:var(--font);cursor:pointer;width:100%">
         ⚙ Configurar Firebase
       </button>
-      <button onclick="showShareModal()" style="background:rgba(46,201,138,.1);border:1px solid rgba(46,201,138,.25);color:var(--green);border-radius:7px;padding:7px 10px;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px;width:100%;margin-top:6px" class="ro-hide-on-ro">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="13" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="4" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M10.2 4.2L5.8 6.8M10.2 11.8L5.8 9.2" stroke="currentColor" stroke-width="1.3"/></svg>
-        Compartilhar (somente leitura)
-      </button>
+
     </div>
   </div>
 </aside>
@@ -454,6 +451,34 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div style="width:8px;height:8px;border-radius:50%;background:#7c5fe6;flex-shrink:0;animation:pulse 1.8s ease-in-out infinite"></div>
         <div style="font-size:13px;color:#c3abf7;flex:1">Filiais sem relatório hoje: <span id="alert-sr-nomes" style="font-weight:600;color:#d4bdfa"></span></div>
         <div id="alert-sr-cnt" style="font-size:12px;font-weight:600;color:#7c5fe6;background:rgba(124,95,230,.15);padding:3px 10px;border-radius:20px;white-space:nowrap"></div>
+      </div>
+
+      <!-- FRASES MOTIVACIONAIS -->
+      <div id="frases-widget" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+        <div class="chart-card" style="border-left:3px solid var(--accent);position:relative;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+            <span style="font-size:14px">⚡</span>
+            <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em">Produtividade & Gestão de Tempo</div>
+          </div>
+          <div id="frase-prod" style="font-size:13px;color:var(--text);line-height:1.65;font-style:italic;min-height:52px"></div>
+          <div id="frase-prod-autor" style="font-size:10px;color:var(--muted);margin-top:8px;font-weight:500"></div>
+          <div style="position:absolute;bottom:10px;right:14px;display:flex;gap:5px">
+            <button onclick="nextFrase('prod')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Próxima">›</button>
+          </div>
+          <div id="frase-prod-dots" style="display:flex;gap:4px;margin-top:10px"></div>
+        </div>
+        <div class="chart-card" style="border-left:3px solid var(--green);position:relative;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+            <span style="font-size:14px">🚀</span>
+            <div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.08em">Carreira & Crescimento Profissional</div>
+          </div>
+          <div id="frase-carr" style="font-size:13px;color:var(--text);line-height:1.65;font-style:italic;min-height:52px"></div>
+          <div id="frase-carr-autor" style="font-size:10px;color:var(--muted);margin-top:8px;font-weight:500"></div>
+          <div style="position:absolute;bottom:10px;right:14px;display:flex;gap:5px">
+            <button onclick="nextFrase('carr')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Próxima">›</button>
+          </div>
+          <div id="frase-carr-dots" style="display:flex;gap:4px;margin-top:10px"></div>
+        </div>
       </div>
       <!-- ALERT: metas -->
       <div class="alert-banner" id="alert-banner" style="display:none">
@@ -948,7 +973,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
             <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
-            <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
+            <div class="form-fld"><label class="form-lbl">Atendente / Pré-venda</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Faturou</label><input class="form-inp" type="text" id="vv-vfat" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">NF</label><input class="form-inp" type="text" id="vv-nf" placeholder="Número da NF"></div>
@@ -1330,51 +1355,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 
 
 
-<!-- SHARE READONLY MODAL -->
-<div class="modal-ov" id="share-modal">
-  <div class="modal" style="width:500px">
-    <div class="modal-ttl">Compartilhar — somente leitura</div>
-    <div class="modal-sub">O destinatário poderá ver todos os dados mas não poderá inserir, editar ou excluir.</div>
-
-    <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.8;border-left:3px solid var(--green)">
-      <div style="font-weight:600;color:var(--text);margin-bottom:6px">Como funciona:</div>
-      O arquivo HTML será gerado com o parâmetro <code style="color:var(--green);background:rgba(46,201,138,.1);padding:1px 5px;border-radius:3px">?readonly=1</code> embutido.<br>
-      Ao abrir, o destinatário verá apenas Dashboard, Consolidado e Ranking — sem acesso a inserção ou edição.<br><br>
-      Se você usa Firebase, as credenciais <strong style="color:var(--text)">são incluídas automaticamente</strong> — o destinatário vê os dados em tempo real sem configurar nada.
-    </div>
-
-    <div style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Configurações do arquivo compartilhado</div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" id="share-incl-creds" checked style="width:15px;height:15px;cursor:pointer">
-        Incluir credenciais Firebase (sincroniza automaticamente)
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" id="share-incl-data" checked style="width:15px;height:15px;cursor:pointer">
-        Incluir dados locais atuais como snapshot
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" id="share-auto-sync" checked style="width:15px;height:15px;cursor:pointer">
-        Sincronizar Firebase automaticamente ao abrir
-      </label>
-      <div style="height:1px;background:var(--border);margin:10px 0"></div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer" title="Exibe apenas Dashboard e Ranking — ideal para diretoria">
-        <input type="checkbox" id="share-directors" style="width:15px;height:15px;cursor:pointer;accent-color:#f5a623">
-        <span><strong style="color:#f5a623">Modo Diretores</strong> <span style="color:var(--muted)">— exibe apenas Dashboard e Ranking</span></span>
-      </label>
-    </div>
-
-    <div id="share-preview" style="background:var(--bg3);border-radius:8px;padding:11px 13px;font-size:12px;color:var(--muted);border:0.5px solid var(--border);margin-bottom:4px;line-height:1.7"></div>
-
-    <div class="modal-act">
-      <button class="btn-g" onclick="closeShareModal()">Cancelar</button>
-      <button class="btn-p" onclick="downloadReadonly()" style="background:var(--green);border-color:var(--green);color:#fff;display:flex;align-items:center;gap:6px">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M5 8l3 3 3-3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Baixar arquivo readonly
-      </button>
-    </div>
-  </div>
-</div>
+<!-- share modal removed -->
 
 
 <!-- DATE MODAL -->
@@ -2821,100 +2802,7 @@ function refresh() {
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
 }
 
-// ── SHARE / READONLY ─────────────────────────────────────────────────────────
-function showShareModal() {
-  document.getElementById('share-modal').classList.add('open');
-  updateSharePreview();
-}
-function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
 
-function updateSharePreview() {
-  const inclCreds = document.getElementById('share-incl-creds').checked;
-  const inclData  = document.getElementById('share-incl-data').checked;
-  const autoSync  = document.getElementById('share-auto-sync').checked;
-  const directors = document.getElementById('share-directors').checked;
-  const hasFb     = fbCfgSaved();
-  const dataCount = getE().length;
-  const fname = directors ? 'dashboard_diretores.html' : 'dashboard_readonly.html';
-  document.getElementById('share-preview').innerHTML =
-    `Arquivo gerado: <strong style="color:var(--text)">${fname}</strong><br>` +
-    (directors ? `Páginas visíveis: <span style="color:#f5a623">Dashboard e Ranking apenas</span><br>` : '') +
-    `Firebase: <span style="color:${inclCreds&&hasFb?'var(--green)':'var(--amber)'}">` +
-      (inclCreds && hasFb ? 'credenciais incluídas — sync automático' :
-       !hasFb ? 'não configurado — incluirá snapshot local' : 'não incluir credenciais') +
-    `</span><br>` +
-    `Dados snapshot: <span style="color:var(--text)">${inclData ? dataCount + ' registros incluídos' : 'nenhum (depende do Firebase)'}</span><br>` +
-    `Sincronização ao abrir: <span style="color:${autoSync&&hasFb?'var(--green)':'var(--muted)'}">${autoSync && hasFb ? 'sim' : 'não'}</span>`;
-}
-
-['share-incl-creds','share-incl-data','share-auto-sync','share-directors'].forEach(id => {
-  document.addEventListener('change', e => { if(e.target.id===id) updateSharePreview(); });
-});
-
-function downloadReadonly() {
-  const inclCreds  = document.getElementById('share-incl-creds').checked;
-  const inclData   = document.getElementById('share-incl-data').checked;
-  const autoSync   = document.getElementById('share-auto-sync').checked;
-  const directors  = document.getElementById('share-directors').checked;
-  generateReadonlyFallback(inclCreds, inclData, autoSync, directors);
-}
-
-function generateReadonlyFallback(inclCreds, inclData, autoSync, directors) {
-  let out = document.documentElement.outerHTML;
-
-  // 1. Inject READONLY_MODE=true before the INIT comment
-  out = out.replace("// ── INIT", "var READONLY_MODE=true; // ── INIT");
-
-  // 2. Add readonly class to body tag (and directors if applicable)
-  var bodyClass = directors ? 'readonly directors' : 'readonly';
-  out = out.replace("<body>", '<body class="' + bodyClass + '">');
-  out = out.replace('<body class="', '<body class="' + bodyClass + ' ').replace(new RegExp('(' + bodyClass + ' ){2}', 'g'), bodyClass + ' ');
-
-  // 3. Embed Firebase credentials
-  if (inclCreds && fbCfgSaved()) {
-    var cfgStr = JSON.stringify(FB_CFG);
-    out = out.replace(
-      "let FB_CFG = JSON.parse(localStorage.getItem('fb_config'",
-      "let FB_CFG = " + cfgStr + "; var _x = JSON.parse(localStorage.getItem('fb_config'"
-    );
-  }
-
-  // 4. Embed data snapshot — inject after seed() call
-  if (inclData) {
-    var snap = JSON.stringify(getE());
-    // Escape any closing script tags in the data
-    snap = snap.replace(/<\/script>/gi, "<\/script>");
-    var injectData = "localStorage.setItem('db_entries'," + snap + ");localStorage.setItem('db_seeded_v2','1');";
-    out = out.replace("seed();", "seed();" + injectData);
-  }
-
-  // 5. Auto-sync Firebase on open
-  if (inclCreds && fbCfgSaved() && autoSync) {
-    var syncCode = "setTimeout(function(){if(typeof FB_CFG!=='undefined'&&FB_CFG&&FB_CFG.apiKey){initFirebase().then(function(ok){if(ok)fbSync();});}},1500);";
-    out = out.replace("setSyncStatus('idle');", "setSyncStatus('idle');" + syncCode);
-  }
-
-  // 6. Block write actions with guard
-  var guard = "if(document.body.classList.contains('readonly')){toast('Modo somente leitura — sem permissao para editar');return;}";
-  out = out.replace("function salvar() {", "function salvar(){" + guard);
-  out = out.replace("function saveModal() {", "function saveModal(){" + guard);
-  out = out.replace("function confirmDel(){if(!pendingDel)", "function confirmDel(){" + guard + "if(!pendingDel)");
-
-  // 7. Download the file
-  var filename = directors ? "dashboard_diretores.html" : "dashboard_readonly.html";
-  var blob = new Blob([out], {type:"text/html"});
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(a.href);
-  closeShareModal();
-  toast(directors ? "dashboard_diretores.html baixado!" : "dashboard_readonly.html baixado!");
-}
-
-document.getElementById('share-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeShareModal(); });
 
 // ── DATE MODAL ────────────────────────────────────────────────────────────────
 function openDateModal() {
@@ -3312,19 +3200,24 @@ async function renderAnalise() {
 
     document.getElementById('an-midia-list').innerHTML = total === 0
       ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Nenhuma venda considerada encontrada</div>'
-      : midiaRows.map(([m, v], i) => {
+      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px">`
+        + midiaRows.map(([m, v], i) => {
           const pct = total > 0 ? (v / total * 100) : 0;
-          const barW = maxMidia > 0 ? (v / maxMidia * 100) : 0;
           const cor = midiaColors[i % midiaColors.length];
-          return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
-            <div style="width:180px;font-size:12px;color:var(--text);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m}">${m}</div>
-            <div style="flex:1;height:10px;background:var(--bg3);border-radius:5px;overflow:hidden">
-              <div style="height:100%;width:${barW}%;background:${cor};border-radius:5px;transition:width .5s ease"></div>
+          const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+          return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid ${cor};transition:border-color .2s">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:10px;color:${cor};font-weight:700">${rankLabel}</span>
+              <span style="font-size:10px;color:var(--muted);background:var(--bg);padding:1px 6px;border-radius:4px">${pct.toFixed(1)}%</span>
             </div>
-            <div style="font-size:13px;font-family:var(--mono);font-weight:600;color:${cor};width:36px;text-align:right;flex-shrink:0">${v}</div>
-            <div style="font-size:11px;color:var(--muted);width:44px;text-align:right;flex-shrink:0">${pct.toFixed(1)}%</div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:8px;min-height:28px">${m}</div>
+            <div style="font-size:26px;font-weight:700;font-family:var(--mono);color:${cor};letter-spacing:-1px">${v}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">venda${v!==1?'s':''}</div>
+            <div style="height:3px;background:var(--bg);border-radius:2px;margin-top:10px;overflow:hidden">
+              <div style="height:100%;width:${(v/maxMidia*100).toFixed(0)}%;background:${cor};border-radius:2px"></div>
+            </div>
           </div>`;
-        }).join('');
+        }).join('') + `</div>`;
 
     // ── 2. Ranking Vendedor Recebeu ──────────────────────────────────────────
     const byRec = {};
@@ -3410,6 +3303,64 @@ async function renderAnalise() {
   } catch(e) { toast('Erro ao carregar análise: ' + e.message); console.error(e); }
 }
 
+
+// ── FRASES MOTIVACIONAIS ──────────────────────────────────────────────────────
+const FRASES = {
+  prod: [
+    { t: 'A produtividade nunca é um acidente. É sempre o resultado de um compromisso com a excelência, planejamento inteligente e esforço focado.', a: '— Paul J. Meyer' },
+    { t: 'Concentre-se em ser produtivo em vez de ocupado. Ocupado é uma forma de preguiça — pensamento preguiçoso e ações indiscriminadas.', a: '— Tim Ferriss' },
+    { t: 'Não é a quantidade de horas que você coloca no trabalho, mas o quanto de trabalho você coloca nas horas.', a: '— Sam Ewing' },
+    { t: 'Faça primeiro a coisa mais difícil do dia. Isso eliminará a procrastinação e lhe dará a sensação de que o resto do dia é uma recompensa.', a: '— Brian Tracy' },
+    { t: 'O segredo de avançar é começar. O segredo de começar é dividir tarefas complexas e esmagadoras em tarefas menores e manejáveis.', a: '— Mark Twain' },
+    { t: 'Você não precisa ver toda a escada — apenas dê o primeiro passo.', a: '— Martin Luther King Jr.' },
+    { t: 'Trabalhe mais inteligentemente, não mais arduamente. Seja sensato com o uso do tempo — tempo é ouro.', a: '— David Dunham' },
+    { t: 'Planejamento não é preparação para o futuro. É preparação para lidar com o imprevisível.', a: '— Antoine de Saint-Exupéry' },
+    { t: 'A eficiência é fazer as coisas certo; a eficácia é fazer as coisas certas.', a: '— Peter Drucker' },
+    { t: 'Quem não sabe onde quer chegar, nenhum vento sopra a favor.', a: '— Sêneca' },
+  ],
+  carr: [
+    { t: 'Seu nível de sucesso raramente excede seu nível de desenvolvimento pessoal, porque o sucesso é algo que você atrai pela pessoa que se torna.', a: '— Jim Rohn' },
+    { t: 'Nunca pare de aprender, porque a vida nunca para de ensinar.', a: '— Anônimo' },
+    { t: 'Inteligência emocional é a capacidade de perceber, usar, entender e gerenciar emoções para facilitar o pensamento.', a: '— Daniel Goleman' },
+    { t: 'Em um mundo que muda muito rapidamente, a única estratégia que garante o fracasso é não arriscar.', a: '— Mark Zuckerberg' },
+    { t: 'O investimento em conhecimento sempre paga os melhores juros.', a: '— Benjamin Franklin' },
+    { t: 'Aprender é a única coisa que a mente nunca se cansa, nunca tem medo e nunca se arrepende.', a: '— Leonardo da Vinci' },
+    { t: 'Líderes não criam seguidores, criam mais líderes. Desenvolva pessoas ao redor, não dependência.', a: '— Tom Peters' },
+    { t: 'Seja a mudança que você deseja ver no mundo — e nas equipes que você lidera.', a: '— Mahatma Gandhi (adaptado)' },
+    { t: 'Lifelong learning não é uma opção — é a única vantagem competitiva sustentável.', a: '— Peter Senge' },
+    { t: 'Talento ganha jogos, mas trabalho em equipe e inteligência ganham campeonatos.', a: '— Michael Jordan' },
+  ]
+};
+const _fIdx = { prod: 0, carr: 0 };
+
+function _renderFrase(tipo) {
+  const arr = FRASES[tipo];
+  const idx = _fIdx[tipo];
+  const f = arr[idx];
+  document.getElementById('frase-' + tipo).textContent = '\u201c' + f.t + '\u201d';
+  document.getElementById('frase-' + tipo + '-autor').textContent = f.a;
+  const dots = document.getElementById('frase-' + tipo + '-dots');
+  dots.innerHTML = arr.map((_, i) =>
+    `<span style="width:${i===idx?'14':'5'}px;height:5px;border-radius:3px;background:${i===idx?(tipo==='prod'?'var(--accent)':'var(--green)'):'var(--border2)'};transition:all .3s;display:inline-block"></span>`
+  ).join('');
+}
+
+function nextFrase(tipo) {
+  _fIdx[tipo] = (_fIdx[tipo] + 1) % FRASES[tipo].length;
+  _renderFrase(tipo);
+}
+
+function initFrases() {
+  // Começa com frase aleatória a cada visita
+  _fIdx.prod = Math.floor(Math.random() * FRASES.prod.length);
+  _fIdx.carr = Math.floor(Math.random() * FRASES.carr.length);
+  _renderFrase('prod');
+  _renderFrase('carr');
+  // Auto-rotaciona a cada 30s
+  setInterval(() => { nextFrase('prod'); }, 30000);
+  setInterval(() => { nextFrase('carr'); }, 37000);
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────────
 seed();
 // ── AUTH INIT (Ação 5) ─────────────────────────────────────────────────────
@@ -3428,6 +3379,7 @@ document.querySelectorAll('#v-input input').forEach(el => {
 document.getElementById('hf-de').value='2026-03-18';
 upFiliais();
 refresh();
+initFrases();
 // Auto-sync se Firebase configurado
 if(fbCfgSaved()){
   setSyncStatus('syncing');
