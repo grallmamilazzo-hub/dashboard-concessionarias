@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Atendimento — Concessionárias</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -394,7 +394,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
   <div class="sb-foot">
     <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Última atualização</div>
     <div style="font-size:12px;color:var(--text);margin-bottom:10px" id="last-upd">—</div>
-    <div style="font-size:11px;margin-bottom:6px" id="sync-status" style="color:var(--muted)">Não conectado</div>
+    <div style="font-size:11px;margin-bottom:6px;color:var(--muted)" id="sync-status">Não conectado</div>
     <div style="display:flex;gap:6px;flex-direction:column">
       <button onclick="fbSync()" class="ro-hide-on-ro" style="background:rgba(255,166,0,.12);border:1px solid rgba(255,166,0,.3);color:#ffb300;border-radius:7px;padding:7px 10px;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px;width:100%">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M14 8A6 6 0 112 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 4v4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -780,10 +780,10 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           <div style="font-size:12px;color:var(--muted)">Baseado nas vendas registradas no Firestore</div>
         </div>
         <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select id="an-mes" onchange="renderAnalise()" style="font-size:12px">
+          <select id="an-mes" onchange="renderAnaliseDebounced()" style="font-size:12px">
             <option value="">Todos os meses</option>
           </select>
-          <select id="an-marca" onchange="renderAnalise()" style="font-size:12px">
+          <select id="an-marca" onchange="renderAnaliseDebounced()" style="font-size:12px">
             <option value="">Todas as marcas</option>
             <option>FIAT</option><option>BYD</option><option>VW</option>
             <option>Peugeot</option><option>Jeep</option><option>Denza</option><option>Leapmotor</option>
@@ -1698,11 +1698,10 @@ async function fbSync() {
       if (idx >= 0) merged[idx] = r; else merged.push(r);
     });
     localStorage.setItem('db_entries', JSON.stringify(merged));
-    localStorage.setItem('db_last', new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
-    refresh();
-    if (document.getElementById('v-historico').style.display !== 'none') renderHist();
     const now = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     localStorage.setItem('db_last', now);
+    refresh();
+    if (document.getElementById('v-historico').style.display !== 'none') renderHist();
     const luEl = document.getElementById('last-upd');
     if(luEl) luEl.textContent = 'Hoje ' + now;
     setSyncStatus('ok');
@@ -1811,7 +1810,7 @@ function deleteE(ds,m,f) {
 
 
 const today=()=>new Date().toISOString().split('T')[0];
-function fmtD(ds){const[y,mo,d]=ds.split('-');return`${d}/${mo}/${y}`}
+function fmtD(ds){if(!ds||typeof ds!=='string')return'—';const p=ds.split('-');if(p.length!==3)return ds;const[y,mo,d]=p;return`${d}/${mo}/${y}`;}
 
 // ── FAIXAS DE CONVERSÃO ──────────────────────────────────────────────────────
 function getFaixa(pct) {
@@ -1908,7 +1907,7 @@ function calcKPIs(f) {
   td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
   let nm=0,nt=0;
   Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
-  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
+  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm,nt};
 }
 function renderKPIs(k,pk) {
   const vd=pk?Math.round(((k.tv-pk.tv)/(pk.tv||1))*100):0;
@@ -1969,7 +1968,15 @@ function renderChartF(f) {
   f.filter(e=>e.ds===today()||period!=='hoje').forEach(e=>{
     const k=`${e.f} (${e.m})`;if(!byF[k])byF[k]={v:0,mt:METAS[`${e.m}|${e.f}`]||10};byF[k].v+=e.v;
   });
-  const labels=Object.keys(byF).slice(0,10);
+  const allLabels=Object.keys(byF);
+  const labels=allLabels.slice(0,12);
+  // Aviso se filiais foram omitidas do gráfico
+  const chartHdr = document.querySelector('#ch-filiais')?.closest('.chart-card')?.querySelector('.chart-ttl');
+  if(chartHdr) {
+    chartHdr.textContent = allLabels.length > 12
+      ? `Vendas por filial (exibindo 12 de ${allLabels.length})`
+      : 'Vendas por filial';
+  }
   const mul=period==='semana'?7:period==='mes'?30:1;
   const ctx=document.getElementById('ch-filiais').getContext('2d');
   if(charts.f)charts.f.destroy();
@@ -1982,8 +1989,9 @@ function renderChartF(f) {
   }}});
 }
 
-function renderChartEv() {
-  const all=getE(), t=new Date(), labels=[], data=[];
+function renderChartEv(all) {
+  if(!all) all=getE();
+  const t=new Date(), labels=[], data=[];
   for(let i=13;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];labels.push(fmtD(ds));data.push(all.filter(e=>e.ds===ds&&(marca==='todas'||e.m===marca)).reduce((s,e)=>s+e.v,0));}
   const ctx=document.getElementById('ch-evolucao').getContext('2d');
   if(charts.ev)charts.ev.destroy();
@@ -1994,8 +2002,8 @@ function renderChartEv() {
     }}});
 }
 
-function renderSparklines() {
-  const all = getE();
+function renderSparklines(all) {
+  if(!all) all = getE();
   const t = new Date();
   const days = [];
   for(let i=6;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
@@ -2070,9 +2078,9 @@ function renderFunil(f) {
 }
 
 // ── STREAK ────────────────────────────────────────────────────────────────────
-function calcStreak(m, f) {
+function calcStreak(m, f, all) {
   // Returns consecutive days below 90% of target (counting back from yesterday)
-  const all = getE();
+  if(!all) all = getE();
   const mt = METAS[`${m}|${f}`] || 10;
   let streak = 0;
   const t = new Date();
@@ -2089,7 +2097,8 @@ function calcStreak(m, f) {
 }
 
 // ── ALERTS ────────────────────────────────────────────────────────────────────
-function renderAlerts(f) {
+function renderAlerts(f, all) {
+  if(!all) all = getE();
   const td=f.filter(e=>e.ds===today());
   const byF={};td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
   const rows=Object.values(byF).map(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;return{...x,mt,pct:Math.round((x.v/mt)*100)};}).sort((a,b)=>a.pct-b.pct);
@@ -2101,7 +2110,7 @@ function renderAlerts(f) {
   const srBanner = document.getElementById('alert-sem-relatorio');
   if(srBanner) {
     const todayStr = today();
-    const withReport = new Set(getE().filter(e=>e.ds===todayStr&&(marca==='todas'||e.m===marca)).map(e=>e.m+'|'+e.f));
+    const withReport = new Set(all.filter(e=>e.ds===todayStr&&(marca==='todas'||e.m===marca)).map(e=>e.m+'|'+e.f));
     const allFiliais = Object.entries(FILIAIS).flatMap(([m,fs])=>
       (marca==='todas'||m===marca) ? fs.map(f=>({m,f,key:m+'|'+f})) : []
     );
@@ -2120,7 +2129,7 @@ function renderAlerts(f) {
   document.getElementById('alerts-list').innerHTML=rows.slice(0,8).map(r=>{
     const dc=r.pct<70?'dot-r':r.pct<90?'dot-a':'dot-g';
     const pc=r.pct<70?'var(--red)':r.pct<90?'var(--amber)':'var(--green)';
-    const streak=calcStreak(r.m,r.f);
+    const streak=calcStreak(r.m,r.f,all);
     const streakHtml=streak>=2?`<span title="${streak} dias seguidos abaixo da meta" style="font-size:10px;font-weight:700;color:var(--red);background:rgba(240,82,82,.12);padding:1px 6px;border-radius:4px;margin-left:4px">🔥${streak}d</span>`:'';
     return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center">${r.f}${streakHtml}</div><div style="font-size:11px;color:var(--muted)">${r.m} · meta:${r.mt} · Ger: ${GERENTES[r.m+'|'+r.f]||'—'}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v} vendas</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(100,r.pct)}%;background:${pc};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:38px;text-align:right;color:${pc}">${r.pct}%</div></div></div>`;
   }).join('');
@@ -2168,7 +2177,7 @@ function renderRank(by='conv') {
       + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
       + '<div class="rank-name">'
         + '<div class="rank-fil">'+r.f+'</div>'
-        + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d sem meta</span>':'')+'</div>';})()
+        + (()=>{const sk=calcStreak(r.m,r.f,getE());return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d sem meta</span>':'')+'</div>';})()
       + '</div>'
       + '<div style="flex:1;min-width:60px;padding:0 10px">'
         + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
@@ -2754,8 +2763,8 @@ function refresh() {
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
-  renderChartF(f); renderChartEv(); renderSparklines();
-  renderFunil(f); renderAlerts(f);
+  renderChartF(f); renderChartEv(all); renderSparklines(all);
+  renderFunil(f); renderAlerts(f, all);
   const lu=localStorage.getItem('db_last');
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
 }
@@ -2942,6 +2951,7 @@ async function saveVenda() {
 
   try {
     await fbDb.collection('vendas').doc(docId).set(venda);
+    _invalidateVendasCache();
     toast(dentroJanela ? '✅ Venda registrada — Considerada' : '⚠️ Venda salva — Não Considerada');
     vvClear();
     renderVendas();
@@ -2958,10 +2968,10 @@ async function renderVendas() {
   const statusFlt= document.getElementById('vvf-status').value;
 
   try {
-    let q = fbDb.collection('vendas');
-    if (mesFlt) q = q.where('dtFat', '>=', mesFlt + '-01').where('dtFat', '<=', mesFlt + '-31');
-    const snap = await q.get();
-    let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Usa cache compartilhado com renderAnalise (TTL 60s)
+    let allDocs = await _getVendasFb();
+    let docs = allDocs.map(d => ({ id: `${d.marca}||${d.filial}||${d.dtFat}||${d.cod}`, ...d }));
+    if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
 
     // Preencher filtro de meses disponíveis
     const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
@@ -3065,6 +3075,7 @@ async function confirmDelVenda() {
   if (!_vendaDelId) return;
   try {
     await fbDb.collection('vendas').doc(_vendaDelId).delete();
+    _invalidateVendasCache();
     toast('Venda excluída');
     closeDelVenda();
     renderVendas();
@@ -3125,7 +3136,33 @@ window.addEventListener('beforeunload', e => {
 });
 
 
+// ── DEBOUNCE HELPER ──────────────────────────────────────────────────────────
+function debounce(fn, ms) {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+const renderAnaliseDebounced = debounce(() => renderAnalise(), 300);
+
 // ── ANÁLISE MÍDIA & VENDEDORES ────────────────────────────────────────────────
+// Cache de vendas: evita full scan repetido dentro de 60 segundos
+let _vendasFbCache = null;
+let _vendasFbCacheTs = 0;
+const _VENDAS_CACHE_TTL = 60000; // 60s
+
+async function _getVendasFb(force = false) {
+  if (!force && _vendasFbCache && (Date.now() - _vendasFbCacheTs) < _VENDAS_CACHE_TTL) {
+    return _vendasFbCache;
+  }
+  const snap = await fbDb.collection('vendas').get();
+  _vendasFbCache = snap.docs.map(d => d.data());
+  _vendasFbCacheTs = Date.now();
+  return _vendasFbCache;
+}
+
+function _invalidateVendasCache() {
+  _vendasFbCache = null;
+  _vendasFbCacheTs = 0;
+}
+
 async function renderAnalise() {
   if (!await initFirebase()) { toast('Firebase não conectado'); return; }
 
@@ -3133,10 +3170,10 @@ async function renderAnalise() {
   const marcaFlt = document.getElementById('an-marca').value;
 
   try {
-    let q = fbDb.collection('vendas');
-    if (mesFlt) q = q.where('dtFat', '>=', mesFlt + '-01').where('dtFat', '<=', mesFlt + '-31');
-    const snap = await q.get();
-    let docs = snap.docs.map(d => d.data());
+    // Clonar shallow para não mutar o cache — normalização ocorre apenas na cópia
+    let docs = (await _getVendasFb()).map(d => ({...d}));
+    // Filtro de mês aplicado localmente (cache já tem tudo)
+    if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
 
     // Preencher filtro de meses disponíveis
     const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
@@ -3346,7 +3383,10 @@ async function corrigirMidiasBatch() {
   try {
     const snap = await fbDb.collection('vendas').get();
     let count = 0;
-    const promises = [];
+    // Firestore batch: máx 500 operações por batch — garantia de atomicidade e throttle safety
+    const BATCH_SIZE = 400;
+    let batches = [fbDb.batch()];
+    let batchCount = 0;
 
     snap.docs.forEach(doc => {
       const d = doc.data();
@@ -3354,19 +3394,22 @@ async function corrigirMidiasBatch() {
       const norm = normalizeMidia(raw);
       if (raw && norm !== raw && MIDIAS.includes(norm)) {
         const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem);
-        promises.push(doc.ref.update({
-          midia:         norm,
-          dentroJanela:  janela.valido === true,
-          janelaLabel:   janela.label,
-        }));
+        if (batchCount > 0 && batchCount % BATCH_SIZE === 0) batches.push(fbDb.batch());
+        batches[batches.length - 1].update(doc.ref, {
+          midia:        norm,
+          dentroJanela: janela.valido === true,
+          janelaLabel:  janela.label,
+        });
         count++;
+        batchCount++;
       }
     });
 
     if (count === 0) {
       toast('Nenhum registro precisava de correção.');
     } else {
-      await Promise.all(promises);
+      await Promise.all(batches.map(b => b.commit()));
+      _invalidateVendasCache();
       toast(`✅ ${count} registro(s) corrigidos no Firestore!`);
       renderAnalise();
     }
