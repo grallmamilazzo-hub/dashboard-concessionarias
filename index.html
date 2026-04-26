@@ -378,6 +378,9 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <button class="nav-btn" onclick="gv('ranking')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12h2v2H2zM7 8h2v6H7zM12 4h2v10h-2z" fill="currentColor"/></svg>Ranking
     </button>
+    <button class="nav-btn" onclick="gv('analise')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Análise
+    </button>
     <button class="nav-btn ro-hide-on-ro" onclick="gv('venda')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Registrar Venda
     </button>
@@ -763,6 +766,150 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     </div>
 
     <!-- RANKING -->
+    <div id="v-analise" style="display:none">
+      <!-- FILTROS ANÁLISE -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Análise — Mídia & Vendedores</div>
+          <div style="font-size:12px;color:var(--muted)">Baseado nas vendas registradas no Firestore</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="an-mes" onchange="renderAnalise()" style="font-size:12px">
+            <option value="">Todos os meses</option>
+          </select>
+          <select id="an-marca" onchange="renderAnalise()" style="font-size:12px">
+            <option value="">Todas as marcas</option>
+            <option>FIAT</option><option>BYD</option><option>VW</option>
+            <option>Peugeot</option><option>Jeep</option><option>Denza</option><option>Leapmotor</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- LINHA 1: Mídia -->
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="sec-hdr" style="margin-bottom:14px">
+          <div>
+            <div class="sec-ttl">Vendas por Mídia / Origem</div>
+            <div class="sec-sub">apenas vendas consideradas dentro da janela de conversão</div>
+          </div>
+        </div>
+        <div id="an-midia-list" style="display:flex;flex-direction:column;gap:7px">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+        </div>
+      </div>
+
+      <!-- LINHA 2: Ranking Vendedores -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+
+        <!-- Recebeu leads -->
+        <div class="chart-card">
+          <div class="sec-hdr" style="margin-bottom:14px">
+            <div>
+              <div class="sec-ttl">Vendedor — Recebeu Lead</div>
+              <div class="sec-sub">qtd de vendas onde recebeu o lead</div>
+            </div>
+          </div>
+          <div id="an-vrec-list" style="display:flex;flex-direction:column;gap:6px">
+            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+          </div>
+        </div>
+
+        <!-- Faturou -->
+        <div class="chart-card">
+          <div class="sec-hdr" style="margin-bottom:14px">
+            <div>
+              <div class="sec-ttl">Vendedor — Faturou</div>
+              <div class="sec-sub">qtd de vendas onde emitiu a NF</div>
+            </div>
+          </div>
+          <div id="an-vfat-list" style="display:flex;flex-direction:column;gap:6px">
+            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LINHA 3: Cross — Recebeu vs Faturou -->
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="sec-hdr" style="margin-bottom:14px">
+          <div>
+            <div class="sec-ttl">Comparativo — Recebeu × Faturou por Vendedor</div>
+            <div class="sec-sub">identifica desvio entre quem recebe o lead e quem fecha a venda</div>
+          </div>
+        </div>
+        <div id="an-cross-list">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="v-analise" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Análise — Mídia & Vendedores</div>
+          <div style="font-size:12px;color:var(--muted)">Baseado nas vendas registradas no Firestore</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="an-mes" onchange="renderAnalise()" style="font-size:12px">
+            <option value="">Todos os meses</option>
+          </select>
+          <select id="an-marca" onchange="renderAnalise()" style="font-size:12px">
+            <option value="">Todas as marcas</option>
+            <option>FIAT</option><option>BYD</option><option>VW</option>
+            <option>Peugeot</option><option>Jeep</option><option>Denza</option><option>Leapmotor</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="sec-hdr" style="margin-bottom:14px">
+          <div>
+            <div class="sec-ttl">Vendas por Mídia / Origem</div>
+            <div class="sec-sub">apenas vendas consideradas dentro da janela de conversão</div>
+          </div>
+        </div>
+        <div id="an-midia-list" style="display:flex;flex-direction:column;gap:7px">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+        <div class="chart-card">
+          <div class="sec-hdr" style="margin-bottom:14px">
+            <div>
+              <div class="sec-ttl">Vendedor — Recebeu Lead</div>
+              <div class="sec-sub">qtd de vendas onde recebeu o lead</div>
+            </div>
+          </div>
+          <div id="an-vrec-list" style="display:flex;flex-direction:column;gap:6px">
+            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="sec-hdr" style="margin-bottom:14px">
+            <div>
+              <div class="sec-ttl">Vendedor — Faturou</div>
+              <div class="sec-sub">qtd de vendas onde emitiu a NF</div>
+            </div>
+          </div>
+          <div id="an-vfat-list" style="display:flex;flex-direction:column;gap:6px">
+            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="sec-hdr" style="margin-bottom:14px">
+          <div>
+            <div class="sec-ttl">Comparativo — Recebeu × Faturou por Vendedor</div>
+            <div class="sec-sub">identifica desvio entre quem recebe o lead e quem fecha a venda</div>
+          </div>
+        </div>
+        <div id="an-cross-list">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+        </div>
+      </div>
+    </div>
+
     <div id="v-ranking" style="display:none">
       <div class="chart-card">
         <div class="sec-hdr" style="margin-bottom:14px">
@@ -799,7 +946,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               </select>
             </div>
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
-            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat" oninput="vvUpdateJanela()"></div>
+            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
             <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
@@ -1374,15 +1521,13 @@ const MIDIAS_30_INS     = ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS
 const MIDIAS_30_CORR    = ['CAMPANHA/WHATSAPP'];
 
 // ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
-function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem, dtFaturamento) {
+function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
   const m = isResgate ? (midiaOrigem || midia) : midia;
-  // Referência = data de faturamento (quando disponível) ou hoje
-  const ref = dtFaturamento ? (() => { const d = new Date(dtFaturamento); d.setHours(0,0,0,0); return d; })()
-                            : (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
   function diffDias(ds) {
     if(!ds) return null;
     const d = new Date(ds); d.setHours(0,0,0,0);
-    return Math.floor((ref - d) / 86400000);
+    return Math.floor((hoje - d) / 86400000);
   }
 
   // ── Montadora / Site: 150 dias da criação ────────────────────────────────
@@ -2627,15 +2772,17 @@ function gv(v) {
     if(!confirm('Há dados não salvos no formulário. Deseja sair mesmo assim?')) return;
     _clearDirty();
   }
-  ['dashboard','input','historico','consolidado','ranking','venda'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
+  ['dashboard','input','historico','consolidado','ranking','analise','venda'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(v));});
-  const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking',venda:'Registrar Venda'};
+  const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking',analise:'Análise — Mídia & Vendedores',venda:'Registrar Venda'};
   document.getElementById('page-ttl').textContent=ttls[v]||v;
   document.title = (ttls[v]||v) + ' — Painel Concessionárias';
   if(v==='ranking')renderRank();
   if(v==='historico'){hPage=0;renderHist();}
   if(v==='consolidado'){const d=document.getElementById('cons-dt');if(d&&!d.value)d.value=today();renderCons();}
   if(v==='venda'){vvUpFiliais();renderVendas();}
+  if(v==='analise')renderAnalise();
+  if(v==='analise')renderAnalise();
 }
 function setPeriod(p,btn){
   period=p; customFrom=''; customTo='';
@@ -2878,7 +3025,6 @@ function vvUpdateJanela() {
   const dtIns       = document.getElementById('vv-dtins').value;
   const isResgate   = document.getElementById('vv-resgate').checked;
   const midiaOrig   = document.getElementById('vv-midiaorigem').value;
-  const dtFat       = document.getElementById('vv-dtfat').value;
 
   // Mostrar/ocultar campo insucesso
   const need30Ins = MIDIAS_30_INS.includes(midia) || (isResgate && MIDIAS_30_INS.includes(midiaOrig));
@@ -2891,7 +3037,7 @@ function vvUpdateJanela() {
   const janelaEl = document.getElementById('vv-janela');
   if (!midia) { janelaEl.style.display = 'none'; return; }
 
-  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig, dtFat);
+  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig);
   const cls = r.cor === 'ok' ? 'janela-ok' : r.cor === 'err' ? 'janela-err' : 'janela-warn';
   janelaEl.innerHTML = `<div class="${cls}">${r.label}</div>`;
   janelaEl.style.display = 'block';
@@ -2927,7 +3073,7 @@ async function saveVenda() {
 
   if (!dtFat || !cod || !midia) { toast('Preencha: Data de Faturamento, Cód. Lead e Mídia'); return; }
 
-  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig, dtFat);
+  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig);
   const dentroJanela = janela.valido === true;
 
   const venda = {
@@ -3124,6 +3270,145 @@ function _clearDirty() { _formDirty = false; }
 window.addEventListener('beforeunload', e => {
   if (_formDirty) { e.preventDefault(); e.returnValue = ''; }
 });
+
+
+// ── ANÁLISE MÍDIA & VENDEDORES ────────────────────────────────────────────────
+async function renderAnalise() {
+  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
+
+  const mesFlt   = document.getElementById('an-mes').value;
+  const marcaFlt = document.getElementById('an-marca').value;
+
+  try {
+    let q = fbDb.collection('vendas');
+    if (mesFlt) q = q.where('dtFat', '>=', mesFlt + '-01').where('dtFat', '<=', mesFlt + '-31');
+    const snap = await q.get();
+    let docs = snap.docs.map(d => d.data());
+
+    // Preencher filtro de meses disponíveis
+    const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
+    const mesEl = document.getElementById('an-mes');
+    const mesAtual = mesEl.value;
+    mesEl.innerHTML = '<option value="">Todos os meses</option>' +
+      meses.map(m => `<option value="${m}"${m===mesAtual?' selected':''}>${m.split('-').reverse().join('/')}</option>`).join('');
+
+    // Filtro marca
+    if (marcaFlt) docs = docs.filter(d => d.marca === marcaFlt);
+
+    // Apenas consideradas
+    const cons = docs.filter(d => d.dentroJanela);
+    const total = cons.length;
+
+    // ── 1. Vendas por Mídia ──────────────────────────────────────────────────
+    const byMidia = {};
+    cons.forEach(v => {
+      const m = v.midia || 'Não informada';
+      byMidia[m] = (byMidia[m] || 0) + 1;
+    });
+    const midiaRows = Object.entries(byMidia).sort((a,b) => b[1]-a[1]);
+    const maxMidia = midiaRows[0]?.[1] || 1;
+
+    const midiaColors = ['#4f8ef7','#2ec98a','#f5a623','#7c5fe6','#f05252','#38bdf8','#fb923c','#a3e635','#e879f9','#34d399'];
+
+    document.getElementById('an-midia-list').innerHTML = total === 0
+      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Nenhuma venda considerada encontrada</div>'
+      : midiaRows.map(([m, v], i) => {
+          const pct = total > 0 ? (v / total * 100) : 0;
+          const barW = maxMidia > 0 ? (v / maxMidia * 100) : 0;
+          const cor = midiaColors[i % midiaColors.length];
+          return `<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+            <div style="width:180px;font-size:12px;color:var(--text);flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${m}">${m}</div>
+            <div style="flex:1;height:10px;background:var(--bg3);border-radius:5px;overflow:hidden">
+              <div style="height:100%;width:${barW}%;background:${cor};border-radius:5px;transition:width .5s ease"></div>
+            </div>
+            <div style="font-size:13px;font-family:var(--mono);font-weight:600;color:${cor};width:36px;text-align:right;flex-shrink:0">${v}</div>
+            <div style="font-size:11px;color:var(--muted);width:44px;text-align:right;flex-shrink:0">${pct.toFixed(1)}%</div>
+          </div>`;
+        }).join('');
+
+    // ── 2. Ranking Vendedor Recebeu ──────────────────────────────────────────
+    const byRec = {};
+    docs.forEach(v => {
+      const nome = (v.vendedorRecebeu||'').trim();
+      if (!nome) return;
+      byRec[nome] = (byRec[nome] || 0) + 1;
+    });
+    const recRows = Object.entries(byRec).sort((a,b) => b[1]-a[1]);
+    const maxRec = recRows[0]?.[1] || 1;
+
+    const rankHtml = (rows, maxV, cor, posColors) => rows.length === 0
+      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Sem dados</div>'
+      : rows.map(([nome, v], i) => {
+          const barW = maxV > 0 ? (v / maxV * 100) : 0;
+          const posC = i === 0 ? '#fbbf24' : i === 1 ? '#94a3b8' : i === 2 ? '#cd7c3a' : 'var(--muted)';
+          return `<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <div style="width:22px;height:22px;border-radius:6px;background:${posC}22;color:${posC};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nome}</div>
+              <div style="height:5px;background:var(--bg3);border-radius:3px;margin-top:4px;overflow:hidden">
+                <div style="height:100%;width:${barW}%;background:${cor};border-radius:3px"></div>
+              </div>
+            </div>
+            <div style="font-size:14px;font-family:var(--mono);font-weight:600;color:${cor};flex-shrink:0">${v}</div>
+          </div>`;
+        }).join('');
+
+    document.getElementById('an-vrec-list').innerHTML = rankHtml(recRows, maxRec, '#4f8ef7');
+
+    // ── 3. Ranking Vendedor Faturou ──────────────────────────────────────────
+    const byFat = {};
+    docs.forEach(v => {
+      const nome = (v.vendedorFaturou||'').trim();
+      if (!nome) return;
+      byFat[nome] = (byFat[nome] || 0) + 1;
+    });
+    const fatRows = Object.entries(byFat).sort((a,b) => b[1]-a[1]);
+    const maxFat = fatRows[0]?.[1] || 1;
+    document.getElementById('an-vfat-list').innerHTML = rankHtml(fatRows, maxFat, '#2ec98a');
+
+    // ── 4. Cross — Recebeu × Faturou ────────────────────────────────────────
+    const allNames = new Set([...Object.keys(byRec), ...Object.keys(byFat)]);
+    const crossRows = [...allNames].map(nome => ({
+      nome,
+      rec: byRec[nome] || 0,
+      fat: byFat[nome] || 0,
+      delta: (byFat[nome]||0) - (byRec[nome]||0)
+    })).sort((a,b) => (b.rec + b.fat) - (a.rec + a.fat));
+
+    const maxVal = Math.max(...crossRows.map(r => Math.max(r.rec, r.fat)), 1);
+
+    document.getElementById('an-cross-list').innerHTML = crossRows.length === 0
+      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Sem dados suficientes</div>'
+      : `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;padding:6px 0;border-bottom:1px solid var(--border2);margin-bottom:4px">
+          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Vendedor</div>
+          <div style="font-size:10px;color:#4f8ef7;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Recebeu lead</div>
+          <div style="font-size:10px;color:#2ec98a;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Faturou</div>
+          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;text-align:right">Δ Saldo</div>
+        </div>` +
+        crossRows.map(r => {
+          const delta = r.fat - r.rec;
+          const deltaC = delta > 0 ? 'var(--green)' : delta < 0 ? 'var(--red)' : 'var(--muted)';
+          const deltaStr = delta > 0 ? '+' + delta : String(delta);
+          return `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.nome}">${r.nome}</div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+                <div style="height:100%;width:${r.rec/maxVal*100}%;background:#4f8ef7;border-radius:4px"></div>
+              </div>
+              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:#4f8ef7;width:24px;text-align:right">${r.rec}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+                <div style="height:100%;width:${r.fat/maxVal*100}%;background:#2ec98a;border-radius:4px"></div>
+              </div>
+              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:#2ec98a;width:24px;text-align:right">${r.fat}</span>
+            </div>
+            <div style="font-size:13px;font-family:var(--mono);font-weight:700;color:${deltaC};text-align:right">${delta===0?'—':deltaStr}</div>
+          </div>`;
+        }).join('');
+
+  } catch(e) { toast('Erro ao carregar análise: ' + e.message); console.error(e); }
+}
 
 // ── INIT ─────────────────────────────────────────────────────────────────────
 seed();
