@@ -366,23 +366,23 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <button class="nav-btn active" onclick="gv('dashboard')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/></svg>Dashboard
     </button>
-    <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Inserir Dados
-    </button>
-    <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('historico')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Histórico
-    </button>
-    <button class="nav-btn dir-hide" onclick="gv('consolidado')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="12" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>Consolidado
+    <button class="nav-btn" onclick="gv('analise')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Análise
     </button>
     <button class="nav-btn" onclick="gv('ranking')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12h2v2H2zM7 8h2v6H7zM12 4h2v10h-2z" fill="currentColor"/></svg>Ranking
     </button>
-    <button class="nav-btn" onclick="gv('analise')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Análise
+    <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Inserir Dados
     </button>
     <button class="nav-btn ro-hide-on-ro" onclick="gv('venda')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Registrar Venda
+    </button>
+    <button class="nav-btn dir-hide" onclick="gv('consolidado')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="12" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>Consolidado
+    </button>
+    <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('historico')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Histórico
     </button>
   </div>
   <div class="nav-sec">
@@ -453,31 +453,13 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div id="alert-sr-cnt" style="font-size:12px;font-weight:600;color:#7c5fe6;background:rgba(124,95,230,.15);padding:3px 10px;border-radius:20px;white-space:nowrap"></div>
       </div>
 
-      <!-- FRASES MOTIVACIONAIS -->
-      <div id="frases-widget" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-        <div class="chart-card" style="border-left:3px solid var(--accent);position:relative;overflow:hidden">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
-            <span style="font-size:14px">⚡</span>
-            <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em">Produtividade & Gestão de Tempo</div>
-          </div>
-          <div id="frase-prod" style="font-size:13px;color:var(--text);line-height:1.65;font-style:italic;min-height:52px"></div>
-          <div id="frase-prod-autor" style="font-size:10px;color:var(--muted);margin-top:8px;font-weight:500"></div>
-          <div style="position:absolute;bottom:10px;right:14px;display:flex;gap:5px">
-            <button onclick="nextFrase('prod')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Próxima">›</button>
-          </div>
-          <div id="frase-prod-dots" style="display:flex;gap:4px;margin-top:10px"></div>
-        </div>
-        <div class="chart-card" style="border-left:3px solid var(--green);position:relative;overflow:hidden">
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
-            <span style="font-size:14px">🚀</span>
-            <div style="font-size:10px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:.08em">Carreira & Crescimento Profissional</div>
-          </div>
-          <div id="frase-carr" style="font-size:13px;color:var(--text);line-height:1.65;font-style:italic;min-height:52px"></div>
-          <div id="frase-carr-autor" style="font-size:10px;color:var(--muted);margin-top:8px;font-weight:500"></div>
-          <div style="position:absolute;bottom:10px;right:14px;display:flex;gap:5px">
-            <button onclick="nextFrase('carr')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px 5px;border-radius:4px" title="Próxima">›</button>
-          </div>
-          <div id="frase-carr-dots" style="display:flex;gap:4px;margin-top:10px"></div>
+      <!-- FRASE DO DIA -->
+      <div class="chart-card" style="margin-bottom:20px;border-left:3px solid var(--accent);display:flex;align-items:center;gap:18px">
+        <div style="font-size:22px;flex-shrink:0">💡</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px" id="frase-categoria"></div>
+          <div id="frase-dia" style="font-size:13px;color:var(--text);line-height:1.65;font-style:italic"></div>
+          <div id="frase-dia-autor" style="font-size:11px;color:var(--muted);margin-top:5px;font-weight:500"></div>
         </div>
       </div>
       <!-- ALERT: metas -->
@@ -3304,82 +3286,34 @@ async function renderAnalise() {
 }
 
 
-// ── FRASES MOTIVACIONAIS ──────────────────────────────────────────────────────
-const FRASES = {
-  prod: [
-    { t: 'A produtividade nunca é um acidente. É sempre o resultado de um compromisso com a excelência, planejamento inteligente e esforço focado.', a: '— Paul J. Meyer' },
-    { t: 'Concentre-se em ser produtivo em vez de ocupado. Ocupado é uma forma de preguiça — pensamento preguiçoso e ações indiscriminadas.', a: '— Tim Ferriss' },
-    { t: 'Não é a quantidade de horas que você coloca no trabalho, mas o quanto de trabalho você coloca nas horas.', a: '— Sam Ewing' },
-    { t: 'Faça primeiro a coisa mais difícil do dia. Isso eliminará a procrastinação e lhe dará a sensação de que o resto do dia é uma recompensa.', a: '— Brian Tracy' },
-    { t: 'O segredo de avançar é começar. O segredo de começar é dividir tarefas complexas e esmagadoras em tarefas menores e manejáveis.', a: '— Mark Twain' },
-    { t: 'Você não precisa ver toda a escada — apenas dê o primeiro passo.', a: '— Martin Luther King Jr.' },
-    { t: 'Trabalhe mais inteligentemente, não mais arduamente. Seja sensato com o uso do tempo — tempo é ouro.', a: '— David Dunham' },
-    { t: 'Planejamento não é preparação para o futuro. É preparação para lidar com o imprevisível.', a: '— Antoine de Saint-Exupéry' },
-    { t: 'A eficiência é fazer as coisas certo; a eficácia é fazer as coisas certas.', a: '— Peter Drucker' },
-    { t: 'Quem não sabe onde quer chegar, nenhum vento sopra a favor.', a: '— Sêneca' },
-  ],
-  carr: [
-    { t: 'Seu nível de sucesso raramente excede seu nível de desenvolvimento pessoal, porque o sucesso é algo que você atrai pela pessoa que se torna.', a: '— Jim Rohn' },
-    { t: 'Nunca pare de aprender, porque a vida nunca para de ensinar.', a: '— Anônimo' },
-    { t: 'Inteligência emocional é a capacidade de perceber, usar, entender e gerenciar emoções para facilitar o pensamento.', a: '— Daniel Goleman' },
-    { t: 'Em um mundo que muda muito rapidamente, a única estratégia que garante o fracasso é não arriscar.', a: '— Mark Zuckerberg' },
-    { t: 'O investimento em conhecimento sempre paga os melhores juros.', a: '— Benjamin Franklin' },
-    { t: 'Aprender é a única coisa que a mente nunca se cansa, nunca tem medo e nunca se arrepende.', a: '— Leonardo da Vinci' },
-    { t: 'Líderes não criam seguidores, criam mais líderes. Desenvolva pessoas ao redor, não dependência.', a: '— Tom Peters' },
-    { t: 'Seja a mudança que você deseja ver no mundo — e nas equipes que você lidera.', a: '— Mahatma Gandhi (adaptado)' },
-    { t: 'Lifelong learning não é uma opção — é a única vantagem competitiva sustentável.', a: '— Peter Senge' },
-    { t: 'Talento ganha jogos, mas trabalho em equipe e inteligência ganham campeonatos.', a: '— Michael Jordan' },
-  ]
-};
-const _fIdx = { prod: 0, carr: 0 };
-
-function _renderFrase(tipo) {
-  const arr = FRASES[tipo];
-  const idx = _fIdx[tipo];
-  const f = arr[idx];
-  document.getElementById('frase-' + tipo).textContent = '\u201c' + f.t + '\u201d';
-  document.getElementById('frase-' + tipo + '-autor').textContent = f.a;
-  const dots = document.getElementById('frase-' + tipo + '-dots');
-  dots.innerHTML = arr.map((_, i) =>
-    `<span style="width:${i===idx?'14':'5'}px;height:5px;border-radius:3px;background:${i===idx?(tipo==='prod'?'var(--accent)':'var(--green)'):'var(--border2)'};transition:all .3s;display:inline-block"></span>`
-  ).join('');
-}
-
-function nextFrase(tipo) {
-  _fIdx[tipo] = (_fIdx[tipo] + 1) % FRASES[tipo].length;
-  _renderFrase(tipo);
-}
+// ── FRASE DO DIA ─────────────────────────────────────────────────────────────
+const TODAS_FRASES = [
+  { t: 'A produtividade nunca é um acidente. É sempre o resultado de um compromisso com a excelência, planejamento inteligente e esforço focado.', a: '— Paul J. Meyer', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Concentre-se em ser produtivo em vez de ocupado. Ocupado é uma forma de preguiça — pensamento preguiçoso e ações indiscriminadas.', a: '— Tim Ferriss', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Não é a quantidade de horas que você coloca no trabalho, mas o quanto de trabalho você coloca nas horas.', a: '— Sam Ewing', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Faça primeiro a coisa mais difícil do dia. Isso eliminará a procrastinação e lhe dará a sensação de que o resto do dia é uma recompensa.', a: '— Brian Tracy', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'O segredo de avançar é começar. O segredo de começar é dividir tarefas complexas em partes menores e manejáveis.', a: '— Mark Twain', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'A eficiência é fazer as coisas certo; a eficácia é fazer as coisas certas.', a: '— Peter Drucker', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Quem não sabe onde quer chegar, nenhum vento sopra a favor.', a: '— Sêneca', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Seu nível de sucesso raramente excede seu nível de desenvolvimento pessoal, porque o sucesso é algo que você atrai pela pessoa que se torna.', a: '— Jim Rohn', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Nunca pare de aprender, porque a vida nunca para de ensinar.', a: '— Anônimo', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'O investimento em conhecimento sempre paga os melhores juros.', a: '— Benjamin Franklin', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Aprender é a única coisa que a mente nunca se cansa, nunca tem medo e nunca se arrepende.', a: '— Leonardo da Vinci', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Líderes não criam seguidores, criam mais líderes. Desenvolva pessoas ao redor, não dependência.', a: '— Tom Peters', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Talento ganha jogos, mas trabalho em equipe e inteligência ganham campeonatos.', a: '— Michael Jordan', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Lifelong learning não é uma opção — é a única vantagem competitiva sustentável.', a: '— Peter Senge', c: '🚀 Carreira & Crescimento Profissional' },
+];
 
 function initFrases() {
-  // Começa com frase aleatória a cada visita
-  _fIdx.prod = Math.floor(Math.random() * FRASES.prod.length);
-  _fIdx.carr = Math.floor(Math.random() * FRASES.carr.length);
-  _renderFrase('prod');
-  _renderFrase('carr');
-  // Auto-rotaciona a cada 30s
-  setInterval(() => { nextFrase('prod'); }, 30000);
-  setInterval(() => { nextFrase('carr'); }, 37000);
+  // Determina índice pelo dia do ano — muda uma vez por dia, mesma frase para todos
+  const hoje = new Date();
+  const diaAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 86400000);
+  const f = TODAS_FRASES[diaAno % TODAS_FRASES.length];
+  document.getElementById('frase-categoria').textContent = f.c;
+  document.getElementById('frase-dia').textContent = '“' + f.t + '”';
+  document.getElementById('frase-dia-autor').textContent = f.a;
 }
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-seed();
-// ── AUTH INIT (Ação 5) ─────────────────────────────────────────────────────
-_initAuth();
-// Retrocompatibilidade READONLY_MODE embutido
-if(typeof READONLY_MODE!=='undefined'&&READONLY_MODE){document.body.classList.add('readonly');}
-document.getElementById('in-data').value=today();
-document.getElementById('vv-dtfat').value=today();
-vvUpFiliais();
-// Mark form dirty on any input change in insertion form
-document.querySelectorAll('#v-input input').forEach(el => {
-  el.addEventListener('input', _markDirty);
-  el.addEventListener('change', _markDirty);
-});
-
-document.getElementById('hf-de').value='2026-03-18';
-upFiliais();
-refresh();
-initFrases();
 // Auto-sync se Firebase configurado
 if(fbCfgSaved()){
   setSyncStatus('syncing');
