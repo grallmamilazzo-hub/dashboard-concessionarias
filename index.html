@@ -774,7 +774,6 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 
     <!-- RANKING -->
     <div id="v-analise" style="display:none">
-      <!-- FILTROS ANÁLISE -->
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
         <div>
           <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Análise — Mídia & Vendedores</div>
@@ -792,80 +791,8 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         </div>
       </div>
 
-      <!-- LINHA 1: Mídia -->
-      <div class="chart-card" style="margin-bottom:16px">
-        <div class="sec-hdr" style="margin-bottom:14px">
-          <div>
-            <div class="sec-ttl">Vendas por Mídia / Origem</div>
-            <div class="sec-sub">apenas vendas consideradas dentro da janela de conversão</div>
-          </div>
-        </div>
-        <div id="an-midia-list" style="display:flex;flex-direction:column;gap:7px">
-          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
-        </div>
-      </div>
-
-      <!-- LINHA 2: Ranking Vendedores -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
-
-        <!-- Recebeu leads -->
-        <div class="chart-card">
-          <div class="sec-hdr" style="margin-bottom:14px">
-            <div>
-              <div class="sec-ttl">Vendedor — Recebeu Lead</div>
-              <div class="sec-sub">qtd de vendas onde recebeu o lead</div>
-            </div>
-          </div>
-          <div id="an-vrec-list" style="display:flex;flex-direction:column;gap:6px">
-            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
-          </div>
-        </div>
-
-        <!-- Faturou -->
-        <div class="chart-card">
-          <div class="sec-hdr" style="margin-bottom:14px">
-            <div>
-              <div class="sec-ttl">Vendedor — Faturou</div>
-              <div class="sec-sub">qtd de vendas onde emitiu a NF</div>
-            </div>
-          </div>
-          <div id="an-vfat-list" style="display:flex;flex-direction:column;gap:6px">
-            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- LINHA 3: Cross — Recebeu vs Faturou -->
-      <div class="chart-card" style="margin-bottom:20px">
-        <div class="sec-hdr" style="margin-bottom:14px">
-          <div>
-            <div class="sec-ttl">Comparativo — Recebeu × Faturou por Vendedor</div>
-            <div class="sec-sub">identifica desvio entre quem recebe o lead e quem fecha a venda</div>
-          </div>
-        </div>
-        <div id="an-cross-list">
-          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
-        </div>
-      </div>
-    </div>
-
-    <div id="v-analise" style="display:none">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
-        <div>
-          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Análise — Mídia & Vendedores</div>
-          <div style="font-size:12px;color:var(--muted)">Baseado nas vendas registradas no Firestore</div>
-        </div>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select id="an-mes" onchange="renderAnalise()" style="font-size:12px">
-            <option value="">Todos os meses</option>
-          </select>
-          <select id="an-marca" onchange="renderAnalise()" style="font-size:12px">
-            <option value="">Todas as marcas</option>
-            <option>FIAT</option><option>BYD</option><option>VW</option>
-            <option>Peugeot</option><option>Jeep</option><option>Denza</option><option>Leapmotor</option>
-          </select>
-        </div>
-      </div>
+      <!-- Alerta de distorção de mídia -->
+      <div id="an-distorcao" style="display:none;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:14px 16px;margin-bottom:14px"></div>
 
       <div class="chart-card" style="margin-bottom:16px">
         <div class="sec-hdr" style="margin-bottom:14px">
@@ -968,27 +895,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr">
               <div class="form-fld">
                 <label class="form-lbl">Mídia / Origem</label>
-                <select class="form-inp" id="vv-midia" onchange="vvUpdateJanela()">
-                  <option value="">Selecione...</option>
-                  <optgroup label="── Montadora / Site (150 dias)">
-                    <option>MONTADORA</option><option>SITE CONCESSIONÁRIA</option>
-                  </optgroup>
-                  <optgroup label="── Digitais (30 dias após insucesso)">
-                    <option>FACEBOOK</option><option>INSTAGRAM</option><option>CARROSP</option>
-                    <option>ICARROS</option><option>WEBMOTORS</option><option>WHATSAPP</option>
-                    <option>MERCADO LIVRE</option><option>OLX</option><option>TIKTOK</option>
-                  </optgroup>
-                  <optgroup label="── Campanha (30 dias corridos)">
-                    <option>CAMPANHA/WHATSAPP</option>
-                  </optgroup>
-                  <optgroup label="── Outros">
-                    <option>PROSPECÇÃO DE OFICINA</option><option>INDICAÇÃO</option>
-                    <option>SHOWROOM / PASSAGEM DE LOJA</option><option>EMAIL MARKETING</option>
-                    <option>GOOGLE ADS</option><option>EVENTO</option>
-                    <option>RECOMPRA / FIDELIZAÇÃO</option><option>TELEVENDAS</option>
-                    <option>PARCERIA</option><option>OUTROS</option>
-                  </optgroup>
-                </select>
+                <select class="form-inp" id="vv-midia" onchange="vvUpdateJanela()"></select>
               </div>
               <div class="form-fld" id="fld-dtcriacao">
                 <label class="form-lbl">Data de Criação do Lead</label>
@@ -1008,14 +915,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div id="fld-midiaorigem" style="display:none;margin-bottom:12px">
               <div class="form-fld" style="max-width:280px">
                 <label class="form-lbl">Mídia de Origem do Lead Anterior</label>
-                <select class="form-inp" id="vv-midiaorigem" onchange="vvUpdateJanela()">
-                  <option value="">Selecione a mídia original...</option>
-                  <option>MONTADORA</option><option>SITE CONCESSIONÁRIA</option>
-                  <option>FACEBOOK</option><option>INSTAGRAM</option><option>CARROSP</option>
-                  <option>ICARROS</option><option>WEBMOTORS</option><option>WHATSAPP</option>
-                  <option>MERCADO LIVRE</option><option>OLX</option><option>TIKTOK</option>
-                  <option>CAMPANHA/WHATSAPP</option>
-                </select>
+                <select class="form-inp" id="vv-midiaorigem" onchange="vvUpdateJanela()"></select>
               </div>
             </div>
             <!-- Janela indicator -->
@@ -1468,20 +1368,71 @@ const AGENTES = {
   'VW|Orlândia':                   'Ana Beatriz'
 };
 // ── MÍDIAS — lista completa CAIXA ALTA ───────────────────────────────────────
-const MIDIAS = [
-  'MONTADORA','SITE CONCESSIONÁRIA',
-  'FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS',
-  'WHATSAPP','MERCADO LIVRE','OLX','TIKTOK',
-  'CAMPANHA/WHATSAPP',
-  'PROSPECÇÃO DE OFICINA',
-  'INDICAÇÃO','SHOWROOM / PASSAGEM DE LOJA',
-  'EMAIL MARKETING','GOOGLE ADS','EVENTO',
-  'RECOMPRA / FIDELIZAÇÃO','TELEVENDAS','PARCERIA','OUTROS'
+// ── FONTE CANÔNICA DE MÍDIAS — única fonte de verdade ───────────────────────
+// Nunca editar opções de select manualmente. Sempre alterar aqui.
+const MIDIAS_GRUPOS = [
+  { label: '── Montadora / Site (150 dias)', itens: ['MONTADORA','SITE CONCESSIONÁRIA'] },
+  { label: '── Digitais (30 dias após insucesso)', itens: ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS','WHATSAPP','MERCADO LIVRE','OLX','TIKTOK'] },
+  { label: '── Campanha (30 dias corridos)', itens: ['CAMPANHA/WHATSAPP'] },
+  { label: '── Outros', itens: ['PROSPECÇÃO DE OFICINA','INDICAÇÃO','SHOWROOM / PASSAGEM DE LOJA','EMAIL MARKETING','GOOGLE ADS','EVENTO','RECOMPRA / FIDELIZAÇÃO','TELEVENDAS','PARCERIA','OUTROS'] },
 ];
+const MIDIAS = MIDIAS_GRUPOS.flatMap(g => g.itens);
+
 // Grupos por regra de janela
-const MIDIAS_150        = ['MONTADORA','SITE CONCESSIONÁRIA'];
-const MIDIAS_30_INS     = ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS','WHATSAPP','MERCADO LIVRE','OLX','TIKTOK'];
-const MIDIAS_30_CORR    = ['CAMPANHA/WHATSAPP'];
+const MIDIAS_150     = ['MONTADORA','SITE CONCESSIONÁRIA'];
+const MIDIAS_30_INS  = ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS','WHATSAPP','MERCADO LIVRE','OLX','TIKTOK'];
+const MIDIAS_30_CORR = ['CAMPANHA/WHATSAPP'];
+
+// ── MAPA DE NORMALIZAÇÃO — variantes conhecidas → canônico ───────────────────
+// Adicionar aqui qualquer nova variante que surgir no Firestore.
+const MIDIA_NORM = {
+  'CAMPANHA WHATSAPP':          'CAMPANHA/WHATSAPP',
+  'CAMPANHA / WHATSAPP':        'CAMPANHA/WHATSAPP',
+  'CAMPANHA- WHATSAPP':         'CAMPANHA/WHATSAPP',
+  'URA WHATSAPP':               'WHATSAPP',
+  'MENSAGEM WHATSAPP':          'WHATSAPP',
+  'URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP': 'WHATSAPP',
+  'FACEBOOK / META ADS':        'FACEBOOK',
+  'META ADS':                   'FACEBOOK',
+  'INSTAGRAM / META ADS':       'INSTAGRAM',
+  'CARS.COM':                   'CARROSP',
+  'CARS':                       'CARROSP',
+  'MERCADOLIVRE':               'MERCADO LIVRE',
+  'MERCADO-LIVRE':              'MERCADO LIVRE',
+  'SHOW ROOM':                  'SHOWROOM / PASSAGEM DE LOJA',
+  'SHOWROOM':                   'SHOWROOM / PASSAGEM DE LOJA',
+  'PASSAGEM DE LOJA':           'SHOWROOM / PASSAGEM DE LOJA',
+  'RECOMPRA':                   'RECOMPRA / FIDELIZAÇÃO',
+  'FIDELIZAÇÃO':                'RECOMPRA / FIDELIZAÇÃO',
+  'EMAIL':                      'EMAIL MARKETING',
+  'GOOGLE':                     'GOOGLE ADS',
+  'SITE':                       'SITE CONCESSIONÁRIA',
+  'SITE CONCESSIONARIA':        'SITE CONCESSIONÁRIA',
+};
+
+function normalizeMidia(raw) {
+  if (!raw) return '';
+  const upper = raw.trim().toUpperCase();
+  if (MIDIA_NORM[upper]) return MIDIA_NORM[upper];
+  if (MIDIAS.includes(upper)) return upper;
+  // Tentativa de correspondência parcial
+  for (const canonical of MIDIAS) {
+    if (canonical.includes(upper) || upper.includes(canonical)) return canonical;
+  }
+  return upper; // Retorna como veio — será sinalizado como desconhecido
+}
+
+// ── BUILDER DE SELECT DE MÍDIA — gerado a partir de MIDIAS_GRUPOS ────────────
+function buildMidiaSelect(selectId, includeBlank = true) {
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  el.innerHTML = (includeBlank ? '<option value="">Selecione...</option>' : '') +
+    MIDIAS_GRUPOS.map(g =>
+      `<optgroup label="${g.label}">` +
+      g.itens.map(m => `<option value="${m}">${m}</option>`).join('') +
+      '</optgroup>'
+    ).join('');
+}
 
 // ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
 function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
@@ -2935,7 +2886,7 @@ async function saveVenda() {
   const filial   = document.getElementById('vv-filial').value;
   const dtFat    = document.getElementById('vv-dtfat').value;
   const cod      = document.getElementById('vv-cod').value.trim();
-  const midia    = document.getElementById('vv-midia').value;
+  const midia    = normalizeMidia(document.getElementById('vv-midia').value);
   const dtCri    = document.getElementById('vv-dtcriacao').value;
   const dtIns    = document.getElementById('vv-dtins').value;
   const isResgate= document.getElementById('vv-resgate').checked;
@@ -3053,11 +3004,18 @@ function openEditVenda(id) {
     document.getElementById('vv-vfat').value         = v.vendedorFaturou || '';
     document.getElementById('vv-nf').value           = v.nf || '';
     document.getElementById('vv-chassi').value       = v.chassi || '';
-    document.getElementById('vv-midia').value        = v.midia || '';
+    buildMidiaSelect('vv-midia');
+    buildMidiaSelect('vv-midiaorigem');
+    const _normM = normalizeMidia(v.midia || '');
+    document.getElementById('vv-midia').value = _normM;
+    // Alerta se a mídia salva não era canônica
+    if (v.midia && _normM !== v.midia) {
+      toast('⚠️ Mídia normalizada: "' + v.midia + '" → "' + _normM + '"');
+    }
     document.getElementById('vv-dtcriacao').value    = v.dtCriacao || '';
     document.getElementById('vv-dtins').value        = v.dtInsucesso || '';
     document.getElementById('vv-resgate').checked    = v.isResgate || false;
-    document.getElementById('vv-midiaorigem').value  = v.midiaOrigem || '';
+    document.getElementById('vv-midiaorigem').value  = normalizeMidia(v.midiaOrigem || '');
     document.getElementById('vv-obs').value          = v.obs || '';
     document.getElementById('venda-form-ttl').textContent = 'Editando Venda — ' + (v.cod || id);
     document.getElementById('vv-btn-save').textContent    = 'Atualizar Venda';
@@ -3164,6 +3122,39 @@ async function renderAnalise() {
 
     // Filtro marca
     if (marcaFlt) docs = docs.filter(d => d.marca === marcaFlt);
+
+    // Normalizar mídias de todos os docs (detecta distorções)
+    const distorcoes = [];
+    docs.forEach(d => {
+      const raw = d.midia || '';
+      const norm = normalizeMidia(raw);
+      if (raw && norm !== raw) {
+        distorcoes.push({ raw, norm });
+        d.midia = norm; // corrige na exibição (não salva de volta)
+      } else if (raw && !MIDIAS.includes(raw)) {
+        distorcoes.push({ raw, norm: '⚠️ Desconhecida' });
+      }
+    });
+
+    // Exibir alerta de distorção
+    const distEl = document.getElementById('an-distorcao');
+    if (distorcoes.length > 0) {
+      const grupos = {};
+      distorcoes.forEach(d => { grupos[d.raw] = d.norm; });
+      distEl.style.display = 'block';
+      distEl.innerHTML = `<div style="display:flex;align-items:flex-start;gap:10px">
+        <span style="font-size:16px;flex-shrink:0">⚠️</span>
+        <div>
+          <div style="font-weight:600;color:var(--amber);font-size:12px;margin-bottom:6px">${distorcoes.length} registro(s) com mídia fora do padrão detectados no Firestore</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Serão exibidos normalizados aqui, mas o valor original ainda está salvo. Para corrigir definitivamente, abra e re-salve cada venda afetada.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">` +
+        Object.entries(grupos).map(([raw, norm]) =>
+          `<span style="font-size:11px;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);border-radius:5px;padding:3px 8px;color:var(--amber)">"${raw}" → ${norm}</span>`
+        ).join('') +
+        `</div></div></div>`;
+    } else {
+      distEl.style.display = 'none';
+    }
 
     // Apenas consideradas
     const cons = docs.filter(d => d.dentroJanela);
@@ -3313,6 +3304,11 @@ function initFrases() {
   document.getElementById('frase-dia').textContent = '“' + f.t + '”';
   document.getElementById('frase-dia-autor').textContent = f.a;
 }
+
+// Populando selects de mídia a partir da fonte canônica
+buildMidiaSelect('vv-midia');
+buildMidiaSelect('vv-midiaorigem');
+initFrases();
 
 // Auto-sync se Firebase configurado
 if(fbCfgSaved()){
