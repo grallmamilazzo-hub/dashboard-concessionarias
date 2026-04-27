@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Atendimento — Concessionárias</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js" defer></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -366,20 +366,23 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <button class="nav-btn active" onclick="gv('dashboard')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".9"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/></svg>Dashboard
     </button>
-    <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Inserir Dados
-    </button>
-    <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('historico')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Histórico
-    </button>
-    <button class="nav-btn dir-hide" onclick="gv('consolidado')">
-      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="12" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>Consolidado
+    <button class="nav-btn" onclick="gv('analise')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Análise
     </button>
     <button class="nav-btn" onclick="gv('ranking')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12h2v2H2zM7 8h2v6H7zM12 4h2v10h-2z" fill="currentColor"/></svg>Ranking
     </button>
+    <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Inserir Dados
+    </button>
     <button class="nav-btn ro-hide-on-ro" onclick="gv('venda')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Registrar Venda
+    </button>
+    <button class="nav-btn dir-hide" onclick="gv('consolidado')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="12" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>Consolidado
+    </button>
+    <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('historico')">
+      <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Histórico
     </button>
   </div>
   <div class="nav-sec">
@@ -391,7 +394,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
   <div class="sb-foot">
     <div style="font-size:11px;color:var(--muted);margin-bottom:6px">Última atualização</div>
     <div style="font-size:12px;color:var(--text);margin-bottom:10px" id="last-upd">—</div>
-    <div style="font-size:11px;margin-bottom:6px" id="sync-status" style="color:var(--muted)">Não conectado</div>
+    <div style="font-size:11px;margin-bottom:6px;color:var(--muted)" id="sync-status">Não conectado</div>
     <div style="display:flex;gap:6px;flex-direction:column">
       <button onclick="fbSync()" class="ro-hide-on-ro" style="background:rgba(255,166,0,.12);border:1px solid rgba(255,166,0,.3);color:#ffb300;border-radius:7px;padding:7px 10px;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px;width:100%">
         <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M14 8A6 6 0 112 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 4v4h-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -400,10 +403,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <button onclick="showFbConfig()" class="ro-hide-on-ro" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:6px 10px;font-size:11px;font-family:var(--font);cursor:pointer;width:100%">
         ⚙ Configurar Firebase
       </button>
-      <button onclick="showShareModal()" style="background:rgba(46,201,138,.1);border:1px solid rgba(46,201,138,.25);color:var(--green);border-radius:7px;padding:7px 10px;font-size:12px;font-family:var(--font);cursor:pointer;display:flex;align-items:center;gap:6px;width:100%;margin-top:6px" class="ro-hide-on-ro">
-        <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="12" cy="3" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="12" cy="13" r="2" stroke="currentColor" stroke-width="1.3"/><circle cx="4" cy="8" r="2" stroke="currentColor" stroke-width="1.3"/><path d="M10.2 4.2L5.8 6.8M10.2 11.8L5.8 9.2" stroke="currentColor" stroke-width="1.3"/></svg>
-        Compartilhar (somente leitura)
-      </button>
+
     </div>
   </div>
 </aside>
@@ -451,6 +451,16 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div style="width:8px;height:8px;border-radius:50%;background:#7c5fe6;flex-shrink:0;animation:pulse 1.8s ease-in-out infinite"></div>
         <div style="font-size:13px;color:#c3abf7;flex:1">Filiais sem relatório hoje: <span id="alert-sr-nomes" style="font-weight:600;color:#d4bdfa"></span></div>
         <div id="alert-sr-cnt" style="font-size:12px;font-weight:600;color:#7c5fe6;background:rgba(124,95,230,.15);padding:3px 10px;border-radius:20px;white-space:nowrap"></div>
+      </div>
+
+      <!-- FRASE DO DIA -->
+      <div class="chart-card" style="margin-bottom:20px;border-left:3px solid var(--accent);display:flex;align-items:center;gap:18px">
+        <div style="font-size:22px;flex-shrink:0">💡</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px" id="frase-categoria"></div>
+          <div id="frase-dia" style="font-size:13px;color:var(--text);line-height:1.65;font-style:italic"></div>
+          <div id="frase-dia-autor" style="font-size:11px;color:var(--muted);margin-top:5px;font-weight:500"></div>
+        </div>
       </div>
       <!-- ALERT: metas -->
       <div class="alert-banner" id="alert-banner" style="display:none">
@@ -763,6 +773,77 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     </div>
 
     <!-- RANKING -->
+    <div id="v-analise" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Análise — Mídia & Vendedores</div>
+          <div style="font-size:12px;color:var(--muted)">Baseado nas vendas registradas no Firestore</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <select id="an-mes" onchange="renderAnaliseDebounced()" style="font-size:12px">
+            <option value="">Todos os meses</option>
+          </select>
+          <select id="an-marca" onchange="renderAnaliseDebounced()" style="font-size:12px">
+            <option value="">Todas as marcas</option>
+            <option>FIAT</option><option>BYD</option><option>VW</option>
+            <option>Peugeot</option><option>Jeep</option><option>Denza</option><option>Leapmotor</option><option>Seminovos</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Alerta de distorção de mídia -->
+      <div id="an-distorcao" style="display:none;background:rgba(245,166,35,.07);border:1px solid rgba(245,166,35,.25);border-radius:10px;padding:14px 16px;margin-bottom:14px"></div>
+
+      <div class="chart-card" style="margin-bottom:16px">
+        <div class="sec-hdr" style="margin-bottom:14px">
+          <div>
+            <div class="sec-ttl">Vendas por Mídia / Origem</div>
+            <div class="sec-sub">apenas vendas consideradas dentro da janela de conversão</div>
+          </div>
+        </div>
+        <div id="an-midia-list" style="display:flex;flex-direction:column;gap:7px">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
+        <div class="chart-card">
+          <div class="sec-hdr" style="margin-bottom:14px">
+            <div>
+              <div class="sec-ttl">Vendedor — Recebeu Lead</div>
+              <div class="sec-sub">qtd de vendas onde recebeu o lead</div>
+            </div>
+          </div>
+          <div id="an-vrec-list" style="display:flex;flex-direction:column;gap:6px">
+            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+          </div>
+        </div>
+        <div class="chart-card">
+          <div class="sec-hdr" style="margin-bottom:14px">
+            <div>
+              <div class="sec-ttl">Vendedor — Faturou</div>
+              <div class="sec-sub">qtd de vendas onde emitiu a NF</div>
+            </div>
+          </div>
+          <div id="an-vfat-list" style="display:flex;flex-direction:column;gap:6px">
+            <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="sec-hdr" style="margin-bottom:14px">
+          <div>
+            <div class="sec-ttl">Comparativo — Recebeu × Faturou por Vendedor</div>
+            <div class="sec-sub">identifica desvio entre quem recebe o lead e quem fecha a venda</div>
+          </div>
+        </div>
+        <div id="an-cross-list">
+          <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
+        </div>
+      </div>
+    </div>
+
     <div id="v-ranking" style="display:none">
       <div class="chart-card">
         <div class="sec-hdr" style="margin-bottom:14px">
@@ -801,7 +882,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
             <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
-            <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
+            <div class="form-fld"><label class="form-lbl">Atendente / Pré-venda</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Faturou</label><input class="form-inp" type="text" id="vv-vfat" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">NF</label><input class="form-inp" type="text" id="vv-nf" placeholder="Número da NF"></div>
@@ -814,27 +895,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr">
               <div class="form-fld">
                 <label class="form-lbl">Mídia / Origem</label>
-                <select class="form-inp" id="vv-midia" onchange="vvUpdateJanela()">
-                  <option value="">Selecione...</option>
-                  <optgroup label="── Montadora / Site (150 dias)">
-                    <option>MONTADORA</option><option>SITE CONCESSIONÁRIA</option>
-                  </optgroup>
-                  <optgroup label="── Digitais (30 dias após insucesso)">
-                    <option>FACEBOOK</option><option>INSTAGRAM</option><option>CARROSP</option>
-                    <option>ICARROS</option><option>WEBMOTORS</option><option>WHATSAPP</option>
-                    <option>MERCADO LIVRE</option><option>OLX</option><option>TIKTOK</option>
-                  </optgroup>
-                  <optgroup label="── Campanha (30 dias corridos)">
-                    <option>CAMPANHA/WHATSAPP</option>
-                  </optgroup>
-                  <optgroup label="── Outros">
-                    <option>PROSPECÇÃO DE OFICINA</option><option>INDICAÇÃO</option>
-                    <option>SHOWROOM / PASSAGEM DE LOJA</option><option>EMAIL MARKETING</option>
-                    <option>GOOGLE ADS</option><option>EVENTO</option>
-                    <option>RECOMPRA / FIDELIZAÇÃO</option><option>TELEVENDAS</option>
-                    <option>PARCERIA</option><option>OUTROS</option>
-                  </optgroup>
-                </select>
+                <select class="form-inp" id="vv-midia" onchange="vvUpdateJanela()"></select>
               </div>
               <div class="form-fld" id="fld-dtcriacao">
                 <label class="form-lbl">Data de Criação do Lead</label>
@@ -854,14 +915,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div id="fld-midiaorigem" style="display:none;margin-bottom:12px">
               <div class="form-fld" style="max-width:280px">
                 <label class="form-lbl">Mídia de Origem do Lead Anterior</label>
-                <select class="form-inp" id="vv-midiaorigem" onchange="vvUpdateJanela()">
-                  <option value="">Selecione a mídia original...</option>
-                  <option>MONTADORA</option><option>SITE CONCESSIONÁRIA</option>
-                  <option>FACEBOOK</option><option>INSTAGRAM</option><option>CARROSP</option>
-                  <option>ICARROS</option><option>WEBMOTORS</option><option>WHATSAPP</option>
-                  <option>MERCADO LIVRE</option><option>OLX</option><option>TIKTOK</option>
-                  <option>CAMPANHA/WHATSAPP</option>
-                </select>
+                <select class="form-inp" id="vv-midiaorigem" onchange="vvUpdateJanela()"></select>
               </div>
             </div>
             <!-- Janela indicator -->
@@ -1183,51 +1237,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 
 
 
-<!-- SHARE READONLY MODAL -->
-<div class="modal-ov" id="share-modal">
-  <div class="modal" style="width:500px">
-    <div class="modal-ttl">Compartilhar — somente leitura</div>
-    <div class="modal-sub">O destinatário poderá ver todos os dados mas não poderá inserir, editar ou excluir.</div>
-
-    <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:16px;font-size:12px;color:var(--muted);line-height:1.8;border-left:3px solid var(--green)">
-      <div style="font-weight:600;color:var(--text);margin-bottom:6px">Como funciona:</div>
-      O arquivo HTML será gerado com o parâmetro <code style="color:var(--green);background:rgba(46,201,138,.1);padding:1px 5px;border-radius:3px">?readonly=1</code> embutido.<br>
-      Ao abrir, o destinatário verá apenas Dashboard, Consolidado e Ranking — sem acesso a inserção ou edição.<br><br>
-      Se você usa Firebase, as credenciais <strong style="color:var(--text)">são incluídas automaticamente</strong> — o destinatário vê os dados em tempo real sem configurar nada.
-    </div>
-
-    <div style="margin-bottom:14px">
-      <div style="font-size:12px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Configurações do arquivo compartilhado</div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" id="share-incl-creds" checked style="width:15px;height:15px;cursor:pointer">
-        Incluir credenciais Firebase (sincroniza automaticamente)
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" id="share-incl-data" checked style="width:15px;height:15px;cursor:pointer">
-        Incluir dados locais atuais como snapshot
-      </label>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" id="share-auto-sync" checked style="width:15px;height:15px;cursor:pointer">
-        Sincronizar Firebase automaticamente ao abrir
-      </label>
-      <div style="height:1px;background:var(--border);margin:10px 0"></div>
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer" title="Exibe apenas Dashboard e Ranking — ideal para diretoria">
-        <input type="checkbox" id="share-directors" style="width:15px;height:15px;cursor:pointer;accent-color:#f5a623">
-        <span><strong style="color:#f5a623">Modo Diretores</strong> <span style="color:var(--muted)">— exibe apenas Dashboard e Ranking</span></span>
-      </label>
-    </div>
-
-    <div id="share-preview" style="background:var(--bg3);border-radius:8px;padding:11px 13px;font-size:12px;color:var(--muted);border:0.5px solid var(--border);margin-bottom:4px;line-height:1.7"></div>
-
-    <div class="modal-act">
-      <button class="btn-g" onclick="closeShareModal()">Cancelar</button>
-      <button class="btn-p" onclick="downloadReadonly()" style="background:var(--green);border-color:var(--green);color:#fff;display:flex;align-items:center;gap:6px">
-        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 2v9M5 8l3 3 3-3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 13h10" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Baixar arquivo readonly
-      </button>
-    </div>
-  </div>
-</div>
+<!-- share modal removed -->
 
 
 <!-- DATE MODAL -->
@@ -1362,20 +1372,96 @@ const AGENTES = {
   'Seminovos|São José do Rio Preto': 'Cintia e Lurde'
 };
 // ── MÍDIAS — lista completa CAIXA ALTA ───────────────────────────────────────
-const MIDIAS = [
-  'MONTADORA','SITE CONCESSIONÁRIA',
-  'FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS',
-  'WHATSAPP','MERCADO LIVRE','OLX','TIKTOK',
-  'CAMPANHA/WHATSAPP',
-  'PROSPECÇÃO DE OFICINA',
-  'INDICAÇÃO','SHOWROOM / PASSAGEM DE LOJA',
-  'EMAIL MARKETING','GOOGLE ADS','EVENTO',
-  'RECOMPRA / FIDELIZAÇÃO','TELEVENDAS','PARCERIA','OUTROS'
+// ── FONTE CANÔNICA DE MÍDIAS — única fonte de verdade ───────────────────────
+// Nunca editar opções de select manualmente. Sempre alterar aqui.
+const MIDIAS_GRUPOS = [
+  { label: '── Montadora / Site (150 dias)', itens: ['MONTADORA','SITE CONCESSIONÁRIA'] },
+  { label: '── Digitais (30 dias após insucesso)', itens: ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS','WHATSAPP','MERCADO LIVRE','OLX','TIKTOK','RESGATE DE INSUCESSO','MÍDIAS NÃO CADASTRADAS'] },
+  { label: '── Campanha (30 dias corridos)', itens: ['CAMPANHA/WHATSAPP'] },
+  { label: '── Outros', itens: ['PROSPECÇÃO DE OFICINA','INDICAÇÃO','SHOWROOM / PASSAGEM DE LOJA','EMAIL MARKETING','GOOGLE ADS','EVENTO','RECOMPRA / FIDELIZAÇÃO','TELEVENDAS','PARCERIA','OUTROS'] },
 ];
+const MIDIAS = MIDIAS_GRUPOS.flatMap(g => g.itens);
+
 // Grupos por regra de janela
-const MIDIAS_150        = ['MONTADORA','SITE CONCESSIONÁRIA'];
-const MIDIAS_30_INS     = ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS','WHATSAPP','MERCADO LIVRE','OLX','TIKTOK'];
-const MIDIAS_30_CORR    = ['CAMPANHA/WHATSAPP'];
+const MIDIAS_150     = ['MONTADORA','SITE CONCESSIONÁRIA'];
+const MIDIAS_30_INS  = ['FACEBOOK','INSTAGRAM','CARROSP','ICARROS','WEBMOTORS','WHATSAPP','MERCADO LIVRE','OLX','TIKTOK','RESGATE DE INSUCESSO','MÍDIAS NÃO CADASTRADAS'];
+const MIDIAS_30_CORR = ['CAMPANHA/WHATSAPP'];
+
+// ── MAPA DE NORMALIZAÇÃO — variantes conhecidas → canônico ───────────────────
+// Adicionar aqui qualquer nova variante que surgir no Firestore.
+const MIDIA_NORM = {
+  // ── Campanha WhatsApp
+  'CAMPANHA WHATSAPP':                          'CAMPANHA/WHATSAPP',
+  'CAMPANHA / WHATSAPP':                        'CAMPANHA/WHATSAPP',
+  'CAMPANHA- WHATSAPP':                         'CAMPANHA/WHATSAPP',
+  // ── WhatsApp / URA
+  'URA WHATSAPP':                               'WHATSAPP',
+  'MENSAGEM WHATSAPP':                          'WHATSAPP',
+  'URA WHATSAPP / MENSAGEM WHATSAPP / WHATSAPP':'WHATSAPP',
+  // ── Facebook / Meta
+  'FACEBOOK / META ADS':                        'FACEBOOK',
+  'META ADS':                                   'FACEBOOK',
+  // ── Instagram / Meta
+  'INSTAGRAM / META ADS':                       'INSTAGRAM',
+  // ── Carros / Cars
+  'CARS.COM':                                   'CARROSP',
+  'CARS':                                       'CARROSP',
+  // ── Mercado Livre
+  'MERCADOLIVRE':                               'MERCADO LIVRE',
+  'MERCADO-LIVRE':                              'MERCADO LIVRE',
+  // ── Showroom / Passagem
+  'SHOW ROOM':                                  'SHOWROOM / PASSAGEM DE LOJA',
+  'SHOWROOM':                                   'SHOWROOM / PASSAGEM DE LOJA',
+  'PASSAGEM DE LOJA':                           'SHOWROOM / PASSAGEM DE LOJA',
+  // ── Recompra
+  'RECOMPRA':                                   'RECOMPRA / FIDELIZAÇÃO',
+  'FIDELIZAÇÃO':                                'RECOMPRA / FIDELIZAÇÃO',
+  // ── Email / Google
+  'EMAIL':                                      'EMAIL MARKETING',
+  'GOOGLE':                                     'GOOGLE ADS',
+  // ── Site
+  'SITE':                                       'SITE CONCESSIONÁRIA',
+  'SITE CONCESSIONARIA':                        'SITE CONCESSIONÁRIA',
+  'SITE CONCESSIONÁRIA':                        'SITE CONCESSIONÁRIA',
+  'SITE CONCESSIONARIA / SITE LOJA':            'SITE CONCESSIONÁRIA',
+  'SITE LOJA':                                  'SITE CONCESSIONÁRIA',
+  // ── Montadora
+  'SITE MONTADORA':                             'MONTADORA',
+  'SITE MONTADORA / MONTADORA':                 'MONTADORA',
+  'MONTADORA / SITE':                           'MONTADORA',
+  // ── Sem mídia / inválidas
+  'RESGATE DE INSUCESSO':                       'OUTROS',
+  '[ MÍDIAS NÃO CADASTRADAS ]':                 'OUTROS',
+  'MÍDIAS NÃO CADASTRADAS':                     'OUTROS',
+  'MIDIAS NAO CADASTRADAS':                     'OUTROS',
+  'NÃO INFORMADO':                              'OUTROS',
+  'NAO INFORMADO':                              'OUTROS',
+  'SEM MÍDIA':                                  'OUTROS',
+};
+
+function normalizeMidia(raw) {
+  if (!raw) return '';
+  const upper = raw.trim().toUpperCase();
+  if (MIDIA_NORM[upper]) return MIDIA_NORM[upper];
+  if (MIDIAS.includes(upper)) return upper;
+  // Tentativa de correspondência parcial
+  for (const canonical of MIDIAS) {
+    if (canonical.includes(upper) || upper.includes(canonical)) return canonical;
+  }
+  return upper; // Retorna como veio — será sinalizado como desconhecido
+}
+
+// ── BUILDER DE SELECT DE MÍDIA — gerado a partir de MIDIAS_GRUPOS ────────────
+function buildMidiaSelect(selectId, includeBlank = true) {
+  const el = document.getElementById(selectId);
+  if (!el) return;
+  el.innerHTML = (includeBlank ? '<option value="">Selecione...</option>' : '') +
+    MIDIAS_GRUPOS.map(g =>
+      `<optgroup label="${g.label}">` +
+      g.itens.map(m => `<option value="${m}">${m}</option>`).join('') +
+      '</optgroup>'
+    ).join('');
+}
 
 // ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
 function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
@@ -1616,11 +1702,10 @@ async function fbSync() {
       if (idx >= 0) merged[idx] = r; else merged.push(r);
     });
     localStorage.setItem('db_entries', JSON.stringify(merged));
-    localStorage.setItem('db_last', new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
-    refresh();
-    if (document.getElementById('v-historico').style.display !== 'none') renderHist();
     const now = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
     localStorage.setItem('db_last', now);
+    refresh();
+    if (document.getElementById('v-historico').style.display !== 'none') renderHist();
     const luEl = document.getElementById('last-upd');
     if(luEl) luEl.textContent = 'Hoje ' + now;
     setSyncStatus('ok');
@@ -1729,7 +1814,7 @@ function deleteE(ds,m,f) {
 
 
 const today=()=>new Date().toISOString().split('T')[0];
-function fmtD(ds){const[y,mo,d]=ds.split('-');return`${d}/${mo}/${y}`}
+function fmtD(ds){if(!ds||typeof ds!=='string')return'—';const p=ds.split('-');if(p.length!==3)return ds;const[y,mo,d]=p;return`${d}/${mo}/${y}`;}
 
 // ── FAIXAS DE CONVERSÃO ──────────────────────────────────────────────────────
 function getFaixa(pct) {
@@ -1826,7 +1911,7 @@ function calcKPIs(f) {
   td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
   let nm=0,nt=0;
   Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
-  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm:0,nt:0};
+  return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm,nt};
 }
 function renderKPIs(k,pk) {
   const vd=pk?Math.round(((k.tv-pk.tv)/(pk.tv||1))*100):0;
@@ -1887,7 +1972,15 @@ function renderChartF(f) {
   f.filter(e=>e.ds===today()||period!=='hoje').forEach(e=>{
     const k=`${e.f} (${e.m})`;if(!byF[k])byF[k]={v:0,mt:METAS[`${e.m}|${e.f}`]||10};byF[k].v+=e.v;
   });
-  const labels=Object.keys(byF).slice(0,10);
+  const allLabels=Object.keys(byF);
+  const labels=allLabels.slice(0,12);
+  // Aviso se filiais foram omitidas do gráfico
+  const chartHdr = document.querySelector('#ch-filiais')?.closest('.chart-card')?.querySelector('.chart-ttl');
+  if(chartHdr) {
+    chartHdr.textContent = allLabels.length > 12
+      ? `Vendas por filial (exibindo 12 de ${allLabels.length})`
+      : 'Vendas por filial';
+  }
   const mul=period==='semana'?7:period==='mes'?30:1;
   const ctx=document.getElementById('ch-filiais').getContext('2d');
   if(charts.f)charts.f.destroy();
@@ -1900,8 +1993,9 @@ function renderChartF(f) {
   }}});
 }
 
-function renderChartEv() {
-  const all=getE(), t=new Date(), labels=[], data=[];
+function renderChartEv(all) {
+  if(!all) all=getE();
+  const t=new Date(), labels=[], data=[];
   for(let i=13;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);const ds=d.toISOString().split('T')[0];labels.push(fmtD(ds));data.push(all.filter(e=>e.ds===ds&&(marca==='todas'||e.m===marca)).reduce((s,e)=>s+e.v,0));}
   const ctx=document.getElementById('ch-evolucao').getContext('2d');
   if(charts.ev)charts.ev.destroy();
@@ -1912,8 +2006,8 @@ function renderChartEv() {
     }}});
 }
 
-function renderSparklines() {
-  const all = getE();
+function renderSparklines(all) {
+  if(!all) all = getE();
   const t = new Date();
   const days = [];
   for(let i=6;i>=0;i--){const d=new Date(t);d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
@@ -1988,9 +2082,9 @@ function renderFunil(f) {
 }
 
 // ── STREAK ────────────────────────────────────────────────────────────────────
-function calcStreak(m, f) {
+function calcStreak(m, f, all) {
   // Returns consecutive days below 90% of target (counting back from yesterday)
-  const all = getE();
+  if(!all) all = getE();
   const mt = METAS[`${m}|${f}`] || 10;
   let streak = 0;
   const t = new Date();
@@ -2007,7 +2101,8 @@ function calcStreak(m, f) {
 }
 
 // ── ALERTS ────────────────────────────────────────────────────────────────────
-function renderAlerts(f) {
+function renderAlerts(f, all) {
+  if(!all) all = getE();
   const td=f.filter(e=>e.ds===today());
   const byF={};td.forEach(e=>{const k=`${e.m}|${e.f}`;if(!byF[k])byF[k]={v:0,m:e.m,f:e.f};byF[k].v+=e.v;});
   const rows=Object.values(byF).map(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;return{...x,mt,pct:Math.round((x.v/mt)*100)};}).sort((a,b)=>a.pct-b.pct);
@@ -2019,7 +2114,7 @@ function renderAlerts(f) {
   const srBanner = document.getElementById('alert-sem-relatorio');
   if(srBanner) {
     const todayStr = today();
-    const withReport = new Set(getE().filter(e=>e.ds===todayStr&&(marca==='todas'||e.m===marca)).map(e=>e.m+'|'+e.f));
+    const withReport = new Set(all.filter(e=>e.ds===todayStr&&(marca==='todas'||e.m===marca)).map(e=>e.m+'|'+e.f));
     const allFiliais = Object.entries(FILIAIS).flatMap(([m,fs])=>
       (marca==='todas'||m===marca) ? fs.map(f=>({m,f,key:m+'|'+f})) : []
     );
@@ -2038,7 +2133,7 @@ function renderAlerts(f) {
   document.getElementById('alerts-list').innerHTML=rows.slice(0,8).map(r=>{
     const dc=r.pct<70?'dot-r':r.pct<90?'dot-a':'dot-g';
     const pc=r.pct<70?'var(--red)':r.pct<90?'var(--amber)':'var(--green)';
-    const streak=calcStreak(r.m,r.f);
+    const streak=calcStreak(r.m,r.f,all);
     const streakHtml=streak>=2?`<span title="${streak} dias seguidos abaixo da meta" style="font-size:10px;font-weight:700;color:var(--red);background:rgba(240,82,82,.12);padding:1px 6px;border-radius:4px;margin-left:4px">🔥${streak}d</span>`:'';
     return `<div class="al-row"><div class="al-dot ${dc}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);display:flex;align-items:center">${r.f}${streakHtml}</div><div style="font-size:11px;color:var(--muted)">${r.m} · meta:${r.mt} · Ger: ${GERENTES[r.m+'|'+r.f]||'—'}</div></div><div style="margin-left:auto;display:flex;align-items:center;gap:9px"><div style="font-size:11px;color:var(--muted)">${r.v} vendas</div><div style="width:66px"><div style="height:4px;background:var(--bg3);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.min(100,r.pct)}%;background:${pc};border-radius:2px"></div></div></div><div style="font-size:12px;font-family:var(--mono);font-weight:600;width:38px;text-align:right;color:${pc}">${r.pct}%</div></div></div>`;
   }).join('');
@@ -2086,7 +2181,7 @@ function renderRank(by='conv') {
       + '<div class="rank-pos '+pcls(i)+'">'+(i+1)+'</div>'
       + '<div class="rank-name">'
         + '<div class="rank-fil">'+r.f+'</div>'
-        + (()=>{const sk=calcStreak(r.m,r.f);return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d sem meta</span>':'')+'</div>';})()
+        + (()=>{const sk=calcStreak(r.m,r.f,getE());return '<div class="rank-mrc">'+r.m+' · '+r.v+' vendas · base: '+r.base+' leads'+(GERENTES[r.m+'|'+r.f]?' · 👤 '+GERENTES[r.m+'|'+r.f]:'')+(sk>=2?' · <span style="color:var(--red);font-size:10px;font-weight:700">🔥'+sk+'d sem meta</span>':'')+'</div>';})()
       + '</div>'
       + '<div style="flex:1;min-width:60px;padding:0 10px">'
         + '<div style="height:5px;background:var(--bg3);border-radius:3px;overflow:hidden">'
@@ -2629,15 +2724,17 @@ function gv(v) {
     if(!confirm('Há dados não salvos no formulário. Deseja sair mesmo assim?')) return;
     _clearDirty();
   }
-  ['dashboard','input','historico','consolidado','ranking','venda'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
+  ['dashboard','input','historico','consolidado','ranking','analise','venda'].forEach(x=>{document.getElementById('v-'+x).style.display=x===v?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('active',b.getAttribute('onclick')?.includes(v));});
-  const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking',venda:'Registrar Venda'};
+  const ttls={dashboard:'Dashboard',input:'Inserir Dados',historico:'Histórico',consolidado:'Relatório Consolidado',ranking:'Ranking',analise:'Análise — Mídia & Vendedores',venda:'Registrar Venda'};
   document.getElementById('page-ttl').textContent=ttls[v]||v;
   document.title = (ttls[v]||v) + ' — Painel Concessionárias';
   if(v==='ranking')renderRank();
   if(v==='historico'){hPage=0;renderHist();}
   if(v==='consolidado'){const d=document.getElementById('cons-dt');if(d&&!d.value)d.value=today();renderCons();}
   if(v==='venda'){vvUpFiliais();renderVendas();}
+  if(v==='analise')renderAnalise();
+  if(v==='analise')renderAnalise();
 }
 function setPeriod(p,btn){
   period=p; customFrom=''; customTo='';
@@ -2670,106 +2767,13 @@ function refresh() {
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
-  renderChartF(f); renderChartEv(); renderSparklines();
-  renderFunil(f); renderAlerts(f);
+  renderChartF(f); renderChartEv(all); renderSparklines(all);
+  renderFunil(f); renderAlerts(f, all);
   const lu=localStorage.getItem('db_last');
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
 }
 
-// ── SHARE / READONLY ─────────────────────────────────────────────────────────
-function showShareModal() {
-  document.getElementById('share-modal').classList.add('open');
-  updateSharePreview();
-}
-function closeShareModal() { document.getElementById('share-modal').classList.remove('open'); }
 
-function updateSharePreview() {
-  const inclCreds = document.getElementById('share-incl-creds').checked;
-  const inclData  = document.getElementById('share-incl-data').checked;
-  const autoSync  = document.getElementById('share-auto-sync').checked;
-  const directors = document.getElementById('share-directors').checked;
-  const hasFb     = fbCfgSaved();
-  const dataCount = getE().length;
-  const fname = directors ? 'dashboard_diretores.html' : 'dashboard_readonly.html';
-  document.getElementById('share-preview').innerHTML =
-    `Arquivo gerado: <strong style="color:var(--text)">${fname}</strong><br>` +
-    (directors ? `Páginas visíveis: <span style="color:#f5a623">Dashboard e Ranking apenas</span><br>` : '') +
-    `Firebase: <span style="color:${inclCreds&&hasFb?'var(--green)':'var(--amber)'}">` +
-      (inclCreds && hasFb ? 'credenciais incluídas — sync automático' :
-       !hasFb ? 'não configurado — incluirá snapshot local' : 'não incluir credenciais') +
-    `</span><br>` +
-    `Dados snapshot: <span style="color:var(--text)">${inclData ? dataCount + ' registros incluídos' : 'nenhum (depende do Firebase)'}</span><br>` +
-    `Sincronização ao abrir: <span style="color:${autoSync&&hasFb?'var(--green)':'var(--muted)'}">${autoSync && hasFb ? 'sim' : 'não'}</span>`;
-}
-
-['share-incl-creds','share-incl-data','share-auto-sync','share-directors'].forEach(id => {
-  document.addEventListener('change', e => { if(e.target.id===id) updateSharePreview(); });
-});
-
-function downloadReadonly() {
-  const inclCreds  = document.getElementById('share-incl-creds').checked;
-  const inclData   = document.getElementById('share-incl-data').checked;
-  const autoSync   = document.getElementById('share-auto-sync').checked;
-  const directors  = document.getElementById('share-directors').checked;
-  generateReadonlyFallback(inclCreds, inclData, autoSync, directors);
-}
-
-function generateReadonlyFallback(inclCreds, inclData, autoSync, directors) {
-  let out = document.documentElement.outerHTML;
-
-  // 1. Inject READONLY_MODE=true before the INIT comment
-  out = out.replace("// ── INIT", "var READONLY_MODE=true; // ── INIT");
-
-  // 2. Add readonly class to body tag (and directors if applicable)
-  var bodyClass = directors ? 'readonly directors' : 'readonly';
-  out = out.replace("<body>", '<body class="' + bodyClass + '">');
-  out = out.replace('<body class="', '<body class="' + bodyClass + ' ').replace(new RegExp('(' + bodyClass + ' ){2}', 'g'), bodyClass + ' ');
-
-  // 3. Embed Firebase credentials
-  if (inclCreds && fbCfgSaved()) {
-    var cfgStr = JSON.stringify(FB_CFG);
-    out = out.replace(
-      "let FB_CFG = JSON.parse(localStorage.getItem('fb_config'",
-      "let FB_CFG = " + cfgStr + "; var _x = JSON.parse(localStorage.getItem('fb_config'"
-    );
-  }
-
-  // 4. Embed data snapshot — inject after seed() call
-  if (inclData) {
-    var snap = JSON.stringify(getE());
-    // Escape any closing script tags in the data
-    snap = snap.replace(/<\/script>/gi, "<\/script>");
-    var injectData = "localStorage.setItem('db_entries'," + snap + ");localStorage.setItem('db_seeded_v2','1');";
-    out = out.replace("seed();", "seed();" + injectData);
-  }
-
-  // 5. Auto-sync Firebase on open
-  if (inclCreds && fbCfgSaved() && autoSync) {
-    var syncCode = "setTimeout(function(){if(typeof FB_CFG!=='undefined'&&FB_CFG&&FB_CFG.apiKey){initFirebase().then(function(ok){if(ok)fbSync();});}},1500);";
-    out = out.replace("setSyncStatus('idle');", "setSyncStatus('idle');" + syncCode);
-  }
-
-  // 6. Block write actions with guard
-  var guard = "if(document.body.classList.contains('readonly')){toast('Modo somente leitura — sem permissao para editar');return;}";
-  out = out.replace("function salvar() {", "function salvar(){" + guard);
-  out = out.replace("function saveModal() {", "function saveModal(){" + guard);
-  out = out.replace("function confirmDel(){if(!pendingDel)", "function confirmDel(){" + guard + "if(!pendingDel)");
-
-  // 7. Download the file
-  var filename = directors ? "dashboard_diretores.html" : "dashboard_readonly.html";
-  var blob = new Blob([out], {type:"text/html"});
-  var a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(a.href);
-  closeShareModal();
-  toast(directors ? "dashboard_diretores.html baixado!" : "dashboard_readonly.html baixado!");
-}
-
-document.getElementById('share-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeShareModal(); });
 
 // ── DATE MODAL ────────────────────────────────────────────────────────────────
 function openDateModal() {
@@ -2920,7 +2924,7 @@ async function saveVenda() {
   const filial   = document.getElementById('vv-filial').value;
   const dtFat    = document.getElementById('vv-dtfat').value;
   const cod      = document.getElementById('vv-cod').value.trim();
-  const midia    = document.getElementById('vv-midia').value;
+  const midia    = normalizeMidia(document.getElementById('vv-midia').value);
   const dtCri    = document.getElementById('vv-dtcriacao').value;
   const dtIns    = document.getElementById('vv-dtins').value;
   const isResgate= document.getElementById('vv-resgate').checked;
@@ -2951,6 +2955,7 @@ async function saveVenda() {
 
   try {
     await fbDb.collection('vendas').doc(docId).set(venda);
+    _invalidateVendasCache();
     toast(dentroJanela ? '✅ Venda registrada — Considerada' : '⚠️ Venda salva — Não Considerada');
     vvClear();
     renderVendas();
@@ -2967,10 +2972,10 @@ async function renderVendas() {
   const statusFlt= document.getElementById('vvf-status').value;
 
   try {
-    let q = fbDb.collection('vendas');
-    if (mesFlt) q = q.where('dtFat', '>=', mesFlt + '-01').where('dtFat', '<=', mesFlt + '-31');
-    const snap = await q.get();
-    let docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    // Usa cache compartilhado com renderAnalise (TTL 60s)
+    let allDocs = await _getVendasFb();
+    let docs = allDocs.map(d => ({ id: `${d.marca}||${d.filial}||${d.dtFat}||${d.cod}`, ...d }));
+    if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
 
     // Preencher filtro de meses disponíveis
     const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
@@ -3038,11 +3043,18 @@ function openEditVenda(id) {
     document.getElementById('vv-vfat').value         = v.vendedorFaturou || '';
     document.getElementById('vv-nf').value           = v.nf || '';
     document.getElementById('vv-chassi').value       = v.chassi || '';
-    document.getElementById('vv-midia').value        = v.midia || '';
+    buildMidiaSelect('vv-midia');
+    buildMidiaSelect('vv-midiaorigem');
+    const _normM = normalizeMidia(v.midia || '');
+    document.getElementById('vv-midia').value = _normM;
+    // Alerta se a mídia salva não era canônica
+    if (v.midia && _normM !== v.midia) {
+      toast('⚠️ Mídia normalizada: "' + v.midia + '" → "' + _normM + '"');
+    }
     document.getElementById('vv-dtcriacao').value    = v.dtCriacao || '';
     document.getElementById('vv-dtins').value        = v.dtInsucesso || '';
     document.getElementById('vv-resgate').checked    = v.isResgate || false;
-    document.getElementById('vv-midiaorigem').value  = v.midiaOrigem || '';
+    document.getElementById('vv-midiaorigem').value  = normalizeMidia(v.midiaOrigem || '');
     document.getElementById('vv-obs').value          = v.obs || '';
     document.getElementById('venda-form-ttl').textContent = 'Editando Venda — ' + (v.cod || id);
     document.getElementById('vv-btn-save').textContent    = 'Atualizar Venda';
@@ -3067,6 +3079,7 @@ async function confirmDelVenda() {
   if (!_vendaDelId) return;
   try {
     await fbDb.collection('vendas').doc(_vendaDelId).delete();
+    _invalidateVendasCache();
     toast('Venda excluída');
     closeDelVenda();
     renderVendas();
@@ -3126,24 +3139,297 @@ window.addEventListener('beforeunload', e => {
   if (_formDirty) { e.preventDefault(); e.returnValue = ''; }
 });
 
-// ── INIT ─────────────────────────────────────────────────────────────────────
-seed();
-// ── AUTH INIT (Ação 5) ─────────────────────────────────────────────────────
-_initAuth();
-// Retrocompatibilidade READONLY_MODE embutido
-if(typeof READONLY_MODE!=='undefined'&&READONLY_MODE){document.body.classList.add('readonly');}
-document.getElementById('in-data').value=today();
-document.getElementById('vv-dtfat').value=today();
-vvUpFiliais();
-// Mark form dirty on any input change in insertion form
-document.querySelectorAll('#v-input input').forEach(el => {
-  el.addEventListener('input', _markDirty);
-  el.addEventListener('change', _markDirty);
-});
 
-document.getElementById('hf-de').value='2026-03-18';
-upFiliais();
-refresh();
+// ── DEBOUNCE HELPER ──────────────────────────────────────────────────────────
+function debounce(fn, ms) {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+const renderAnaliseDebounced = debounce(() => renderAnalise(), 300);
+
+// ── ANÁLISE MÍDIA & VENDEDORES ────────────────────────────────────────────────
+// Cache de vendas: evita full scan repetido dentro de 60 segundos
+let _vendasFbCache = null;
+let _vendasFbCacheTs = 0;
+const _VENDAS_CACHE_TTL = 60000; // 60s
+
+async function _getVendasFb(force = false) {
+  if (!force && _vendasFbCache && (Date.now() - _vendasFbCacheTs) < _VENDAS_CACHE_TTL) {
+    return _vendasFbCache;
+  }
+  const snap = await fbDb.collection('vendas').get();
+  _vendasFbCache = snap.docs.map(d => d.data());
+  _vendasFbCacheTs = Date.now();
+  return _vendasFbCache;
+}
+
+function _invalidateVendasCache() {
+  _vendasFbCache = null;
+  _vendasFbCacheTs = 0;
+}
+
+async function renderAnalise() {
+  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
+
+  const mesFlt   = document.getElementById('an-mes').value;
+  const marcaFlt = document.getElementById('an-marca').value;
+
+  try {
+    // Clonar shallow para não mutar o cache — normalização ocorre apenas na cópia
+    let docs = (await _getVendasFb()).map(d => ({...d}));
+    // Filtro de mês aplicado localmente (cache já tem tudo)
+    if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
+
+    // Preencher filtro de meses disponíveis
+    const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
+    const mesEl = document.getElementById('an-mes');
+    const mesAtual = mesEl.value;
+    mesEl.innerHTML = '<option value="">Todos os meses</option>' +
+      meses.map(m => `<option value="${m}"${m===mesAtual?' selected':''}>${m.split('-').reverse().join('/')}</option>`).join('');
+
+    // Filtro marca
+    if (marcaFlt) docs = docs.filter(d => d.marca === marcaFlt);
+
+    // Normalizar mídias de todos os docs (detecta distorções)
+    const distorcoes = [];
+    docs.forEach(d => {
+      const raw = d.midia || '';
+      const norm = normalizeMidia(raw);
+      if (raw && norm !== raw) {
+        distorcoes.push({ raw, norm });
+        d.midia = norm; // corrige na exibição (não salva de volta)
+      } else if (raw && !MIDIAS.includes(raw)) {
+        distorcoes.push({ raw, norm: '⚠️ Desconhecida' });
+      }
+    });
+
+    // Exibir alerta de distorção
+    const distEl = document.getElementById('an-distorcao');
+    if (distorcoes.length > 0) {
+      const grupos = {};
+      distorcoes.forEach(d => { grupos[d.raw] = d.norm; });
+      distEl.style.display = 'block';
+      distEl.innerHTML = `<div style="display:flex;align-items:flex-start;gap:12px">
+        <span style="font-size:18px;flex-shrink:0">⚠️</span>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:6px">
+            <div style="font-weight:600;color:var(--amber);font-size:12px">${distorcoes.length} registro(s) com mídia fora do padrão detectados no Firestore</div>
+            <button onclick="corrigirMidiasBatch()" style="background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.4);color:var(--amber);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font)">
+              ✦ Corrigir todos no Firestore
+            </button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Os valores abaixo serão normalizados. Clique em "Corrigir todos" para salvar definitivamente no Firestore.</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">` +
+        Object.entries(grupos).map(([raw, norm]) =>
+          `<span style="font-size:11px;background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.2);border-radius:5px;padding:3px 8px;color:var(--amber);white-space:nowrap">"${raw}" <span style="opacity:.5">→</span> ${norm}</span>`
+        ).join('') +
+        `</div></div></div>`;
+    } else {
+      distEl.style.display = 'none';
+    }
+
+    // Apenas consideradas
+    const cons = docs.filter(d => d.dentroJanela);
+    const total = cons.length;
+
+    // ── 1. Vendas por Mídia ──────────────────────────────────────────────────
+    const byMidia = {};
+    cons.forEach(v => {
+      const m = v.midia || 'Não informada';
+      byMidia[m] = (byMidia[m] || 0) + 1;
+    });
+    const midiaRows = Object.entries(byMidia).sort((a,b) => b[1]-a[1]);
+    const maxMidia = midiaRows[0]?.[1] || 1;
+
+    const midiaColors = ['#4f8ef7','#2ec98a','#f5a623','#7c5fe6','#f05252','#38bdf8','#fb923c','#a3e635','#e879f9','#34d399'];
+
+    document.getElementById('an-midia-list').innerHTML = total === 0
+      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Nenhuma venda considerada encontrada</div>'
+      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px">`
+        + midiaRows.map(([m, v], i) => {
+          const pct = total > 0 ? (v / total * 100) : 0;
+          const cor = midiaColors[i % midiaColors.length];
+          const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
+          return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid ${cor};transition:border-color .2s">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:10px;color:${cor};font-weight:700">${rankLabel}</span>
+              <span style="font-size:10px;color:var(--muted);background:var(--bg);padding:1px 6px;border-radius:4px">${pct.toFixed(1)}%</span>
+            </div>
+            <div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:8px;min-height:28px">${m}</div>
+            <div style="font-size:26px;font-weight:700;font-family:var(--mono);color:${cor};letter-spacing:-1px">${v}</div>
+            <div style="font-size:10px;color:var(--muted);margin-top:2px">venda${v!==1?'s':''}</div>
+            <div style="height:3px;background:var(--bg);border-radius:2px;margin-top:10px;overflow:hidden">
+              <div style="height:100%;width:${(v/maxMidia*100).toFixed(0)}%;background:${cor};border-radius:2px"></div>
+            </div>
+          </div>`;
+        }).join('') + `</div>`;
+
+    // ── 2. Ranking Vendedor Recebeu ──────────────────────────────────────────
+    const byRec = {};
+    docs.forEach(v => {
+      const nome = (v.vendedorRecebeu||'').trim();
+      if (!nome) return;
+      byRec[nome] = (byRec[nome] || 0) + 1;
+    });
+    const recRows = Object.entries(byRec).sort((a,b) => b[1]-a[1]);
+    const maxRec = recRows[0]?.[1] || 1;
+
+    const rankHtml = (rows, maxV, cor, posColors) => rows.length === 0
+      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Sem dados</div>'
+      : rows.map(([nome, v], i) => {
+          const barW = maxV > 0 ? (v / maxV * 100) : 0;
+          const posC = i === 0 ? '#fbbf24' : i === 1 ? '#94a3b8' : i === 2 ? '#cd7c3a' : 'var(--muted)';
+          return `<div style="display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <div style="width:22px;height:22px;border-radius:6px;background:${posC}22;color:${posC};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${nome}</div>
+              <div style="height:5px;background:var(--bg3);border-radius:3px;margin-top:4px;overflow:hidden">
+                <div style="height:100%;width:${barW}%;background:${cor};border-radius:3px"></div>
+              </div>
+            </div>
+            <div style="font-size:14px;font-family:var(--mono);font-weight:600;color:${cor};flex-shrink:0">${v}</div>
+          </div>`;
+        }).join('');
+
+    document.getElementById('an-vrec-list').innerHTML = rankHtml(recRows, maxRec, '#4f8ef7');
+
+    // ── 3. Ranking Vendedor Faturou ──────────────────────────────────────────
+    const byFat = {};
+    docs.forEach(v => {
+      const nome = (v.vendedorFaturou||'').trim();
+      if (!nome) return;
+      byFat[nome] = (byFat[nome] || 0) + 1;
+    });
+    const fatRows = Object.entries(byFat).sort((a,b) => b[1]-a[1]);
+    const maxFat = fatRows[0]?.[1] || 1;
+    document.getElementById('an-vfat-list').innerHTML = rankHtml(fatRows, maxFat, '#2ec98a');
+
+    // ── 4. Cross — Recebeu × Faturou ────────────────────────────────────────
+    const allNames = new Set([...Object.keys(byRec), ...Object.keys(byFat)]);
+    const crossRows = [...allNames].map(nome => ({
+      nome,
+      rec: byRec[nome] || 0,
+      fat: byFat[nome] || 0,
+      delta: (byFat[nome]||0) - (byRec[nome]||0)
+    })).sort((a,b) => (b.rec + b.fat) - (a.rec + a.fat));
+
+    const maxVal = Math.max(...crossRows.map(r => Math.max(r.rec, r.fat)), 1);
+
+    document.getElementById('an-cross-list').innerHTML = crossRows.length === 0
+      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Sem dados suficientes</div>'
+      : `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;padding:6px 0;border-bottom:1px solid var(--border2);margin-bottom:4px">
+          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Vendedor</div>
+          <div style="font-size:10px;color:#4f8ef7;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Recebeu lead</div>
+          <div style="font-size:10px;color:#2ec98a;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Faturou</div>
+          <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;text-align:right">Δ Saldo</div>
+        </div>` +
+        crossRows.map(r => {
+          const delta = r.fat - r.rec;
+          const deltaC = delta > 0 ? 'var(--green)' : delta < 0 ? 'var(--red)' : 'var(--muted)';
+          const deltaStr = delta > 0 ? '+' + delta : String(delta);
+          return `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.nome}">${r.nome}</div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+                <div style="height:100%;width:${r.rec/maxVal*100}%;background:#4f8ef7;border-radius:4px"></div>
+              </div>
+              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:#4f8ef7;width:24px;text-align:right">${r.rec}</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+                <div style="height:100%;width:${r.fat/maxVal*100}%;background:#2ec98a;border-radius:4px"></div>
+              </div>
+              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:#2ec98a;width:24px;text-align:right">${r.fat}</span>
+            </div>
+            <div style="font-size:13px;font-family:var(--mono);font-weight:700;color:${deltaC};text-align:right">${delta===0?'—':deltaStr}</div>
+          </div>`;
+        }).join('');
+
+  } catch(e) { toast('Erro ao carregar análise: ' + e.message); console.error(e); }
+}
+
+
+// ── FRASE DO DIA ─────────────────────────────────────────────────────────────
+const TODAS_FRASES = [
+  { t: 'A produtividade nunca é um acidente. É sempre o resultado de um compromisso com a excelência, planejamento inteligente e esforço focado.', a: '— Paul J. Meyer', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Concentre-se em ser produtivo em vez de ocupado. Ocupado é uma forma de preguiça — pensamento preguiçoso e ações indiscriminadas.', a: '— Tim Ferriss', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Não é a quantidade de horas que você coloca no trabalho, mas o quanto de trabalho você coloca nas horas.', a: '— Sam Ewing', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Faça primeiro a coisa mais difícil do dia. Isso eliminará a procrastinação e lhe dará a sensação de que o resto do dia é uma recompensa.', a: '— Brian Tracy', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'O segredo de avançar é começar. O segredo de começar é dividir tarefas complexas em partes menores e manejáveis.', a: '— Mark Twain', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'A eficiência é fazer as coisas certo; a eficácia é fazer as coisas certas.', a: '— Peter Drucker', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Quem não sabe onde quer chegar, nenhum vento sopra a favor.', a: '— Sêneca', c: '⚡ Produtividade & Gestão de Tempo' },
+  { t: 'Seu nível de sucesso raramente excede seu nível de desenvolvimento pessoal, porque o sucesso é algo que você atrai pela pessoa que se torna.', a: '— Jim Rohn', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Nunca pare de aprender, porque a vida nunca para de ensinar.', a: '— Anônimo', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'O investimento em conhecimento sempre paga os melhores juros.', a: '— Benjamin Franklin', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Aprender é a única coisa que a mente nunca se cansa, nunca tem medo e nunca se arrepende.', a: '— Leonardo da Vinci', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Líderes não criam seguidores, criam mais líderes. Desenvolva pessoas ao redor, não dependência.', a: '— Tom Peters', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Talento ganha jogos, mas trabalho em equipe e inteligência ganham campeonatos.', a: '— Michael Jordan', c: '🚀 Carreira & Crescimento Profissional' },
+  { t: 'Lifelong learning não é uma opção — é a única vantagem competitiva sustentável.', a: '— Peter Senge', c: '🚀 Carreira & Crescimento Profissional' },
+];
+
+function initFrases() {
+  // Determina índice pelo dia do ano — muda uma vez por dia, mesma frase para todos
+  const hoje = new Date();
+  const diaAno = Math.floor((hoje - new Date(hoje.getFullYear(), 0, 0)) / 86400000);
+  const f = TODAS_FRASES[diaAno % TODAS_FRASES.length];
+  document.getElementById('frase-categoria').textContent = f.c;
+  document.getElementById('frase-dia').textContent = '“' + f.t + '”';
+  document.getElementById('frase-dia-autor').textContent = f.a;
+}
+
+// ── CORREÇÃO EM LOTE DE MÍDIAS NO FIRESTORE ───────────────────────────────────
+async function corrigirMidiasBatch() {
+  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
+  if (!confirm('Isso irá reescrever a mídia de todos os registros fora do padrão diretamente no Firestore. Deseja continuar?')) return;
+
+  const btn = document.querySelector('[onclick="corrigirMidiasBatch()"]');
+  if (btn) { btn.textContent = 'Corrigindo...'; btn.disabled = true; }
+
+  try {
+    const snap = await fbDb.collection('vendas').get();
+    let count = 0;
+    // Firestore batch: máx 500 operações por batch — garantia de atomicidade e throttle safety
+    const BATCH_SIZE = 400;
+    let batches = [fbDb.batch()];
+    let batchCount = 0;
+
+    snap.docs.forEach(doc => {
+      const d = doc.data();
+      const raw  = d.midia || '';
+      const norm = normalizeMidia(raw);
+      if (raw && norm !== raw && MIDIAS.includes(norm)) {
+        const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem);
+        if (batchCount > 0 && batchCount % BATCH_SIZE === 0) batches.push(fbDb.batch());
+        batches[batches.length - 1].update(doc.ref, {
+          midia:        norm,
+          dentroJanela: janela.valido === true,
+          janelaLabel:  janela.label,
+        });
+        count++;
+        batchCount++;
+      }
+    });
+
+    if (count === 0) {
+      toast('Nenhum registro precisava de correção.');
+    } else {
+      await Promise.all(batches.map(b => b.commit()));
+      _invalidateVendasCache();
+      toast(`✅ ${count} registro(s) corrigidos no Firestore!`);
+      renderAnalise();
+    }
+  } catch(e) {
+    toast('Erro na correção em lote: ' + e.message);
+    console.error(e);
+  } finally {
+    if (btn) { btn.textContent = '✦ Corrigir todos no Firestore'; btn.disabled = false; }
+  }
+}
+
+// Populando selects de mídia a partir da fonte canônica
+buildMidiaSelect('vv-midia');
+buildMidiaSelect('vv-midiaorigem');
+initFrases();
+
 // Auto-sync se Firebase configurado
 if(fbCfgSaved()){
   setSyncStatus('syncing');
