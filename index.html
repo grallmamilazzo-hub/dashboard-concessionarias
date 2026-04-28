@@ -2982,7 +2982,7 @@ async function renderVendas() {
   try {
     // Usa cache compartilhado com renderAnalise (TTL 60s)
     let allDocs = await _getVendasFb();
-    let docs = allDocs.map(d => ({ id: `${d.marca}||${d.filial}||${d.dtFat}||${d.cod}`, ...d }));
+    let docs = allDocs.map(d => ({ id: d._fbId || d.cod || `${d.marca}||${d.filial}||${d.dtFat}||${d.cod}`, ...d }));
     if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
 
     // Preencher filtro de meses disponíveis
@@ -2997,6 +2997,37 @@ async function renderVendas() {
     if (statusFlt === '0') docs = docs.filter(d => !d.dentroJanela);
     docs.sort((a,b) => (b.dtFat||'').localeCompare(a.dtFat||''));
 
+    // ── Detectar duplicatas por cod (sobre allDocs, antes dos filtros) ─────
+    const codCount = {};
+    allDocs.forEach(d => { if (d.cod) codCount[d.cod] = (codCount[d.cod] || 0) + 1; });
+    const codsDup = new Set(Object.keys(codCount).filter(k => codCount[k] > 1));
+    const totalDupCods = codsDup.size;
+    const totalDupDocs = Object.values(codCount).filter(v => v > 1).reduce((s, v) => s + v, 0);
+
+    // Banner de duplicatas
+    let banner = document.getElementById('vv-dup-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'vv-dup-banner';
+      const table = document.getElementById('vv-table');
+      table.parentNode.insertBefore(banner, table);
+    }
+    if (totalDupCods > 0) {
+      banner.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(240,82,82,.1);border:1px solid rgba(240,82,82,.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="#f05252" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6v4M8 11.5v.5" stroke="#f05252" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span style="font-size:12px;font-weight:600;color:#f05252">${totalDupCods} Cód(s) Lead duplicado(s)</span>
+          <span style="font-size:11px;color:var(--muted)">${totalDupDocs} registros conflitantes — apenas 1 por código é permitido</span>
+        </div>
+        <button class="btn-ico del ro-hide-on-ro" onclick="resolverDuplicatas()" style="font-size:11px;padding:5px 10px;white-space:nowrap">
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Resolver Duplicatas
+        </button>
+      </div>`;
+    } else {
+      banner.innerHTML = '';
+    }
+
     _vendasCache = docs;
     const tbody = document.getElementById('vv-tbody');
     const empty = document.getElementById('vv-empty');
@@ -3004,7 +3035,8 @@ async function renderVendas() {
 
     const cons   = docs.filter(d => d.dentroJanela).length;
     const ncons  = docs.length - cons;
-    sub.textContent = `${docs.length} registro(s) · ${cons} considerada(s) · ${ncons} não considerada(s)`;
+    const dupVis = docs.filter(d => codsDup.has(d.cod)).length;
+    sub.textContent = `${docs.length} registro(s) · ${cons} considerada(s) · ${ncons} não considerada(s)` + (dupVis ? ` · ⚠️ ${dupVis} duplicada(s)` : '');
 
     if (!docs.length) {
       tbody.innerHTML = '';
@@ -3018,7 +3050,7 @@ async function renderVendas() {
         <td style="font-family:var(--mono);font-size:12px">${fmtD(v.dtFat||'')}</td>
         <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;${cl(v.marca)}">${v.marca}</span></td>
         <td style="font-size:12px">${v.filial||'—'}</td>
-        <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}</td>
+        <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}${codsDup.has(v.cod)?'<span title="Código duplicado — resolva via botão Resolver Duplicatas" style="margin-left:5px;font-size:9px;font-weight:700;color:#f05252;background:rgba(240,82,82,.15);border:1px solid rgba(240,82,82,.3);border-radius:3px;padding:1px 5px;vertical-align:middle">DUP</span>':''}</td>
         <td style="font-size:12px">${v.atendente||'—'}</td>
         <td style="font-size:12px">${v.vendedorFaturou||'—'}</td>
         <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.midia||''}">${v.midia||'—'}</td>
@@ -3141,6 +3173,46 @@ async function exportVendasXLSX() {
   if (btn) { btn.innerHTML = orig; btn.disabled = false; }
 }
 
+// ── resolverDuplicatas: mantém o registro mais recente de cada cod ──────────
+async function resolverDuplicatas() {
+  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
+  const btn = event?.target?.closest('button');
+  const orig = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.innerHTML = 'Resolvendo...'; }
+
+  try {
+    const allDocs = await _getVendasFb(true);
+
+    // Agrupar por cod
+    const grupos = {};
+    allDocs.forEach(d => {
+      if (!d.cod) return;
+      if (!grupos[d.cod]) grupos[d.cod] = [];
+      grupos[d.cod].push(d);
+    });
+
+    // Para cada cod com mais de 1 doc: manter o mais recente (maior ts), excluir os demais
+    const idsParaExcluir = [];
+    Object.values(grupos).forEach(grupo => {
+      if (grupo.length <= 1) return;
+      grupo.sort((a, b) => (b.ts || '').localeCompare(a.ts || '')); // mais recente primeiro
+      grupo.slice(1).forEach(d => idsParaExcluir.push(d._fbId));
+    });
+
+    if (!idsParaExcluir.length) { toast('Nenhuma duplicata encontrada.'); return; }
+
+    const batch = fbDb.batch();
+    idsParaExcluir.forEach(id => {
+      batch.delete(fbDb.collection('vendas').doc(id));
+    });
+    await batch.commit();
+    _invalidateVendasCache();
+    toast(`✅ ${idsParaExcluir.length} registro(s) duplicado(s) removido(s). Mais recente de cada código mantido.`);
+    renderVendas();
+  } catch(e) { toast('Erro ao resolver: ' + e.message); }
+  if (btn) { btn.innerHTML = orig; btn.disabled = false; }
+}
+
 let _formDirty = false;
 function _markDirty() { _formDirty = true; }
 function _clearDirty() { _formDirty = false; }
@@ -3166,7 +3238,7 @@ async function _getVendasFb(force = false) {
     return _vendasFbCache;
   }
   const snap = await fbDb.collection('vendas').get();
-  _vendasFbCache = snap.docs.map(d => d.data());
+  _vendasFbCache = snap.docs.map(d => ({ _fbId: d.id, ...d.data() }));
   _vendasFbCacheTs = Date.now();
   return _vendasFbCache;
 }
