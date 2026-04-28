@@ -880,9 +880,10 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               </select>
             </div>
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
-            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
+            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat" oninput="vvUpdateJanela()"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
-            <div class="form-fld"><label class="form-lbl">Atendente / Pré-venda</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
+            <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
+            <div class="form-fld"><label class="form-lbl">Pré-venda</label><input class="form-inp" type="text" id="vv-prevenda" placeholder="Nome do pré-venda"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Faturou</label><input class="form-inp" type="text" id="vv-vfat" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">NF</label><input class="form-inp" type="text" id="vv-nf" placeholder="Número da NF"></div>
@@ -1464,13 +1465,15 @@ function buildMidiaSelect(selectId, includeBlank = true) {
 }
 
 // ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
-function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
+function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem, dtFaturamento) {
   const m = isResgate ? (midiaOrigem || midia) : midia;
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  // Referência: Data de Faturamento (se informada) ou hoje
+  const ref = dtFaturamento ? new Date(dtFaturamento + 'T12:00:00') : new Date();
+  ref.setHours(0,0,0,0);
   function diffDias(ds) {
     if(!ds) return null;
-    const d = new Date(ds); d.setHours(0,0,0,0);
-    return Math.floor((hoje - d) / 86400000);
+    const d = new Date(ds + 'T12:00:00'); d.setHours(0,0,0,0);
+    return Math.round((ref - d) / 86400000);
   }
 
   // ── Montadora / Site: 150 dias da criação ────────────────────────────────
@@ -2884,6 +2887,7 @@ function vvUpdateJanela() {
   const dtIns       = document.getElementById('vv-dtins').value;
   const isResgate   = document.getElementById('vv-resgate').checked;
   const midiaOrig   = document.getElementById('vv-midiaorigem').value;
+  const dtFat       = document.getElementById('vv-dtfat').value;
 
   // Mostrar/ocultar campo insucesso
   const need30Ins = MIDIAS_30_INS.includes(midia) || (isResgate && MIDIAS_30_INS.includes(midiaOrig));
@@ -2896,14 +2900,14 @@ function vvUpdateJanela() {
   const janelaEl = document.getElementById('vv-janela');
   if (!midia) { janelaEl.style.display = 'none'; return; }
 
-  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig);
+  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig, dtFat);
   const cls = r.cor === 'ok' ? 'janela-ok' : r.cor === 'err' ? 'janela-err' : 'janela-warn';
   janelaEl.innerHTML = `<div class="${cls}">${r.label}</div>`;
   janelaEl.style.display = 'block';
 }
 
 function vvClear() {
-  ['vv-cod','vv-atendente','vv-vrec','vv-vfat','vv-nf','vv-chassi','vv-obs','vv-dtcriacao','vv-dtins'].forEach(id => {
+  ['vv-cod','vv-atendente','vv-prevenda','vv-vrec','vv-vfat','vv-nf','vv-chassi','vv-obs','vv-dtcriacao','vv-dtins'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('vv-midia').value       = '';
@@ -2932,12 +2936,13 @@ async function saveVenda() {
 
   if (!dtFat || !cod || !midia) { toast('Preencha: Data de Faturamento, Cód. Lead e Mídia'); return; }
 
-  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig);
+  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig, dtFat);
   const dentroJanela = janela.valido === true;
 
   const venda = {
     marca, filial, dtFat, cod,
     atendente:      document.getElementById('vv-atendente').value.trim(),
+    preVenda:       document.getElementById('vv-prevenda').value.trim(),
     vendedorRecebeu:document.getElementById('vv-vrec').value.trim(),
     vendedorFaturou:document.getElementById('vv-vfat').value.trim(),
     nf:             document.getElementById('vv-nf').value.trim(),
@@ -3039,6 +3044,7 @@ function openEditVenda(id) {
     document.getElementById('vv-dtfat').value        = v.dtFat || '';
     document.getElementById('vv-cod').value          = v.cod || '';
     document.getElementById('vv-atendente').value    = v.atendente || '';
+    document.getElementById('vv-prevenda').value      = v.preVenda || '';
     document.getElementById('vv-vrec').value         = v.vendedorRecebeu || '';
     document.getElementById('vv-vfat').value         = v.vendedorFaturou || '';
     document.getElementById('vv-nf').value           = v.nf || '';
@@ -3108,8 +3114,8 @@ async function exportVendasXLSX() {
 
     // Aba 1: Não Consideradas
     const nc = todas.filter(v => !v.dentroJanela);
-    const r1 = [['COD DO LEAD','MARCA','FILIAL','ATENDENTE','MÍDIA','DATA FATURAMENTO','MOTIVO']];
-    nc.forEach(v => r1.push([v.cod, v.marca, v.filial, v.atendente, v.midia, v.dtFat, v.janelaLabel||'']));
+    const r1 = [['COD DO LEAD','MARCA','FILIAL','ATENDENTE','PRÉ-VENDA','MÍDIA','DATA FATURAMENTO','MOTIVO']];
+    nc.forEach(v => r1.push([v.cod, v.marca, v.filial, v.atendente, v.preVenda||'', v.midia, v.dtFat, v.janelaLabel||'']));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(r1), 'Vendas não consideradas');
 
     // Aba 2: Consideradas por loja
@@ -3120,8 +3126,8 @@ async function exportVendasXLSX() {
       porLoja[key].push(v);
     });
     Object.entries(porLoja).sort().forEach(([nome, vs]) => {
-      const rows = [['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA FATURAMENTO','OBSERVAÇÃO']];
-      vs.forEach(v => rows.push([v.cod, v.atendente, v.vendedorRecebeu, v.vendedorFaturou, v.nf, v.chassi, v.midia, v.dtFat, v.obs||'']));
+      const rows = [['COD DO LEAD','ATENDENTE','PRÉ-VENDA','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA FATURAMENTO','OBSERVAÇÃO']];
+      vs.forEach(v => rows.push([v.cod, v.atendente, v.preVenda||'', v.vendedorRecebeu, v.vendedorFaturou, v.nf, v.chassi, v.midia, v.dtFat, v.obs||'']));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), nome);
     });
 
@@ -3397,7 +3403,7 @@ async function corrigirMidiasBatch() {
       const raw  = d.midia || '';
       const norm = normalizeMidia(raw);
       if (raw && norm !== raw && MIDIAS.includes(norm)) {
-        const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem);
+        const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem, d.dtFat);
         if (batchCount > 0 && batchCount % BATCH_SIZE === 0) batches.push(fbDb.batch());
         batches[batches.length - 1].update(doc.ref, {
           midia:        norm,
