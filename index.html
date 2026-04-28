@@ -2955,13 +2955,16 @@ async function saveVenda() {
     ts:             new Date().toISOString()
   };
 
-  const editId = document.getElementById('vv-edit-id').value;
-  const docId  = editId || `${marca}||${filial}||${dtFat}||${cod}`;
+  // Código do lead é a chave única — sobrescreve qualquer registro anterior com o mesmo cod
+  const docId = cod;
+  const isEdit = !!document.getElementById('vv-edit-id').value;
+  const jaExiste = !isEdit && _vendasCache.some(x => x.cod === cod);
 
   try {
     await fbDb.collection('vendas').doc(docId).set(venda);
     _invalidateVendasCache();
-    toast(dentroJanela ? '✅ Venda registrada — Considerada' : '⚠️ Venda salva — Não Considerada');
+    const acaoLabel = isEdit ? 'atualizada' : jaExiste ? 'sobrescrita (cód. duplicado)' : 'registrada';
+    toast(dentroJanela ? `✅ Venda ${acaoLabel} — Considerada` : `⚠️ Venda ${acaoLabel} — Não Considerada`);
     vvClear();
     renderVendas();
   } catch(e) { toast('Erro ao salvar: ' + e.message); }
