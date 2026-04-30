@@ -491,9 +491,10 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       </div>
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-lbl">Vendas Identificadas</div>
+          <div class="kpi-lbl">Vendas Registradas</div>
           <div class="kpi-val" id="kv">—</div>
           <div class="kpi-sub"><span class="badge up" id="kb">—</span><span id="kb-label">vs ontem</span></div>
+          <div id="kv-sub" style="font-size:10px;color:var(--muted);margin-top:3px">total registrado (NF/Chassi)</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kvb" style="background:var(--accent);width:0%"></div></div>
         </div>
         <div class="kpi-card" id="kpi-prevenda" onclick="openPVModal()" style="cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor=''">
@@ -1932,8 +1933,8 @@ function upMFiliais(){
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 
 // ── KPIs ─────────────────────────────────────────────────────────────────────
-function calcKPIs(f) {
-  const tv=f.reduce((s,e)=>s+e.v,0);
+function calcKPIs(f, tvOverride) {
+  const tv = tvOverride !== undefined ? tvOverride : f.reduce((s,e)=>s+e.v,0);
   const trec=f.reduce((s,e)=>s+e.prec,0);
   const tnao=f.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
   const tatend=trec-tnao;
@@ -1964,6 +1965,9 @@ function renderKPIs(k,pk) {
   const kbLbl=document.getElementById('kb-label');
   if(kbLbl){ const dow=new Date().getDay(); kbLbl.textContent = dow===1 ? 'vs sábado' : dow===0 ? 'vs sábado' : 'vs ontem'; }
   document.getElementById('kvb').style.width=Math.min(100,Math.round((k.tv/300)*100))+'%';
+  // Subtítulo do KPI de vendas — informa que é total da coleção
+  const kvSub = document.getElementById('kv-sub');
+  if (kvSub) kvSub.textContent = 'total registrado (NF/Chassi)';
 
   document.getElementById('ka').textContent=k.tatend;
   document.getElementById('kat').textContent=k.trec;
@@ -2109,11 +2113,11 @@ function renderSparklines(all) {
 }
 
 // ── FUNIL ─────────────────────────────────────────────────────────────────────
-function renderFunil(f) {
+function renderFunil(f, tvOverride) {
   const rec=f.reduce((s,e)=>s+e.prec,0);
   const nao=f.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
   const atend=rec-nao;
-  const v=f.reduce((s,e)=>s+e.v,0);
+  const v = tvOverride !== undefined ? tvOverride : f.reduce((s,e)=>s+e.v,0);
   document.getElementById('fn1').textContent=rec;
   document.getElementById('fn2').textContent=atend;
   document.getElementById('fn3').textContent=v;
@@ -2803,16 +2807,60 @@ function lastWorkday() {
   return d.toISOString().split('T')[0];
 }
 
+// ── FILTRO DE VENDAS POR PERÍODO (usa dtFat) ─────────────────────────────────
+function filterVendasByPeriod(vendas, p) {
+  const t = new Date();
+  const todayStr = today();
+  if (p === 'hoje')  return vendas.filter(v => v.dtFat === todayStr);
+  if (p === 'ontem') return vendas.filter(v => v.dtFat === lastWorkday());
+  if (p === 'semana') {
+    const d = new Date(t); d.setDate(d.getDate() - 6);
+    const from = d.toISOString().split('T')[0];
+    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
+  }
+  if (p === 'mes') {
+    const d = new Date(t); d.setDate(d.getDate() - 29);
+    const from = d.toISOString().split('T')[0];
+    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
+  }
+  if (p === 'semana-atual') {
+    const d = new Date(t); const dow = d.getDay() || 7; d.setDate(d.getDate() - dow + 1);
+    const from = d.toISOString().split('T')[0];
+    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
+  }
+  if (p === 'mes-atual') {
+    const from = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-01`;
+    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
+  }
+  if (p === 'custom' && customFrom && customTo) {
+    return vendas.filter(v => v.dtFat >= customFrom && v.dtFat <= customTo);
+  }
+  return vendas;
+}
+
 // ── REFRESH ───────────────────────────────────────────────────────────────────
-function refresh() {
+async function refresh() {
   const all=getE(), f=filterE(all,period,marca);
   const yf=all.filter(e=>e.ds===lastWorkday()&&(marca==='todas'||e.m===marca));
-  renderKPIs(calcKPIs(f),calcKPIs(yf));
+
+  // tv = total da coleção `vendas` (fonte única, sem filtro de período — igual à Análise)
+  let tvAtual = undefined, tvOntem = undefined, tvPeriod = undefined;
+  try {
+    if (await initFirebase()) {
+      const allVendas = await _getVendasFb();
+      const mv = marca === 'todas' ? allVendas : allVendas.filter(v => v.marca === marca);
+      tvAtual  = mv.length;                                           // KPI: total geral sem filtro período
+      tvPeriod = filterVendasByPeriod(mv, period).length;            // Funil/conversão: filtrado pelo período
+      tvOntem  = mv.filter(v => v.dtFat === lastWorkday()).length;    // badge "vs ontem"
+    }
+  } catch(e) { /* fallback: calcKPIs usa e.v do relatorios */ }
+
+  renderKPIs(calcKPIs(f, tvAtual), calcKPIs(yf, tvOntem));
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
   renderChartF(f); renderChartEv(all); renderSparklines(all);
-  renderFunil(f); renderAlerts(f, all);
+  renderFunil(f, tvPeriod); renderAlerts(f, all);
   const lu=localStorage.getItem('db_last');
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
 }
