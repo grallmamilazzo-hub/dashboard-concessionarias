@@ -3015,13 +3015,43 @@ async function renderVendas() {
   const statusFlt= document.getElementById('vvf-status').value;
 
   try {
-    // Usa cache compartilhado com renderAnalise (TTL 60s)
+    // _getVendasFb já preserva doc.id real do Firestore
     let allDocs = await _getVendasFb();
-    let docs = allDocs.map(d => ({ id: `${d.marca}||${d.filial}||${d.dtFat}||${d.cod}`, ...d }));
+
+    // Detecta duplicatas no universo completo (antes de qualquer filtro)
+    const codCount = {};
+    allDocs.forEach(d => { if (d.cod) codCount[d.cod] = (codCount[d.cod]||0) + 1; });
+    const dupCods = new Set(Object.keys(codCount).filter(c => codCount[c] > 1));
+    const dupTotal = allDocs.filter(d => dupCods.has(d.cod)).length;
+
+    // Banner de duplicatas
+    let banner = document.getElementById('vv-dup-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'vv-dup-banner';
+      const tableWrap = document.querySelector('#vv-table')?.closest('div[style*="overflow-x"]');
+      if (tableWrap) tableWrap.parentNode.insertBefore(banner, tableWrap);
+    }
+    if (dupCods.size > 0) {
+      banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(240,82,82,.1);border:1px solid rgba(240,82,82,.35);border-radius:9px;padding:10px 14px;margin-bottom:12px';
+      banner.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="#f05252" stroke-width="1.4" stroke-linejoin="round" fill="rgba(240,82,82,.15)"/><path d="M8 6v3.5M8 11v.5" stroke="#f05252" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span style="font-size:12px;font-weight:600;color:#f05252">Duplicatas detectadas</span>
+          <span style="font-size:12px;color:var(--text)">${dupCods.size} código${dupCods.size>1?'s':''} repetido${dupCods.size>1?'s':''} · ${dupTotal} registros afetados</span>
+        </div>
+        <button class="ro-hide-on-ro" onclick="resolverDuplicatas()" style="font-size:11px;font-weight:600;color:#f05252;background:rgba(240,82,82,.12);border:1px solid rgba(240,82,82,.3);border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap">
+          ⚡ Resolver Duplicatas
+        </button>`;
+    } else {
+      banner.style.display = 'none';
+    }
+
+    let docs = [...allDocs];
     if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
 
     // Preencher filtro de meses disponíveis
-    const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
+    const meses = [...new Set(allDocs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
     const mesEl = document.getElementById('vvf-mes');
     const mesAtual = mesEl.value;
     mesEl.innerHTML = '<option value="">Todos os meses</option>' +
@@ -3039,7 +3069,9 @@ async function renderVendas() {
 
     const cons   = docs.filter(d => d.dentroJanela).length;
     const ncons  = docs.length - cons;
-    sub.textContent = `${docs.length} registro(s) · ${cons} considerada(s) · ${ncons} não considerada(s)`;
+    const dupVis = docs.filter(d => dupCods.has(d.cod)).length;
+    sub.textContent = `${docs.length} registro(s) · ${cons} considerada(s) · ${ncons} não considerada(s)` +
+      (dupVis > 0 ? ` · ⚠️ ${dupVis} duplicada(s)` : '');
 
     if (!docs.length) {
       tbody.innerHTML = '';
@@ -3048,12 +3080,17 @@ async function renderVendas() {
     }
     empty.style.display = 'none';
     const cl = m => {const c=COLORS[m];return c?`background:${c}22;color:${c};`:'';};
-    tbody.innerHTML = docs.map(v => `
-      <tr>
+    tbody.innerHTML = docs.map(v => {
+      const isDup = dupCods.has(v.cod);
+      const dupBadge = isDup
+        ? `<span title="Cód ${v.cod} aparece ${codCount[v.cod]}x" style="font-size:9px;font-weight:700;color:#f05252;background:rgba(240,82,82,.15);border:1px solid rgba(240,82,82,.3);border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle">DUP</span>`
+        : '';
+      return `
+      <tr style="${isDup?'background:rgba(240,82,82,.04)':''}">
         <td style="font-family:var(--mono);font-size:12px">${fmtD(v.dtFat||'')}</td>
         <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;${cl(v.marca)}">${v.marca}</span></td>
         <td style="font-size:12px">${v.filial||'—'}</td>
-        <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}</td>
+        <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}${dupBadge}</td>
         <td style="font-size:12px">${v.atendente||'—'}</td>
         <td style="font-size:12px">${v.vendedorFaturou||'—'}</td>
         <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.midia||''}">${v.midia||'—'}</td>
@@ -3067,8 +3104,48 @@ async function renderVendas() {
             <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Excluir
           </button>
         </td>
-      </tr>`).join('');
+      </tr>`;
+    }).join('');
   } catch(e) { console.error('renderVendas:', e); }
+}
+
+async function resolverDuplicatas() {
+  if (!await initFirebase()) return;
+  if (!confirm('Isso manterá apenas o registro mais recente de cada Cód Lead duplicado e excluirá os demais do Firestore. Confirmar?')) return;
+  try {
+    const allDocs = await _getVendasFb(true); // força atualização do cache
+    // Agrupa por cod
+    const byCod = {};
+    allDocs.forEach(d => {
+      if (!d.cod) return;
+      if (!byCod[d.cod]) byCod[d.cod] = [];
+      byCod[d.cod].push(d);
+    });
+    // Para cada cod com duplicatas, ordena por ts desc e exclui todos menos o primeiro
+    const toDelete = [];
+    Object.values(byCod).forEach(grupo => {
+      if (grupo.length < 2) return;
+      grupo.sort((a,b) => (b.ts||'').localeCompare(a.ts||''));
+      // mantém index 0 (mais recente), exclui os demais
+      grupo.slice(1).forEach(d => toDelete.push(d.id));
+    });
+    if (!toDelete.length) { toast('Nenhuma duplicata encontrada.'); return; }
+    // Batch delete (Firestore limita 500 por batch)
+    const CHUNK = 450;
+    for (let i = 0; i < toDelete.length; i += CHUNK) {
+      const batch = fbDb.batch();
+      toDelete.slice(i, i + CHUNK).forEach(id => {
+        batch.delete(fbDb.collection('vendas').doc(id));
+      });
+      await batch.commit();
+    }
+    _invalidateVendasCache();
+    toast(`✅ ${toDelete.length} registro(s) duplicado(s) excluído(s). Mantido o mais recente de cada cód.`);
+    renderVendas();
+  } catch(e) {
+    console.error('resolverDuplicatas:', e);
+    toast('Erro ao resolver duplicatas: ' + e.message);
+  }
 }
 
 function openEditVenda(id) {
@@ -3200,7 +3277,8 @@ async function _getVendasFb(force = false) {
     return _vendasFbCache;
   }
   const snap = await fbDb.collection('vendas').get();
-  _vendasFbCache = snap.docs.map(d => d.data());
+  // Preserva o ID real do Firestore em cada documento
+  _vendasFbCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   _vendasFbCacheTs = Date.now();
   return _vendasFbCache;
 }
