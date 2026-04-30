@@ -22,7 +22,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:1
 /* SIDEBAR */
 .sb{width:216px;min-width:216px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;position:sticky;top:0;height:100vh;overflow-y:auto}
 .sb-logo{padding:0 18px 20px;border-bottom:1px solid var(--border);margin-bottom:12px}
-.sb-mark{width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#fff;margin-bottom:8px}
+.sb-mark{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;cursor:pointer;transition:transform .2s}
 .sb-name{font-size:13px;font-weight:600;color:var(--text)}
 .sb-sub{font-size:11px;color:var(--muted);margin-top:2px}
 .nav-sec{padding:0 10px;margin-bottom:2px}
@@ -171,7 +171,7 @@ input[type=date]{background:var(--bg3);border:1px solid var(--border2);color:var
 /* AUTH OVERLAY */
 .auth-ov{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
 .auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px 32px;width:360px;max-width:92vw;text-align:center}
-.auth-logo{width:44px;height:44px;background:var(--accent);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;margin:0 auto 18px}
+.auth-logo{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;cursor:pointer}
 .auth-ttl{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
 .auth-sub{font-size:12px;color:var(--muted);margin-bottom:22px}
 .auth-inp{width:100%;box-sizing:border-box;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:10px 12px;font-size:14px;font-family:var(--font);outline:none;margin-bottom:12px}
@@ -357,7 +357,28 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-logo">
-    <div class="sb-mark">C</div>
+    <div class="sb-mark" id="dashbird-sb-wrap" onmouseenter="dbChirp();dbAnim('sb',true)" onmouseleave="dbAnim('sb',false)" onclick="dbChirp()" title="DashBird">
+      <svg id="dashbird-sb" width="38" height="38" viewBox="0 0 120 120" style="transition:transform .25s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 80%" title="DashBird">
+          <ellipse cx="60" cy="72" rx="34" ry="28" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1.5"/>
+          <ellipse cx="60" cy="48" rx="26" ry="24" fill="#f5f4f0" stroke="#c8c6c0" stroke-width="1.5"/>
+          <path d="M38 58 Q28 54 24 45 Q30 44 38 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+          <path d="M82 58 Q92 54 96 45 Q90 44 82 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+          <ellipse cx="52" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+          <ellipse cx="68" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+          <circle class="db-eye-l" cx="53" cy="44" r="3.5" fill="#2c2c2a"/>
+          <circle class="db-eye-r" cx="69" cy="44" r="3.5" fill="#2c2c2a"/>
+          <circle cx="54.2" cy="42.8" r="1" fill="white"/>
+          <circle cx="70.2" cy="42.8" r="1" fill="white"/>
+          <path class="db-beak" d="M57 54 Q60 60 63 54 Q60 52 57 54Z" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+          <path d="M42 82 Q44 92 50 96 Q54 98 60 98 Q66 98 70 96 Q76 92 78 82" fill="#e8e6e0" stroke="#c8c6c0" stroke-width="1"/>
+          <ellipse cx="52" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+          <ellipse cx="68" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+          <path d="M46 36 Q48 26 52 22 Q54 30 50 36" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
+          <path d="M60 34 Q60 24 63 20 Q66 28 63 34" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
+          <circle class="db-blush-l" cx="44" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+          <circle class="db-blush-r" cx="76" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+        </svg>
+    </div>
     <div class="sb-name">Concessionárias</div>
     <div class="sb-sub">Painel de Atendimento</div>
   </div>
@@ -369,7 +390,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <button class="nav-btn" onclick="gv('analise')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Análise
     </button>
-    <button class="nav-btn" onclick="gv('ranking')">
+    <button class="nav-btn dir-hide" onclick="gv('ranking')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12h2v2H2zM7 8h2v6H7zM12 4h2v10h-2z" fill="currentColor"/></svg>Ranking
     </button>
     <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
@@ -381,7 +402,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <button class="nav-btn dir-hide" onclick="gv('consolidado')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="13" cy="12" r="2.2" stroke="currentColor" stroke-width="1.2"/></svg>Consolidado
     </button>
-    <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('historico')">
+    <button class="nav-btn" onclick="gv('historico')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 5h6M5 8h6M5 11h4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Histórico
     </button>
   </div>
@@ -442,7 +463,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <!-- DIRECTORS BANNER -->
     <div class="dir-banner" style="display:none;background:rgba(245,166,35,.1);border-bottom:1px solid rgba(245,166,35,.25);padding:8px 24px;align-items:center;gap:10px;font-size:12px;color:#f5a623;font-weight:500">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1l2 4 5 .7-3.5 3.4.8 5L8 12l-4.3 2.1.8-5L1 5.7 6 5z" fill="#f5a623"/></svg>
-      Visualização Diretores — Dashboard e Ranking · somente leitura
+      Visualização Diretores — Dashboard, Análise e Histórico · somente leitura
     </div>
 
     <!-- DASHBOARD -->
@@ -796,10 +817,11 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 
       <div class="chart-card" style="margin-bottom:16px">
         <div class="sec-hdr" style="margin-bottom:14px">
-          <div>
+          <div style="flex:1">
             <div class="sec-ttl">Vendas por Mídia / Origem</div>
-            <div class="sec-sub">apenas vendas consideradas dentro da janela de conversão</div>
+            <div class="sec-sub" id="an-midia-sub">total da coleção de vendas registradas</div>
           </div>
+          <div id="an-summary" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
         </div>
         <div id="an-midia-list" style="display:flex;flex-direction:column;gap:7px">
           <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
@@ -880,10 +902,9 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               </select>
             </div>
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
-            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat" oninput="vvUpdateJanela()"></div>
+            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
-            <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
-            <div class="form-fld"><label class="form-lbl">Pré-venda</label><input class="form-inp" type="text" id="vv-prevenda" placeholder="Nome do pré-venda"></div>
+            <div class="form-fld"><label class="form-lbl">Atendente / Pré-venda</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Faturou</label><input class="form-inp" type="text" id="vv-vfat" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">NF</label><input class="form-inp" type="text" id="vv-nf" placeholder="Número da NF"></div>
@@ -976,7 +997,28 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 <!-- AUTH OVERLAY -->
 <div class="auth-ov" id="auth-overlay" style="display:none">
   <div class="auth-box">
-    <div class="auth-logo">C</div>
+    <div class="auth-logo" id="dashbird-auth-wrap" onmouseenter="dbChirp();dbAnim('auth',true)" onmouseleave="dbAnim('auth',false)" onclick="dbChirp()" title="DashBird">
+      <svg id="dashbird-auth" width="64" height="64" viewBox="0 0 120 120" style="transition:transform .25s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 80%" title="DashBird">
+        <ellipse cx="60" cy="72" rx="34" ry="28" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1.5"/>
+        <ellipse cx="60" cy="48" rx="26" ry="24" fill="#f5f4f0" stroke="#c8c6c0" stroke-width="1.5"/>
+        <path d="M38 58 Q28 54 24 45 Q30 44 38 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+        <path d="M82 58 Q92 54 96 45 Q90 44 82 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+        <ellipse cx="52" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+        <ellipse cx="68" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+        <circle cx="53" cy="44" r="3.5" fill="#2c2c2a"/>
+        <circle cx="69" cy="44" r="3.5" fill="#2c2c2a"/>
+        <circle cx="54.2" cy="42.8" r="1" fill="white"/>
+        <circle cx="70.2" cy="42.8" r="1" fill="white"/>
+        <path class="db-beak-auth" d="M57 54 Q60 60 63 54 Q60 52 57 54Z" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+        <path d="M42 82 Q44 92 50 96 Q54 98 60 98 Q66 98 70 96 Q76 92 78 82" fill="#e8e6e0" stroke="#c8c6c0" stroke-width="1"/>
+        <ellipse cx="52" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+        <ellipse cx="68" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+        <path d="M46 36 Q48 26 52 22 Q54 30 50 36" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
+        <path d="M60 34 Q60 24 63 20 Q66 28 63 34" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
+        <circle class="db-blush-la" cx="44" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+        <circle class="db-blush-ra" cx="76" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+      </svg>
+    </div>
     <div class="auth-ttl">Painel Concessionárias</div>
     <div class="auth-sub" id="auth-sub">Digite a senha de acesso para continuar</div>
     <input class="auth-inp" type="password" id="auth-pw" placeholder="Senha de acesso"
@@ -1465,15 +1507,13 @@ function buildMidiaSelect(selectId, includeBlank = true) {
 }
 
 // ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
-function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem, dtFaturamento) {
+function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
   const m = isResgate ? (midiaOrigem || midia) : midia;
-  // Referência: Data de Faturamento (se informada) ou hoje
-  const ref = dtFaturamento ? new Date(dtFaturamento + 'T12:00:00') : new Date();
-  ref.setHours(0,0,0,0);
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
   function diffDias(ds) {
     if(!ds) return null;
-    const d = new Date(ds + 'T12:00:00'); d.setHours(0,0,0,0);
-    return Math.round((ref - d) / 86400000);
+    const d = new Date(ds); d.setHours(0,0,0,0);
+    return Math.floor((hoje - d) / 86400000);
   }
 
   // ── Montadora / Site: 150 dias da criação ────────────────────────────────
@@ -2887,7 +2927,6 @@ function vvUpdateJanela() {
   const dtIns       = document.getElementById('vv-dtins').value;
   const isResgate   = document.getElementById('vv-resgate').checked;
   const midiaOrig   = document.getElementById('vv-midiaorigem').value;
-  const dtFat       = document.getElementById('vv-dtfat').value;
 
   // Mostrar/ocultar campo insucesso
   const need30Ins = MIDIAS_30_INS.includes(midia) || (isResgate && MIDIAS_30_INS.includes(midiaOrig));
@@ -2900,14 +2939,14 @@ function vvUpdateJanela() {
   const janelaEl = document.getElementById('vv-janela');
   if (!midia) { janelaEl.style.display = 'none'; return; }
 
-  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig, dtFat);
+  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig);
   const cls = r.cor === 'ok' ? 'janela-ok' : r.cor === 'err' ? 'janela-err' : 'janela-warn';
   janelaEl.innerHTML = `<div class="${cls}">${r.label}</div>`;
   janelaEl.style.display = 'block';
 }
 
 function vvClear() {
-  ['vv-cod','vv-atendente','vv-prevenda','vv-vrec','vv-vfat','vv-nf','vv-chassi','vv-obs','vv-dtcriacao','vv-dtins'].forEach(id => {
+  ['vv-cod','vv-atendente','vv-vrec','vv-vfat','vv-nf','vv-chassi','vv-obs','vv-dtcriacao','vv-dtins'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('vv-midia').value       = '';
@@ -2936,13 +2975,12 @@ async function saveVenda() {
 
   if (!dtFat || !cod || !midia) { toast('Preencha: Data de Faturamento, Cód. Lead e Mídia'); return; }
 
-  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig, dtFat);
+  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig);
   const dentroJanela = janela.valido === true;
 
   const venda = {
     marca, filial, dtFat, cod,
     atendente:      document.getElementById('vv-atendente').value.trim(),
-    preVenda:       document.getElementById('vv-prevenda').value.trim(),
     vendedorRecebeu:document.getElementById('vv-vrec').value.trim(),
     vendedorFaturou:document.getElementById('vv-vfat').value.trim(),
     nf:             document.getElementById('vv-nf').value.trim(),
@@ -2955,16 +2993,13 @@ async function saveVenda() {
     ts:             new Date().toISOString()
   };
 
-  // Código do lead é a chave única — sobrescreve qualquer registro anterior com o mesmo cod
-  const docId = cod;
-  const isEdit = !!document.getElementById('vv-edit-id').value;
-  const jaExiste = !isEdit && _vendasCache.some(x => x.cod === cod);
+  const editId = document.getElementById('vv-edit-id').value;
+  const docId  = editId || `${marca}||${filial}||${dtFat}||${cod}`;
 
   try {
     await fbDb.collection('vendas').doc(docId).set(venda);
     _invalidateVendasCache();
-    const acaoLabel = isEdit ? 'atualizada' : jaExiste ? 'sobrescrita (cód. duplicado)' : 'registrada';
-    toast(dentroJanela ? `✅ Venda ${acaoLabel} — Considerada` : `⚠️ Venda ${acaoLabel} — Não Considerada`);
+    toast(dentroJanela ? '✅ Venda registrada — Considerada' : '⚠️ Venda salva — Não Considerada');
     vvClear();
     renderVendas();
   } catch(e) { toast('Erro ao salvar: ' + e.message); }
@@ -2982,7 +3017,7 @@ async function renderVendas() {
   try {
     // Usa cache compartilhado com renderAnalise (TTL 60s)
     let allDocs = await _getVendasFb();
-    let docs = allDocs.map(d => ({ id: d._fbId || d.cod || `${d.marca}||${d.filial}||${d.dtFat}||${d.cod}`, ...d }));
+    let docs = allDocs.map(d => ({ id: `${d.marca}||${d.filial}||${d.dtFat}||${d.cod}`, ...d }));
     if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
 
     // Preencher filtro de meses disponíveis
@@ -2997,37 +3032,6 @@ async function renderVendas() {
     if (statusFlt === '0') docs = docs.filter(d => !d.dentroJanela);
     docs.sort((a,b) => (b.dtFat||'').localeCompare(a.dtFat||''));
 
-    // ── Detectar duplicatas por cod (sobre allDocs, antes dos filtros) ─────
-    const codCount = {};
-    allDocs.forEach(d => { if (d.cod) codCount[d.cod] = (codCount[d.cod] || 0) + 1; });
-    const codsDup = new Set(Object.keys(codCount).filter(k => codCount[k] > 1));
-    const totalDupCods = codsDup.size;
-    const totalDupDocs = Object.values(codCount).filter(v => v > 1).reduce((s, v) => s + v, 0);
-
-    // Banner de duplicatas
-    let banner = document.getElementById('vv-dup-banner');
-    if (!banner) {
-      banner = document.createElement('div');
-      banner.id = 'vv-dup-banner';
-      const table = document.getElementById('vv-table');
-      table.parentNode.insertBefore(banner, table);
-    }
-    if (totalDupCods > 0) {
-      banner.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(240,82,82,.1);border:1px solid rgba(240,82,82,.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;flex-wrap:wrap">
-        <div style="display:flex;align-items:center;gap:8px">
-          <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="#f05252" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6v4M8 11.5v.5" stroke="#f05252" stroke-width="1.4" stroke-linecap="round"/></svg>
-          <span style="font-size:12px;font-weight:600;color:#f05252">${totalDupCods} Cód(s) Lead duplicado(s)</span>
-          <span style="font-size:11px;color:var(--muted)">${totalDupDocs} registros conflitantes — apenas 1 por código é permitido</span>
-        </div>
-        <button class="btn-ico del ro-hide-on-ro" onclick="resolverDuplicatas()" style="font-size:11px;padding:5px 10px;white-space:nowrap">
-          <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Resolver Duplicatas
-        </button>
-      </div>`;
-    } else {
-      banner.innerHTML = '';
-    }
-
     _vendasCache = docs;
     const tbody = document.getElementById('vv-tbody');
     const empty = document.getElementById('vv-empty');
@@ -3035,8 +3039,7 @@ async function renderVendas() {
 
     const cons   = docs.filter(d => d.dentroJanela).length;
     const ncons  = docs.length - cons;
-    const dupVis = docs.filter(d => codsDup.has(d.cod)).length;
-    sub.textContent = `${docs.length} registro(s) · ${cons} considerada(s) · ${ncons} não considerada(s)` + (dupVis ? ` · ⚠️ ${dupVis} duplicada(s)` : '');
+    sub.textContent = `${docs.length} registro(s) · ${cons} considerada(s) · ${ncons} não considerada(s)`;
 
     if (!docs.length) {
       tbody.innerHTML = '';
@@ -3050,7 +3053,7 @@ async function renderVendas() {
         <td style="font-family:var(--mono);font-size:12px">${fmtD(v.dtFat||'')}</td>
         <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;${cl(v.marca)}">${v.marca}</span></td>
         <td style="font-size:12px">${v.filial||'—'}</td>
-        <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}${codsDup.has(v.cod)?'<span title="Código duplicado — resolva via botão Resolver Duplicatas" style="margin-left:5px;font-size:9px;font-weight:700;color:#f05252;background:rgba(240,82,82,.15);border:1px solid rgba(240,82,82,.3);border-radius:3px;padding:1px 5px;vertical-align:middle">DUP</span>':''}</td>
+        <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}</td>
         <td style="font-size:12px">${v.atendente||'—'}</td>
         <td style="font-size:12px">${v.vendedorFaturou||'—'}</td>
         <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.midia||''}">${v.midia||'—'}</td>
@@ -3079,7 +3082,6 @@ function openEditVenda(id) {
     document.getElementById('vv-dtfat').value        = v.dtFat || '';
     document.getElementById('vv-cod').value          = v.cod || '';
     document.getElementById('vv-atendente').value    = v.atendente || '';
-    document.getElementById('vv-prevenda').value      = v.preVenda || '';
     document.getElementById('vv-vrec').value         = v.vendedorRecebeu || '';
     document.getElementById('vv-vfat').value         = v.vendedorFaturou || '';
     document.getElementById('vv-nf').value           = v.nf || '';
@@ -3149,8 +3151,8 @@ async function exportVendasXLSX() {
 
     // Aba 1: Não Consideradas
     const nc = todas.filter(v => !v.dentroJanela);
-    const r1 = [['COD DO LEAD','MARCA','FILIAL','ATENDENTE','PRÉ-VENDA','MÍDIA','DATA FATURAMENTO','MOTIVO']];
-    nc.forEach(v => r1.push([v.cod, v.marca, v.filial, v.atendente, v.preVenda||'', v.midia, v.dtFat, v.janelaLabel||'']));
+    const r1 = [['COD DO LEAD','MARCA','FILIAL','ATENDENTE','MÍDIA','DATA FATURAMENTO','MOTIVO']];
+    nc.forEach(v => r1.push([v.cod, v.marca, v.filial, v.atendente, v.midia, v.dtFat, v.janelaLabel||'']));
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(r1), 'Vendas não consideradas');
 
     // Aba 2: Consideradas por loja
@@ -3161,8 +3163,8 @@ async function exportVendasXLSX() {
       porLoja[key].push(v);
     });
     Object.entries(porLoja).sort().forEach(([nome, vs]) => {
-      const rows = [['COD DO LEAD','ATENDENTE','PRÉ-VENDA','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA FATURAMENTO','OBSERVAÇÃO']];
-      vs.forEach(v => rows.push([v.cod, v.atendente, v.preVenda||'', v.vendedorRecebeu, v.vendedorFaturou, v.nf, v.chassi, v.midia, v.dtFat, v.obs||'']));
+      const rows = [['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA FATURAMENTO','OBSERVAÇÃO']];
+      vs.forEach(v => rows.push([v.cod, v.atendente, v.vendedorRecebeu, v.vendedorFaturou, v.nf, v.chassi, v.midia, v.dtFat, v.obs||'']));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), nome);
     });
 
@@ -3170,46 +3172,6 @@ async function exportVendasXLSX() {
     XLSX.writeFile(wb, `Faturamento_Leads_${mes}.xlsx`);
     toast('✅ XLSX gerado com sucesso!');
   } catch(e) { toast('Erro ao exportar: ' + e.message); }
-  if (btn) { btn.innerHTML = orig; btn.disabled = false; }
-}
-
-// ── resolverDuplicatas: mantém o registro mais recente de cada cod ──────────
-async function resolverDuplicatas() {
-  if (!await initFirebase()) { toast('Firebase não conectado'); return; }
-  const btn = event?.target?.closest('button');
-  const orig = btn?.innerHTML;
-  if (btn) { btn.disabled = true; btn.innerHTML = 'Resolvendo...'; }
-
-  try {
-    const allDocs = await _getVendasFb(true);
-
-    // Agrupar por cod
-    const grupos = {};
-    allDocs.forEach(d => {
-      if (!d.cod) return;
-      if (!grupos[d.cod]) grupos[d.cod] = [];
-      grupos[d.cod].push(d);
-    });
-
-    // Para cada cod com mais de 1 doc: manter o mais recente (maior ts), excluir os demais
-    const idsParaExcluir = [];
-    Object.values(grupos).forEach(grupo => {
-      if (grupo.length <= 1) return;
-      grupo.sort((a, b) => (b.ts || '').localeCompare(a.ts || '')); // mais recente primeiro
-      grupo.slice(1).forEach(d => idsParaExcluir.push(d._fbId));
-    });
-
-    if (!idsParaExcluir.length) { toast('Nenhuma duplicata encontrada.'); return; }
-
-    const batch = fbDb.batch();
-    idsParaExcluir.forEach(id => {
-      batch.delete(fbDb.collection('vendas').doc(id));
-    });
-    await batch.commit();
-    _invalidateVendasCache();
-    toast(`✅ ${idsParaExcluir.length} registro(s) duplicado(s) removido(s). Mais recente de cada código mantido.`);
-    renderVendas();
-  } catch(e) { toast('Erro ao resolver: ' + e.message); }
   if (btn) { btn.innerHTML = orig; btn.disabled = false; }
 }
 
@@ -3238,7 +3200,7 @@ async function _getVendasFb(force = false) {
     return _vendasFbCache;
   }
   const snap = await fbDb.collection('vendas').get();
-  _vendasFbCache = snap.docs.map(d => ({ _fbId: d.id, ...d.data() }));
+  _vendasFbCache = snap.docs.map(d => d.data());
   _vendasFbCacheTs = Date.now();
   return _vendasFbCache;
 }
@@ -3308,23 +3270,34 @@ async function renderAnalise() {
       distEl.style.display = 'none';
     }
 
-    // Apenas consideradas
-    const cons = docs.filter(d => d.dentroJanela);
-    const total = cons.length;
+    // Total geral + breakdown consideradas / não consideradas
+    const totalGeral = docs.length;
+    const nCons  = docs.filter(d => d.dentroJanela).length;
+    const nNcons = totalGeral - nCons;
 
-    // ── 1. Vendas por Mídia ──────────────────────────────────────────────────
+    // Pills de resumo
+    const summaryEl = document.getElementById('an-summary');
+    if (summaryEl) {
+      summaryEl.innerHTML = totalGeral === 0 ? '' :
+        `<span style="font-size:11px;font-weight:600;background:rgba(46,201,138,.12);color:var(--green);border:1px solid rgba(46,201,138,.3);border-radius:6px;padding:3px 10px">${nCons} considerada${nCons!==1?'s':''}</span>` +
+        `<span style="font-size:11px;font-weight:600;background:rgba(240,82,82,.1);color:#f05252;border:1px solid rgba(240,82,82,.25);border-radius:6px;padding:3px 10px">${nNcons} não considerada${nNcons!==1?'s':''}</span>` +
+        `<span style="font-size:12px;font-weight:700;font-family:var(--mono);color:var(--text)">${totalGeral} total</span>`;
+    }
+
+    // ── 1. Vendas por Mídia — usa TOTAL (todas, não só dentroJanela) ──────────
     const byMidia = {};
-    cons.forEach(v => {
+    docs.forEach(v => {
       const m = v.midia || 'Não informada';
       byMidia[m] = (byMidia[m] || 0) + 1;
     });
     const midiaRows = Object.entries(byMidia).sort((a,b) => b[1]-a[1]);
     const maxMidia = midiaRows[0]?.[1] || 1;
+    const total = totalGeral; // referência para % do card
 
     const midiaColors = ['#4f8ef7','#2ec98a','#f5a623','#7c5fe6','#f05252','#38bdf8','#fb923c','#a3e635','#e879f9','#34d399'];
 
     document.getElementById('an-midia-list').innerHTML = total === 0
-      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Nenhuma venda considerada encontrada</div>'
+      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Nenhuma venda registrada encontrada</div>'
       : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px">`
         + midiaRows.map(([m, v], i) => {
           const pct = total > 0 ? (v / total * 100) : 0;
@@ -3478,7 +3451,7 @@ async function corrigirMidiasBatch() {
       const raw  = d.midia || '';
       const norm = normalizeMidia(raw);
       if (raw && norm !== raw && MIDIAS.includes(norm)) {
-        const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem, d.dtFat);
+        const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem);
         if (batchCount > 0 && batchCount % BATCH_SIZE === 0) batches.push(fbDb.batch());
         batches[batches.length - 1].update(doc.ref, {
           midia:        norm,
@@ -3521,6 +3494,60 @@ if(fbCfgSaved()){
 } else {
   setSyncStatus('idle');
 }
+</script>
+
+<!-- ── DASHBIRD ─────────────────────────────────────────────────────────── -->
+<script>
+(function(){
+  let _dbCtx = null;
+  function _getCtx(){
+    if(!_dbCtx) _dbCtx = new (window.AudioContext||window.webkitAudioContext)();
+    return _dbCtx;
+  }
+  window.dbChirp = function(){
+    try{
+      const ctx = _getCtx();
+      if(ctx.state==='suspended') ctx.resume();
+      const now = ctx.currentTime;
+      const notes=[
+        {f0:1200,f1:1650,t:0.00,dur:0.11},
+        {f0:1550,f1:1100,t:0.12,dur:0.09},
+        {f0:1900,f1:2300,t:0.22,dur:0.14},
+        {f0:1400,f1:1750,t:0.37,dur:0.10},
+      ];
+      notes.forEach(n=>{
+        const osc=ctx.createOscillator(), gain=ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type='sine';
+        osc.frequency.setValueAtTime(n.f0, now+n.t);
+        osc.frequency.linearRampToValueAtTime(n.f1, now+n.t+n.dur);
+        gain.gain.setValueAtTime(0, now+n.t);
+        gain.gain.linearRampToValueAtTime(0.16, now+n.t+0.02);
+        gain.gain.linearRampToValueAtTime(0, now+n.t+n.dur);
+        osc.start(now+n.t); osc.stop(now+n.t+n.dur+0.05);
+      });
+    }catch(e){}
+  };
+  window.dbAnim = function(which, hover){
+    const isSb = which==='sb';
+    const svg = document.getElementById(isSb?'dashbird-sb':'dashbird-auth');
+    const bl  = document.querySelector(isSb?'.db-blush-l':'.db-blush-la');
+    const br  = document.querySelector(isSb?'.db-blush-r':'.db-blush-ra');
+    const bk  = document.querySelector(isSb?'.db-beak':'.db-beak-auth');
+    if(!svg) return;
+    if(hover){
+      svg.style.transform='scale(1.18) rotate(-6deg)';
+      if(bl) bl.style.fill='rgba(230,140,140,0.35)';
+      if(br) br.style.fill='rgba(230,140,140,0.35)';
+      if(bk) bk.setAttribute('d','M56 55 Q60 63 64 55 Q60 52 56 55Z');
+    } else {
+      svg.style.transform='scale(1) rotate(0deg)';
+      if(bl) bl.style.fill='rgba(230,140,140,0)';
+      if(br) br.style.fill='rgba(230,140,140,0)';
+      if(bk) bk.setAttribute('d','M57 54 Q60 60 63 54 Q60 52 57 54Z');
+    }
+  };
+})();
 </script>
 </body>
 </html>
