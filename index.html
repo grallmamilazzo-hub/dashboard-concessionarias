@@ -904,7 +904,8 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
             <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
-            <div class="form-fld"><label class="form-lbl">Atendente / Pré-venda</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
+            <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
+            <div class="form-fld"><label class="form-lbl">Pré-venda</label><input class="form-inp" type="text" id="vv-prevenda" placeholder="Nome do pré-vendedor"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Recebeu</label><input class="form-inp" type="text" id="vv-vrec" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">Vendedor que Faturou</label><input class="form-inp" type="text" id="vv-vfat" placeholder="Nome"></div>
             <div class="form-fld"><label class="form-lbl">NF</label><input class="form-inp" type="text" id="vv-nf" placeholder="Número da NF"></div>
@@ -980,7 +981,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <table class="tbl" id="vv-table">
               <thead><tr>
                 <th>Data Fat.</th><th>Marca</th><th>Filial</th><th>Cód Lead</th>
-                <th>Atendente</th><th>Vendedor Faturou</th><th>Mídia</th><th>NF</th>
+                <th>Atendente</th><th>Pré-venda</th><th>Vendedor Faturou</th><th>Mídia</th><th>NF</th>
                 <th>Status</th><th class="ro-hide-on-ro">Ações</th>
               </tr></thead>
               <tbody id="vv-tbody"></tbody>
@@ -2946,7 +2947,7 @@ function vvUpdateJanela() {
 }
 
 function vvClear() {
-  ['vv-cod','vv-atendente','vv-vrec','vv-vfat','vv-nf','vv-chassi','vv-obs','vv-dtcriacao','vv-dtins'].forEach(id => {
+  ['vv-cod','vv-atendente','vv-prevenda','vv-vrec','vv-vfat','vv-nf','vv-chassi','vv-obs','vv-dtcriacao','vv-dtins'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('vv-midia').value       = '';
@@ -2981,6 +2982,7 @@ async function saveVenda() {
   const venda = {
     marca, filial, dtFat, cod,
     atendente:      document.getElementById('vv-atendente').value.trim(),
+    preVenda:       document.getElementById('vv-prevenda').value.trim(),
     vendedorRecebeu:document.getElementById('vv-vrec').value.trim(),
     vendedorFaturou:document.getElementById('vv-vfat').value.trim(),
     nf:             document.getElementById('vv-nf').value.trim(),
@@ -3092,6 +3094,7 @@ async function renderVendas() {
         <td style="font-size:12px">${v.filial||'—'}</td>
         <td style="font-family:var(--mono);font-size:12px">${v.cod||'—'}${dupBadge}</td>
         <td style="font-size:12px">${v.atendente||'—'}</td>
+        <td style="font-size:12px">${v.preVenda||'—'}</td>
         <td style="font-size:12px">${v.vendedorFaturou||'—'}</td>
         <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.midia||''}">${v.midia||'—'}</td>
         <td style="font-family:var(--mono);font-size:12px">${v.nf||'—'}</td>
@@ -3159,6 +3162,7 @@ function openEditVenda(id) {
     document.getElementById('vv-dtfat').value        = v.dtFat || '';
     document.getElementById('vv-cod').value          = v.cod || '';
     document.getElementById('vv-atendente').value    = v.atendente || '';
+    document.getElementById('vv-prevenda').value      = v.preVenda || '';
     document.getElementById('vv-vrec').value         = v.vendedorRecebeu || '';
     document.getElementById('vv-vfat').value         = v.vendedorFaturou || '';
     document.getElementById('vv-nf').value           = v.nf || '';
@@ -3240,8 +3244,8 @@ async function exportVendasXLSX() {
       porLoja[key].push(v);
     });
     Object.entries(porLoja).sort().forEach(([nome, vs]) => {
-      const rows = [['COD DO LEAD','ATENDENTE','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA FATURAMENTO','OBSERVAÇÃO']];
-      vs.forEach(v => rows.push([v.cod, v.atendente, v.vendedorRecebeu, v.vendedorFaturou, v.nf, v.chassi, v.midia, v.dtFat, v.obs||'']));
+      const rows = [['COD DO LEAD','ATENDENTE','PRÉ-VENDA','VENDEDOR QUE RECEBEU','VENDEDOR QUE FATUROU','NF','CHASSI','MÍDIA','DATA FATURAMENTO','OBSERVAÇÃO']];
+      vs.forEach(v => rows.push([v.cod, v.atendente, v.preVenda||'', v.vendedorRecebeu, v.vendedorFaturou, v.nf, v.chassi, v.midia, v.dtFat, v.obs||'']));
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), nome);
     });
 
