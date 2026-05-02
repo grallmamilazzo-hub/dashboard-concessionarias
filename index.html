@@ -393,10 +393,10 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <button class="nav-btn dir-hide" onclick="gv('ranking')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 12h2v2H2zM7 8h2v6H7zM12 4h2v10h-2z" fill="currentColor"/></svg>Ranking
     </button>
-    <button class="nav-btn ro-hide-on-ro" onclick="gv('input')">
+    <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('input')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.2"/><path d="M8 5v6M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Inserir Dados
     </button>
-    <button class="nav-btn ro-hide-on-ro" onclick="gv('venda')">
+    <button class="nav-btn ro-hide-on-ro dir-hide" onclick="gv('venda')">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M2 4h12v8a2 2 0 01-2 2H4a2 2 0 01-2-2V4z" stroke="currentColor" stroke-width="1.2" fill="none"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Registrar Venda
     </button>
     <button class="nav-btn dir-hide" onclick="gv('consolidado')">
@@ -494,7 +494,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           <div class="kpi-lbl">Vendas Registradas</div>
           <div class="kpi-val" id="kv">—</div>
           <div class="kpi-sub"><span class="badge up" id="kb">—</span><span id="kb-label">vs ontem</span></div>
-          <div id="kv-sub" style="font-size:10px;color:var(--muted);margin-top:3px">total registrado (NF/Chassi)</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:3px" id="kv-sub-extra">total registrado (NF/Chassi)</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kvb" style="background:var(--accent);width:0%"></div></div>
         </div>
         <div class="kpi-card" id="kpi-prevenda" onclick="openPVModal()" style="cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor=''">
@@ -1594,16 +1594,19 @@ function _initAuth() {
     _applyAuth(); return;
   }
 
-  // Sessão salva — verifica expiração de 6 horas
+  // Sessão salva — verifica expiração de 2 horas e troca de dia
   const saved    = localStorage.getItem('auth_role');
   const savedExp = parseInt(localStorage.getItem('auth_exp') || '0', 10);
-  const SESSION_MS = 6 * 60 * 60 * 1000; // 6 horas
-  if (saved === 'operador' && Date.now() < savedExp) {
+  const savedDay = localStorage.getItem('auth_day') || '';
+  const SESSION_MS = 2 * 60 * 60 * 1000; // 2 horas
+  const todayStr = today();
+  if (saved === 'operador' && Date.now() < savedExp && savedDay === todayStr) {
     _authRole = 'operador'; _applyAuth(); return;
   }
-  // Sessão expirada ou inexistente — limpa e exige senha
+  // Sessão expirada, vencida ou novo dia — limpa e exige senha
   localStorage.removeItem('auth_role');
   localStorage.removeItem('auth_exp');
+  localStorage.removeItem('auth_day');
 
   // Exibir login
   _showLogin();
@@ -1632,7 +1635,8 @@ function authSubmit() {
   if (pw === OP_PASSWORD_HASH) {
     _authRole = 'operador';
     localStorage.setItem('auth_role', 'operador');
-    localStorage.setItem('auth_exp', Date.now() + 6 * 60 * 60 * 1000);
+    localStorage.setItem('auth_exp', Date.now() + 2 * 60 * 60 * 1000);
+    localStorage.setItem('auth_day', today());
     _applyAuth();
     // Se havia ação pendente que exigia operador, executa agora
     const pending = window._pendingView;
@@ -1657,6 +1661,8 @@ function _requireOperador(callback) {
 function authLogout() {
   localStorage.removeItem('auth_role');
   localStorage.removeItem('auth_token');
+  localStorage.removeItem('auth_exp');
+  localStorage.removeItem('auth_day');
   location.href = location.pathname;
 }
 
@@ -1933,8 +1939,8 @@ function upMFiliais(){
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 
 // ── KPIs ─────────────────────────────────────────────────────────────────────
-function calcKPIs(f, tvOverride) {
-  const tv = tvOverride !== undefined ? tvOverride : f.reduce((s,e)=>s+e.v,0);
+function calcKPIs(f) {
+  const tv=f.reduce((s,e)=>s+e.v,0);
   const trec=f.reduce((s,e)=>s+e.prec,0);
   const tnao=f.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
   const tatend=trec-tnao;
@@ -1965,9 +1971,6 @@ function renderKPIs(k,pk) {
   const kbLbl=document.getElementById('kb-label');
   if(kbLbl){ const dow=new Date().getDay(); kbLbl.textContent = dow===1 ? 'vs sábado' : dow===0 ? 'vs sábado' : 'vs ontem'; }
   document.getElementById('kvb').style.width=Math.min(100,Math.round((k.tv/300)*100))+'%';
-  // Subtítulo do KPI de vendas — informa que é total da coleção
-  const kvSub = document.getElementById('kv-sub');
-  if (kvSub) kvSub.textContent = 'total registrado (NF/Chassi)';
 
   document.getElementById('ka').textContent=k.tatend;
   document.getElementById('kat').textContent=k.trec;
@@ -2113,11 +2116,11 @@ function renderSparklines(all) {
 }
 
 // ── FUNIL ─────────────────────────────────────────────────────────────────────
-function renderFunil(f, tvOverride) {
+function renderFunil(f) {
   const rec=f.reduce((s,e)=>s+e.prec,0);
   const nao=f.reduce((s,e)=>s+Math.max(0,e.prec-(e.patend||0)),0);
   const atend=rec-nao;
-  const v = tvOverride !== undefined ? tvOverride : f.reduce((s,e)=>s+e.v,0);
+  const v=f.reduce((s,e)=>s+e.v,0);
   document.getElementById('fn1').textContent=rec;
   document.getElementById('fn2').textContent=atend;
   document.getElementById('fn3').textContent=v;
@@ -2807,62 +2810,55 @@ function lastWorkday() {
   return d.toISOString().split('T')[0];
 }
 
-// ── FILTRO DE VENDAS POR PERÍODO (usa dtFat) ─────────────────────────────────
-function filterVendasByPeriod(vendas, p) {
-  const t = new Date();
-  const todayStr = today();
-  if (p === 'hoje')  return vendas.filter(v => v.dtFat === todayStr);
-  if (p === 'ontem') return vendas.filter(v => v.dtFat === lastWorkday());
-  if (p === 'semana') {
-    const d = new Date(t); d.setDate(d.getDate() - 6);
-    const from = d.toISOString().split('T')[0];
-    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
-  }
-  if (p === 'mes') {
-    const d = new Date(t); d.setDate(d.getDate() - 29);
-    const from = d.toISOString().split('T')[0];
-    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
-  }
-  if (p === 'semana-atual') {
-    const d = new Date(t); const dow = d.getDay() || 7; d.setDate(d.getDate() - dow + 1);
-    const from = d.toISOString().split('T')[0];
-    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
-  }
-  if (p === 'mes-atual') {
-    const from = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-01`;
-    return vendas.filter(v => v.dtFat >= from && v.dtFat <= todayStr);
-  }
-  if (p === 'custom' && customFrom && customTo) {
-    return vendas.filter(v => v.dtFat >= customFrom && v.dtFat <= customTo);
-  }
-  return vendas;
-}
-
 // ── REFRESH ───────────────────────────────────────────────────────────────────
-async function refresh() {
+function refresh() {
   const all=getE(), f=filterE(all,period,marca);
   const yf=all.filter(e=>e.ds===lastWorkday()&&(marca==='todas'||e.m===marca));
-
-  // tv = total da coleção `vendas` (fonte única, sem filtro de período — igual à Análise)
-  let tvAtual = undefined, tvOntem = undefined, tvPeriod = undefined;
-  try {
-    if (await initFirebase()) {
-      const allVendas = await _getVendasFb();
-      const mv = marca === 'todas' ? allVendas : allVendas.filter(v => v.marca === marca);
-      tvAtual  = mv.length;                                           // KPI: total geral sem filtro período
-      tvPeriod = filterVendasByPeriod(mv, period).length;            // Funil/conversão: filtrado pelo período
-      tvOntem  = mv.filter(v => v.dtFat === lastWorkday()).length;    // badge "vs ontem"
-    }
-  } catch(e) { /* fallback: calcKPIs usa e.v do relatorios */ }
-
-  renderKPIs(calcKPIs(f, tvAtual), calcKPIs(yf, tvOntem));
+  renderKPIs(calcKPIs(f),calcKPIs(yf));
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
   renderChartF(f); renderChartEv(all); renderSparklines(all);
-  renderFunil(f, tvPeriod); renderAlerts(f, all);
+  renderFunil(f); renderAlerts(f, all);
   const lu=localStorage.getItem('db_last');
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
+  // KPI Vendas Registradas (coleção vendas, filtrado por período)
+  updateVendasKPI();
+}
+
+// Filtra documentos da coleção `vendas` pelo período e marca ativos
+function filterVendasByPeriod(docs) {
+  if (!docs) return [];
+  const mf = marca === 'todas' ? null : marca;
+  let filtered;
+  if (period === 'custom' && customFrom && customTo) {
+    filtered = docs.filter(v => v.dtFat && v.dtFat >= customFrom && v.dtFat <= customTo);
+  } else {
+    const dates = getDates(period);
+    filtered = docs.filter(v => v.dtFat && dates.includes(v.dtFat));
+  }
+  if (mf) filtered = filtered.filter(v => v.marca === mf);
+  return filtered;
+}
+
+// Atualiza KPI "Vendas Registradas" com contagem filtrada da coleção vendas
+async function updateVendasKPI() {
+  if (!fbCfgSaved()) return;
+  try {
+    const docs = await _getVendasFb();
+    const filtered = filterVendasByPeriod(docs);
+    const cnt = filtered.length;
+    // Comparar com dia anterior para badge
+    const ydDocs = docs.filter(v => v.dtFat === lastWorkday() && (marca === 'todas' || v.marca === marca));
+    const ydCnt = ydDocs.length;
+    const vd = ydCnt > 0 ? Math.round(((cnt - ydCnt) / ydCnt) * 100) : (cnt > 0 ? 100 : 0);
+    const el = document.getElementById('kv');
+    if (el) el.textContent = cnt;
+    const kb = document.getElementById('kb');
+    if (kb) { kb.textContent = (vd >= 0 ? '+' : '') + vd + '%'; kb.className = 'badge ' + (vd >= 0 ? 'up' : 'dn'); }
+    const kvb = document.getElementById('kvb');
+    if (kvb) kvb.style.width = Math.min(100, Math.round((cnt / 300) * 100)) + '%';
+  } catch(e) { console.warn('updateVendasKPI:', e); }
 }
 
 
@@ -3613,6 +3609,9 @@ async function corrigirMidiasBatch() {
 buildMidiaSelect('vv-midia');
 buildMidiaSelect('vv-midiaorigem');
 initFrases();
+
+// ── AUTENTICAÇÃO: deve rodar antes do sync ────────────────────────────────
+_initAuth();
 
 // Auto-sync se Firebase configurado
 if(fbCfgSaved()){
