@@ -799,17 +799,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap">
         <div>
           <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px">Análise — Mídia & Vendedores</div>
-          <div style="font-size:12px;color:var(--muted)">Baseado nas vendas registradas no Firestore</div>
-        </div>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <select id="an-mes" onchange="renderAnaliseDebounced()" style="font-size:12px">
-            <option value="">Todos os meses</option>
-          </select>
-          <select id="an-marca" onchange="renderAnaliseDebounced()" style="font-size:12px">
-            <option value="">Todas as marcas</option>
-            <option>FIAT</option><option>BYD</option><option>VW</option>
-            <option>Peugeot</option><option>Jeep</option><option>Denza</option><option>Leapmotor</option><option>Seminovos</option>
-          </select>
+          <div style="font-size:12px;color:var(--muted)">Baseado nas vendas registradas · filtro: <span id="an-period-lbl" style="color:var(--amber);font-weight:600">—</span></div>
         </div>
       </div>
 
@@ -1416,6 +1406,13 @@ const AGENTES = {
   'VW|Orlândia':                   'Ana Beatriz',
   'Seminovos|São José do Rio Preto': 'Cintia e Lurde'
 };
+// Nomes individuais dos operadores de pré-venda — cada entrada do AGENTES pode
+// ter dois operadores separados por " e ". Usados para detectar quando um
+// pré-vendas aparece erroneamente no campo vendedorFaturou.
+const AGENTES_NOMES = new Set(
+  Object.values(AGENTES).flatMap(v => v.split(' e ').map(n => n.trim()))
+);
+
 // ── MÍDIAS — lista completa CAIXA ALTA ───────────────────────────────────────
 // ── FONTE CANÔNICA DE MÍDIAS — única fonte de verdade ───────────────────────
 // Nunca editar opções de select manualmente. Sempre alterar aqui.
@@ -2785,7 +2782,6 @@ function gv(v) {
   if(v==='consolidado'){const d=document.getElementById('cons-dt');if(d&&!d.value)d.value=today();renderCons();}
   if(v==='venda'){vvUpFiliais();renderVendas();}
   if(v==='analise')renderAnalise();
-  if(v==='analise')renderAnalise();
 }
 function setPeriod(p,btn){
   period=p; customFrom=''; customTo='';
@@ -2824,6 +2820,8 @@ function refresh() {
   document.getElementById('last-upd').textContent=lu?'Hoje '+lu:new Date().toLocaleDateString('pt-BR');
   // KPI Vendas Registradas (coleção vendas, filtrado por período)
   updateVendasKPI();
+  // Análise: re-render se painel estiver visível
+  if (document.getElementById('v-analise')?.style.display !== 'none') renderAnalise();
 }
 
 // Filtra documentos da coleção `vendas` pelo período e marca ativos
@@ -3336,27 +3334,33 @@ function _invalidateVendasCache() {
   _vendasFbCacheTs = 0;
 }
 
+// Nomes individuais de pré-venda extraídos do mapa AGENTES
+function _pvNamesSet() {
+  return new Set(
+    Object.values(AGENTES)
+      .flatMap(v => v.split(' e ').map(n => n.trim().toLowerCase()))
+  );
+}
+
+// Label legível do período global
+function _anPeriodLabel() {
+  const map = { hoje:'Hoje', semana:'Últimos 7 dias', mes:'Últimos 30 dias', 'mes-atual':'Mês atual', custom:'Período personalizado' };
+  const pLbl = map[period] || period;
+  const mLbl = marca === 'todas' ? 'Todas as marcas' : marca;
+  return `${pLbl} · ${mLbl}`;
+}
+
 async function renderAnalise() {
   if (!await initFirebase()) { toast('Firebase não conectado'); return; }
 
-  const mesFlt   = document.getElementById('an-mes').value;
-  const marcaFlt = document.getElementById('an-marca').value;
+  // Atualizar subtitle com período global
+  const lblEl = document.getElementById('an-period-lbl');
+  if (lblEl) lblEl.textContent = _anPeriodLabel();
 
   try {
-    // Clonar shallow para não mutar o cache — normalização ocorre apenas na cópia
+    // Buscar coleção e filtrar pelo período/marca globais
     let docs = (await _getVendasFb()).map(d => ({...d}));
-    // Filtro de mês aplicado localmente (cache já tem tudo)
-    if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
-
-    // Preencher filtro de meses disponíveis
-    const meses = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
-    const mesEl = document.getElementById('an-mes');
-    const mesAtual = mesEl.value;
-    mesEl.innerHTML = '<option value="">Todos os meses</option>' +
-      meses.map(m => `<option value="${m}"${m===mesAtual?' selected':''}>${m.split('-').reverse().join('/')}</option>`).join('');
-
-    // Filtro marca
-    if (marcaFlt) docs = docs.filter(d => d.marca === marcaFlt);
+    docs = filterVendasByPeriod(docs);
 
     // Normalizar mídias de todos os docs (detecta distorções)
     const distorcoes = [];
@@ -3365,13 +3369,13 @@ async function renderAnalise() {
       const norm = normalizeMidia(raw);
       if (raw && norm !== raw) {
         distorcoes.push({ raw, norm });
-        d.midia = norm; // corrige na exibição (não salva de volta)
+        d.midia = norm;
       } else if (raw && !MIDIAS.includes(raw)) {
         distorcoes.push({ raw, norm: '⚠️ Desconhecida' });
       }
     });
 
-    // Exibir alerta de distorção
+    // Alerta de distorção de mídia
     const distEl = document.getElementById('an-distorcao');
     if (distorcoes.length > 0) {
       const grupos = {};
@@ -3396,12 +3400,10 @@ async function renderAnalise() {
       distEl.style.display = 'none';
     }
 
-    // Total geral + breakdown consideradas / não consideradas
     const totalGeral = docs.length;
     const nCons  = docs.filter(d => d.dentroJanela).length;
     const nNcons = totalGeral - nCons;
 
-    // Pills de resumo
     const summaryEl = document.getElementById('an-summary');
     if (summaryEl) {
       summaryEl.innerHTML = totalGeral === 0 ? '' :
@@ -3410,7 +3412,7 @@ async function renderAnalise() {
         `<span style="font-size:12px;font-weight:700;font-family:var(--mono);color:var(--text)">${totalGeral} total</span>`;
     }
 
-    // ── 1. Vendas por Mídia — usa TOTAL (todas, não só dentroJanela) ──────────
+    // ── 1. Vendas por Mídia ──────────────────────────────────────────────────
     const byMidia = {};
     docs.forEach(v => {
       const m = v.midia || 'Não informada';
@@ -3418,7 +3420,7 @@ async function renderAnalise() {
     });
     const midiaRows = Object.entries(byMidia).sort((a,b) => b[1]-a[1]);
     const maxMidia = midiaRows[0]?.[1] || 1;
-    const total = totalGeral; // referência para % do card
+    const total = totalGeral;
 
     const midiaColors = ['#4f8ef7','#2ec98a','#f5a623','#7c5fe6','#f05252','#38bdf8','#fb923c','#a3e635','#e879f9','#34d399'];
 
@@ -3453,7 +3455,7 @@ async function renderAnalise() {
     const recRows = Object.entries(byRec).sort((a,b) => b[1]-a[1]);
     const maxRec = recRows[0]?.[1] || 1;
 
-    const rankHtml = (rows, maxV, cor, posColors) => rows.length === 0
+    const rankHtml = (rows, maxV, cor) => rows.length === 0
       ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Sem dados</div>'
       : rows.map(([nome, v], i) => {
           const barW = maxV > 0 ? (v / maxV * 100) : 0;
@@ -3483,7 +3485,26 @@ async function renderAnalise() {
     const maxFat = fatRows[0]?.[1] || 1;
     document.getElementById('an-vfat-list').innerHTML = rankHtml(fatRows, maxFat, '#2ec98a');
 
-    // ── 4. Cross — Recebeu × Faturou ────────────────────────────────────────
+    // ── 4. Cross — Recebeu × Faturou + detecção de pré-vendas ───────────────
+    const pvNames = _pvNamesSet();
+
+    // Para cada nome no Faturou que for pré-venda, coleta os cods de lead
+    const pvFatCods = {}; // nome_lower → [cod1, cod2, ...]
+    docs.forEach(v => {
+      const nome = (v.vendedorFaturou||'').trim();
+      if (!nome) return;
+      const nomeLow = nome.toLowerCase();
+      // Verifica se algum nome de pré-venda é substring de palavra no nome
+      for (const pvN of pvNames) {
+        const re = new RegExp(`\\b${pvN}\\b`, 'i');
+        if (re.test(nome)) {
+          if (!pvFatCods[nomeLow]) pvFatCods[nomeLow] = [];
+          if (v.cod) pvFatCods[nomeLow].push(v.cod);
+          break;
+        }
+      }
+    });
+
     const allNames = new Set([...Object.keys(byRec), ...Object.keys(byFat)]);
     const crossRows = [...allNames].map(nome => ({
       nome,
@@ -3494,9 +3515,26 @@ async function renderAnalise() {
 
     const maxVal = Math.max(...crossRows.map(r => Math.max(r.rec, r.fat)), 1);
 
+    // Conta quantos vendedores únicos aparecem como PV no Faturou
+    const totalPvErros = crossRows.filter(r => {
+      if (r.fat === 0) return false;
+      for (const pvN of pvNames) { if (new RegExp(`\\b${pvN}\\b`,'i').test(r.nome)) return true; }
+      return false;
+    }).length;
+
+    const pvBanner = totalPvErros > 0
+      ? `<div style="background:rgba(240,82,82,.08);border:1px solid rgba(240,82,82,.3);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+          <span style="font-size:18px;flex-shrink:0">🚨</span>
+          <div>
+            <div style="font-size:12px;font-weight:600;color:#f05252">${totalPvErros} pré-vendas detectado${totalPvErros!==1?'s':''} no campo Faturou</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Linhas marcadas com ⚠ — passe o mouse para ver os cods de lead vinculados.</div>
+          </div>
+        </div>`
+      : '';
+
     document.getElementById('an-cross-list').innerHTML = crossRows.length === 0
       ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Sem dados suficientes</div>'
-      : `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;padding:6px 0;border-bottom:1px solid var(--border2);margin-bottom:4px">
+      : pvBanner + `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;padding:6px 0;border-bottom:1px solid var(--border2);margin-bottom:4px">
           <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Vendedor</div>
           <div style="font-size:10px;color:#4f8ef7;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Recebeu lead</div>
           <div style="font-size:10px;color:#2ec98a;font-weight:600;text-transform:uppercase;letter-spacing:.06em">Faturou</div>
@@ -3506,8 +3544,23 @@ async function renderAnalise() {
           const delta = r.fat - r.rec;
           const deltaC = delta > 0 ? 'var(--green)' : delta < 0 ? 'var(--red)' : 'var(--muted)';
           const deltaStr = delta > 0 ? '+' + delta : String(delta);
-          return `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
-            <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.nome}">${r.nome}</div>
+          // Detectar se este vendedor está registrado como pré-venda
+          const nomeLow = r.nome.toLowerCase();
+          let isPvError = false;
+          let pvCods = [];
+          for (const pvN of pvNames) {
+            const re = new RegExp(`\\b${pvN}\\b`, 'i');
+            if (re.test(r.nome) && r.fat > 0) {
+              isPvError = true;
+              pvCods = pvFatCods[nomeLow] || [];
+              break;
+            }
+          }
+          const pvBadge = isPvError
+            ? `<span title="⚠️ Pré-venda registrado como Faturou&#10;Lead(s): ${pvCods.length > 0 ? pvCods.join(', ') : 'sem cod'}" style="margin-left:6px;cursor:help;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(240,82,82,.18);border:1px solid rgba(240,82,82,.4);font-size:10px;vertical-align:middle;flex-shrink:0" aria-label="Erro: pré-venda no campo Faturou">⚠</span>`
+            : '';
+          return `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)${isPvError?';background:rgba(240,82,82,.04)':''}">
+            <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:0" title="${r.nome}">${r.nome}${pvBadge}</div>
             <div style="display:flex;align-items:center;gap:7px">
               <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
                 <div style="height:100%;width:${r.rec/maxVal*100}%;background:#4f8ef7;border-radius:4px"></div>
@@ -3516,9 +3569,9 @@ async function renderAnalise() {
             </div>
             <div style="display:flex;align-items:center;gap:7px">
               <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
-                <div style="height:100%;width:${r.fat/maxVal*100}%;background:#2ec98a;border-radius:4px"></div>
+                <div style="height:100%;width:${r.fat/maxVal*100}%;background:${isPvError?'#f05252':'#2ec98a'};border-radius:4px"></div>
               </div>
-              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:#2ec98a;width:24px;text-align:right">${r.fat}</span>
+              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:${isPvError?'#f05252':'#2ec98a'};width:24px;text-align:right">${r.fat}</span>
             </div>
             <div style="font-size:13px;font-family:var(--mono);font-weight:700;color:${deltaC};text-align:right">${delta===0?'—':deltaStr}</div>
           </div>`;
