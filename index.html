@@ -1383,32 +1383,44 @@ const GERENTES = {
 };
 
 // ── AGENTES DE PRÉ-VENDA (OPERADORES) ────────────────────────────────────────
+// Nomes COMPLETOS sem abreviação — evita falso-positivo com vendedores homônimos.
+// Múltiplos agentes por loja separados por " e ". Mesma pessoa pode constar em
+// lojas diferentes (ex: Cintia Gemaiel responde por SJRP, Votuporanga e Barretos).
 const AGENTES = {
-  'FIAT|Bauru':                    'Débora',
-  'FIAT|Botucatu':                 'Bianca',
-  'FIAT|Santos':                   'Adercylia e Jonathan',
-  'FIAT|Taguatinga':               'Victória',
-  'FIAT|Marília':                  'Sarah',
-  'FIAT|Jaú':                      'Rafael',
+  // ── FIAT ─────────────────────────────────────────────────────────────────
+  'FIAT|Bauru':                    'Debora de Brito',
+  'FIAT|Santos':                   'Adercylia Sayonara e Jonathas Bispo',
+  'FIAT|Taguatinga':               'Victoria Mello',
+  'FIAT|Marília':                  'Sarah Leocadio dos Santos',
+  'FIAT|Botucatu':                 'Bianca Nunes',
+  'FIAT|Jaú':                      'Rafael Peres',
+  // ── BYD ──────────────────────────────────────────────────────────────────
+  'BYD|Bauru':                     'Lays Lino da Silva Bolonha',
+  'BYD|Marília':                   'Lays Lino da Silva Bolonha',
+  'BYD|Araçatuba':                 'Amanda Batista de Moraes',
+  'BYD|Botucatu':                  'Bianca Nunes',
+  'BYD|São José do Rio Preto':     'Amanda Batista de Moraes',
+  // ── PEUGEOT / PSA ─────────────────────────────────────────────────────────
+  'Peugeot|Bauru':                 'Rafael Peres',
+  'Peugeot|Ribeirão Preto':        'Julia Rodrigues Madalena',
+  'Peugeot|Marília':               'Sarah Leocadio dos Santos',
+  // ── DENZA ────────────────────────────────────────────────────────────────
+  'Denza|Ribeirão Preto':          'Julia Rodrigues Madalena',
+  // ── JEEP ─────────────────────────────────────────────────────────────────
+  'Jeep|São José do Rio Preto':    'Cintia Gemaiel Zambello Guerra',
+  'Jeep|Votuporanga':              'Cintia Gemaiel Zambello Guerra',
+  'Jeep|Barretos':                 'Elvira Mariana Sandre',
+  // ── VOLKSWAGEN ───────────────────────────────────────────────────────────
+  'VW|Bauru':                      'Ana Beatriz Pereira Saugo',
+  'VW|Orlândia':                   'Ana Beatriz Pereira Saugo',
+  // ── LEAPMOTOR ────────────────────────────────────────────────────────────
   'Leapmotor|Santos':              'Isabela e Rafaela',
-  'BYD|Bauru':                     'Viviane e Lays',
-  'BYD|Araçatuba':                 'Amanda',
-  'BYD|Botucatu':                  'Bianca',
-  'BYD|Marília':                   'Viviane e Lays',
-  'BYD|São José do Rio Preto':     'Amanda',
-  'Peugeot|Bauru':                 'Rafael',
-  'Peugeot|Ribeirão Preto':        'Rafael',
-  'Peugeot|Marília':               'Sarah',
-  'Jeep|São José do Rio Preto':    'Cintia e Lurde',
-  'Jeep|Barretos':                 'Cintia e Lurde',
-  'Jeep|Votuporanga':              'Cintia e Lurde',
-  'VW|Bauru':                      'Ana Beatriz',
-  'VW|Orlândia':                   'Ana Beatriz',
-  'Seminovos|São José do Rio Preto': 'Cintia e Lurde'
+  // ── SEMINOVOS ────────────────────────────────────────────────────────────
+  'Seminovos|São José do Rio Preto': 'Elvira Mariana Sandre'
 };
-// Nomes individuais dos operadores de pré-venda — cada entrada do AGENTES pode
-// ter dois operadores separados por " e ". Usados para detectar quando um
-// pré-vendas aparece erroneamente no campo vendedorFaturou.
+// Nomes individuais de pré-venda extraídos do mapa AGENTES.
+// Múltiplos agentes por loja são separados por " e " (ex: FIAT|Santos).
+// A detecção usa o nome COMPLETO — nenhum match parcial é aceito (ver _pvNamesSet).
 const AGENTES_NOMES = new Set(
   Object.values(AGENTES).flatMap(v => v.split(' e ').map(n => n.trim()))
 );
@@ -3334,7 +3346,9 @@ function _invalidateVendasCache() {
   _vendasFbCacheTs = 0;
 }
 
-// Nomes individuais de pré-venda extraídos do mapa AGENTES
+// Nomes individuais de pré-venda em minúsculo para comparação.
+// POLÍTICA: nome COMPLETO — a regex \b...\b só aciona se o campo inteiro bater
+// com o nome completo do pré-vendas. Parciais (ex: só "Cintia") NÃO disparam erro.
 function _pvNamesSet() {
   return new Set(
     Object.values(AGENTES)
