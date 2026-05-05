@@ -1542,13 +1542,15 @@ function buildMidiaSelect(selectId, includeBlank = true) {
 }
 
 // ── calcJanela: retorna {valido, dias, label, cor} ───────────────────────────
-function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem) {
+function calcJanela(midia, dtCriacao, dtInsucesso, isResgate, midiaOrigem, dtRef) {
   const m = isResgate ? (midiaOrigem || midia) : midia;
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  // dtRef = data de faturamento; fallback para hoje se não informado
+  const ref = dtRef ? (() => { const d = new Date(dtRef); d.setHours(0,0,0,0); return d; })()
+                    : (() => { const d = new Date(); d.setHours(0,0,0,0); return d; })();
   function diffDias(ds) {
     if(!ds) return null;
     const d = new Date(ds); d.setHours(0,0,0,0);
-    return Math.floor((hoje - d) / 86400000);
+    return Math.floor((ref - d) / 86400000);
   }
 
   // ── Montadora / Site: 150 dias da criação ────────────────────────────────
@@ -3018,7 +3020,8 @@ function vvUpdateJanela() {
   const janelaEl = document.getElementById('vv-janela');
   if (!midia) { janelaEl.style.display = 'none'; return; }
 
-  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig);
+  const dtRef = document.getElementById('vv-dtfat').value;
+  const r = calcJanela(midia, dtCriacao, dtIns, isResgate, midiaOrig, dtRef);
   const cls = r.cor === 'ok' ? 'janela-ok' : r.cor === 'err' ? 'janela-err' : 'janela-warn';
   janelaEl.innerHTML = `<div class="${cls}">${r.label}</div>`;
   janelaEl.style.display = 'block';
@@ -3054,7 +3057,7 @@ async function saveVenda() {
 
   if (!dtFat || !cod || !midia) { toast('Preencha: Data de Faturamento, Cód. Lead e Mídia'); return; }
 
-  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig);
+  const janela   = calcJanela(midia, dtCri, dtIns, isResgate, midOrig, dtFat);
   const dentroJanela = janela.valido === true;
 
   const venda = {
@@ -3690,7 +3693,7 @@ async function corrigirMidiasBatch() {
       const raw  = d.midia || '';
       const norm = normalizeMidia(raw);
       if (raw && norm !== raw && MIDIAS.includes(norm)) {
-        const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem);
+        const janela = calcJanela(norm, d.dtCriacao, d.dtInsucesso, d.isResgate, d.midiaOrigem, d.dtFat);
         if (batchCount > 0 && batchCount % BATCH_SIZE === 0) batches.push(fbDb.batch());
         batches[batches.length - 1].update(doc.ref, {
           midia:        norm,
