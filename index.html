@@ -953,6 +953,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           <div class="sec-hdr" style="margin-bottom:12px">
             <div><div class="sec-ttl">Vendas Registradas</div><div class="sec-sub" id="vv-list-sub">carregando...</div></div>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input id="vvf-cod" type="text" oninput="renderVendas()" placeholder="🔍 Cód. do lead..." style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px;width:150px;outline:none">
               <select id="vvf-mes" onchange="renderVendas()" style="font-size:12px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 9px">
                 <option value="">Todos os meses</option>
               </select>
@@ -973,7 +974,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               <thead><tr>
                 <th>Data Fat.</th><th>Marca</th><th>Filial</th><th>Cód Lead</th>
                 <th>Atendente</th><th>Pré-venda</th><th>Vendedor Faturou</th><th>Mídia</th><th>NF</th>
-                <th>Status</th><th class="ro-hide-on-ro">Ações</th>
+                <th style="position:sticky;right:135px;background:var(--bg2);z-index:2;box-shadow:-2px 0 6px rgba(0,0,0,.18)">Status</th><th class="ro-hide-on-ro" style="position:sticky;right:0;background:var(--bg2);z-index:2">Ações</th>
               </tr></thead>
               <tbody id="vv-tbody"></tbody>
             </table>
@@ -3069,6 +3070,7 @@ async function renderVendas() {
   const mesFlt   = document.getElementById('vvf-mes').value;
   const marcaFlt = document.getElementById('vvf-marca').value;
   const statusFlt= document.getElementById('vvf-status').value;
+  const codFlt   = (document.getElementById('vvf-cod')?.value || '').trim().toLowerCase();
 
   try {
     // _getVendasFb já preserva doc.id real do Firestore
@@ -3116,6 +3118,7 @@ async function renderVendas() {
     if (marcaFlt) docs = docs.filter(d => d.marca === marcaFlt);
     if (statusFlt === '1') docs = docs.filter(d => d.dentroJanela);
     if (statusFlt === '0') docs = docs.filter(d => !d.dentroJanela);
+    if (codFlt) docs = docs.filter(d => (d.cod||'').toLowerCase().includes(codFlt));
     docs.sort((a,b) => (b.dtFat||'').localeCompare(a.dtFat||''));
 
     _vendasCache = docs;
@@ -3152,8 +3155,8 @@ async function renderVendas() {
         <td style="font-size:12px">${v.vendedorFaturou||'—'}</td>
         <td style="font-size:11px;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${v.midia||''}">${v.midia||'—'}</td>
         <td style="font-family:var(--mono);font-size:12px">${v.nf||'—'}</td>
-        <td><span class="venda-status ${v.dentroJanela?'vs-ok':'vs-nc'}">${v.dentroJanela?'Considerada':'Não Consid.'}</span></td>
-        <td class="ro-hide-on-ro" style="display:flex;gap:5px;padding:7px 10px">
+        <td style="position:sticky;right:135px;background:${isDup?'rgba(240,82,82,.06)':'var(--bg2)'};z-index:1;box-shadow:-2px 0 6px rgba(0,0,0,.12)"><span class="venda-status ${v.dentroJanela?'vs-ok':'vs-nc'}">${v.dentroJanela?'Considerada':'Não Consid.'}</span></td>
+        <td class="ro-hide-on-ro" style="position:sticky;right:0;background:${isDup?'rgba(240,82,82,.06)':'var(--bg2)'};z-index:1;display:flex;gap:5px;padding:7px 10px">
           <button class="btn-ico edit" onclick="openEditVenda('${v.id}')">
             <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Editar
           </button>
@@ -3280,7 +3283,9 @@ async function exportVendasXLSX() {
     await new Promise((res, rej) => { script.onload = res; script.onerror = rej; document.head.appendChild(script); });
 
     const snap = await fbDb.collection('vendas').get();
-    const todas = snap.docs.map(d => d.data());
+    const mesFltXlsx = document.getElementById('vvf-mes')?.value || '';
+    let todas = snap.docs.map(d => d.data());
+    if (mesFltXlsx) todas = todas.filter(v => v.dtFat?.substring(0,7) === mesFltXlsx);
 
     const wb = XLSX.utils.book_new();
 
@@ -3303,9 +3308,11 @@ async function exportVendasXLSX() {
       XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), nome);
     });
 
-    const mes = new Date().toLocaleString('pt-BR', {month:'long', year:'numeric'}).replace(' de ','_').toUpperCase();
-    XLSX.writeFile(wb, `Faturamento_Leads_${mes}.xlsx`);
-    toast('✅ XLSX gerado com sucesso!');
+    const mesLabelXlsx = mesFltXlsx
+      ? new Date(mesFltXlsx + '-02').toLocaleString('pt-BR', {month:'long', year:'numeric'}).replace(' de ','_').toUpperCase()
+      : 'TODOS_MESES';
+    XLSX.writeFile(wb, `Faturamento_Leads_${mesLabelXlsx}.xlsx`);
+    toast(mesFltXlsx ? `✅ XLSX gerado · ${mesLabelXlsx.replace('_',' ')}` : '✅ XLSX gerado com todos os meses!');
   } catch(e) { toast('Erro ao exportar: ' + e.message); }
   if (btn) { btn.innerHTML = orig; btn.disabled = false; }
 }
