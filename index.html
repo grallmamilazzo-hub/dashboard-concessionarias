@@ -877,7 +877,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:3px">Registrar Venda</div>
             <div style="font-size:13px;color:var(--muted)">Associe a venda ao lead de origem com validação automática de janela</div>
           </div>
-          <button class="btn-g" onclick="exportVendasXLSX()" style="font-size:12px;padding:7px 13px">
+          <button class="btn-g" onclick="openExportModal()" style="font-size:12px;padding:7px 13px">
             <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="margin-right:4px"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Exportar XLSX
           </button>
         </div>
@@ -1045,6 +1045,29 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <div class="modal-act">
       <button class="btn-g" onclick="closeDelVenda()">Cancelar</button>
       <button class="btn-p" onclick="confirmDelVenda()" style="background:var(--red)">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT XLSX MODAL -->
+<div class="modal-ov" id="export-xlsx-modal" onclick="if(event.target===this)closeExportModal()">
+  <div class="modal" style="width:360px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div class="modal-ttl">Exportar XLSX</div>
+      <button onclick="closeExportModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:22px;line-height:1;padding:0">×</button>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:8px">Período</label>
+      <select id="export-mes-sel" style="width:100%;font-size:13px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:9px 12px;font-family:var(--font)">
+        <option value="">Todos os meses</option>
+      </select>
+      <div style="font-size:11px;color:var(--muted);margin-top:7px">Selecione um mês para exportar somente aquele período, ou deixe em "Todos" para exportar tudo.</div>
+    </div>
+    <div class="modal-act">
+      <button class="btn-g" onclick="closeExportModal()">Cancelar</button>
+      <button class="btn-p" onclick="confirmExportXLSX()">
+        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="margin-right:5px"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Exportar
+      </button>
     </div>
   </div>
 </div>
@@ -3272,9 +3295,26 @@ function closeEditVenda() {
 function saveEditVenda() { saveVenda(); closeEditVenda(); }
 
 // ── EXPORTAR XLSX ─────────────────────────────────────────────────────────────
-async function exportVendasXLSX() {
+function openExportModal() {
+  // Copia opções de meses do select de filtro (já populado pelo renderVendas)
+  const src = document.getElementById('vvf-mes');
+  const sel = document.getElementById('export-mes-sel');
+  sel.innerHTML = src ? src.innerHTML : '<option value="">Todos os meses</option>';
+  sel.value = src ? src.value : '';
+  document.getElementById('export-xlsx-modal').classList.add('open');
+}
+function closeExportModal() {
+  document.getElementById('export-xlsx-modal').classList.remove('open');
+}
+async function confirmExportXLSX() {
+  const mes = document.getElementById('export-mes-sel').value;
+  closeExportModal();
+  await exportVendasXLSX(mes);
+}
+
+async function exportVendasXLSX(mesFltXlsx = '') {
   if (!await initFirebase()) { toast('Firebase não conectado'); return; }
-  const btn = document.querySelector('[onclick="exportVendasXLSX()"]');
+  const btn = document.querySelector('[onclick="openExportModal()"]');
   const orig = btn ? btn.innerHTML : '';
   if (btn) { btn.innerHTML = 'Gerando...'; btn.disabled = true; }
   try {
@@ -3283,7 +3323,6 @@ async function exportVendasXLSX() {
     await new Promise((res, rej) => { script.onload = res; script.onerror = rej; document.head.appendChild(script); });
 
     const snap = await fbDb.collection('vendas').get();
-    const mesFltXlsx = document.getElementById('vvf-mes')?.value || '';
     let todas = snap.docs.map(d => d.data());
     if (mesFltXlsx) todas = todas.filter(v => v.dtFat?.substring(0,7) === mesFltXlsx);
 
