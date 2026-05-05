@@ -1899,7 +1899,7 @@ function deleteE(ds,m,f) {
 }
 
 
-const today=()=>new Date().toISOString().split('T')[0];
+const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset()-180);return d.toISOString().split('T')[0];};
 function fmtD(ds){if(!ds||typeof ds!=='string')return'—';const p=ds.split('-');if(p.length!==3)return ds;const[y,mo,d]=p;return`${d}/${mo}/${y}`;}
 
 // ── FAIXAS DE CONVERSÃO ──────────────────────────────────────────────────────
