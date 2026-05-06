@@ -893,7 +893,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               </select>
             </div>
             <div class="form-fld"><label class="form-lbl">Filial</label><select class="form-inp" id="vv-filial"></select></div>
-            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat"></div>
+            <div class="form-fld"><label class="form-lbl">Data de Faturamento</label><input class="form-inp" type="date" id="vv-dtfat" oninput="vvUpdateJanela()"></div>
             <div class="form-fld"><label class="form-lbl">Cód. Lead</label><input class="form-inp" type="text" id="vv-cod" placeholder="ex: 1309926"></div>
             <div class="form-fld"><label class="form-lbl">Atendente</label><input class="form-inp" type="text" id="vv-atendente" placeholder="Nome do atendente"></div>
             <div class="form-fld"><label class="form-lbl">Pré-venda</label><input class="form-inp" type="text" id="vv-prevenda" placeholder="Nome do pré-vendedor"></div>
@@ -1899,7 +1899,7 @@ function deleteE(ds,m,f) {
 }
 
 
-const today=()=>{const d=new Date();d.setMinutes(d.getMinutes()-d.getTimezoneOffset()-180);return d.toISOString().split('T')[0];};
+const today=()=>new Date(Date.now()-3*60*60*1000).toISOString().split('T')[0]; // UTC-3 fixo (BR aboliu DST em 2019)
 function fmtD(ds){if(!ds||typeof ds!=='string')return'—';const p=ds.split('-');if(p.length!==3)return ds;const[y,mo,d]=p;return`${d}/${mo}/${y}`;}
 
 // ── FAIXAS DE CONVERSÃO ──────────────────────────────────────────────────────
