@@ -3140,10 +3140,15 @@ async function saveVenda() {
   };
 
   const editId = document.getElementById('vv-edit-id').value;
-  const docId  = editId || `${marca}||${filial}||${dtFat}||${cod}`;
 
   try {
-    await fbDb.collection('vendas').doc(docId).set(venda);
+    if (editId) {
+      // Edição: atualiza o documento existente pelo ID real do Firestore
+      await fbDb.collection('vendas').doc(editId).set(venda);
+    } else {
+      // Novo registro: ID gerado pelo Firestore (garante unicidade mesmo com mesmo cod/data)
+      await fbDb.collection('vendas').add(venda);
+    }
     _invalidateVendasCache();
     toast(dentroJanela ? '✅ Venda registrada — Considerada' : '⚠️ Venda salva — Não Considerada');
     vvClear();
