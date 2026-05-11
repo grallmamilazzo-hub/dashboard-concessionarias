@@ -461,9 +461,10 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
   <div class="content">
 
     <!-- DIRECTORS BANNER -->
-    <div class="dir-banner" style="display:none;background:rgba(245,166,35,.1);border-bottom:1px solid rgba(245,166,35,.25);padding:8px 24px;align-items:center;gap:10px;font-size:12px;color:#f5a623;font-weight:500">
+    <div class="dir-banner" style="display:none;background:rgba(245,166,35,.1);border-bottom:1px solid rgba(245,166,35,.25);padding:8px 24px;align-items:center;gap:14px;font-size:12px;color:#f5a623;font-weight:500;flex-wrap:wrap">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 1l2 4 5 .7-3.5 3.4.8 5L8 12l-4.3 2.1.8-5L1 5.7 6 5z" fill="#f5a623"/></svg>
       Visualização Diretores — Dashboard, Análise e Histórico · somente leitura
+      <select id="dir-mes-select" onchange="setDirMes(this.value)" title="Selecionar mês" style="margin-left:auto;font-size:12px;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.4);color:#f5a623;border-radius:7px;padding:4px 10px;cursor:pointer;font-weight:600;outline:none;font-family:var(--font)"></select>
     </div>
 
     <!-- DASHBOARD -->
@@ -850,6 +851,33 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="sec-ttl">Comparativo — Recebeu × Faturou por Vendedor</div>
             <div class="sec-sub">identifica desvio entre quem recebe o lead e quem fecha a venda</div>
           </div>
+          <button onclick="exportCrossXLSX()" style="font-size:11px;font-weight:600;background:rgba(46,201,138,.12);color:var(--green);border:1px solid rgba(46,201,138,.3);border-radius:7px;padding:6px 13px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 10v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Exportar .xlsx
+          </button>
+        </div>
+        <!-- Filtros locais do comparativo -->
+        <div id="cross-filter-bar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">Filtrar:</span>
+          <select id="cross-flt-marca" onchange="renderCrossFiltered()" style="font-size:12px;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:4px 8px;outline:none;cursor:pointer">
+            <option value="">Todas as marcas</option>
+            <option value="FIAT">FIAT</option><option value="BYD">BYD</option>
+            <option value="Peugeot">Peugeot/Citroen</option><option value="Jeep">Jeep</option>
+            <option value="Denza">Denza</option><option value="VW">VW</option>
+            <option value="Leapmotor">Leapmotor</option><option value="Seminovos">Seminovos</option>
+          </select>
+          <select id="cross-flt-cidade" onchange="renderCrossFiltered()" style="font-size:12px;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:4px 8px;outline:none;cursor:pointer">
+            <option value="">Todas as cidades</option>
+            <option>Bauru</option><option>Botucatu</option><option>Jaú</option>
+            <option>Marília</option><option>Santos</option><option>Taguatinga</option>
+            <option>São José do Rio Preto</option><option>Araçatuba</option>
+            <option>Ribeirão Preto</option><option>Barretos</option>
+            <option>Votuporanga</option><option>Orlândia</option>
+          </select>
+          <select id="cross-flt-mes" onchange="renderCrossFiltered()" style="font-size:12px;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:4px 8px;outline:none;cursor:pointer">
+            <option value="">Todos os meses</option>
+          </select>
+          <button onclick="document.getElementById('cross-flt-marca').value='';document.getElementById('cross-flt-cidade').value='';document.getElementById('cross-flt-mes').value='';renderCrossFiltered()" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 4px;text-decoration:underline">limpar</button>
         </div>
         <div id="an-cross-list">
           <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
@@ -1651,9 +1679,9 @@ function _applyAuth() {
   if (_roMode) {
     document.body.classList.add('readonly');
     if (_authRole === 'diretor') document.body.classList.add('directors');
-    // Ação 4: trava período no mês corrente
+    // Ação 4: trava período — diretores navegam por mês via seletor no banner
     document.body.classList.add('period-locked');
-    setTimeout(() => { setPeriod('mes-atual', null); }, 200);
+    setTimeout(() => { _initDirMes(); }, 200);
   }
   // Esconde overlay se visível
   const ov = document.getElementById('auth-overlay');
@@ -2833,6 +2861,37 @@ function setPeriod(p,btn){
 }
 function setMarca(v){marca=v;refresh();if(document.getElementById('v-ranking').style.display!=='none')renderRank();}
 
+// ── SELETOR DE MÊS — MODO DIRETORES ─────────────────────────────────────────
+function _initDirMes() {
+  const sel = document.getElementById('dir-mes-select');
+  if (!sel) { setPeriod('mes-atual', null); return; }
+  // Gerar opções: mês atual + 17 meses anteriores (18 total)
+  const now = new Date(Date.now() - 3 * 60 * 60 * 1000); // UTC-3
+  let opts = '';
+  for (let i = 0; i <= 17; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const val = `${y}-${m}`;
+    const lbl = d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+    const lblCap = lbl.charAt(0).toUpperCase() + lbl.slice(1);
+    opts += `<option value="${val}"${i === 0 ? ' selected' : ''}>${lblCap}</option>`;
+  }
+  sel.innerHTML = opts;
+  setDirMes(sel.value);
+}
+
+function setDirMes(mesAno) {
+  if (!mesAno) return;
+  const [y, m] = mesAno.split('-').map(Number);
+  customFrom = `${mesAno}-01`;
+  const lastDay = new Date(y, m, 0).getDate();
+  customTo = `${mesAno}-${String(lastDay).padStart(2, '0')}`;
+  period = 'custom';
+  refresh();
+  if (document.getElementById('v-ranking')?.style.display !== 'none') renderRank();
+}
+
 // ── LAST WORKDAY — pula domingos (seg→sáb, dom→sáb) ─────────────────────────
 function lastWorkday() {
   const d = new Date();
@@ -3102,13 +3161,28 @@ async function renderVendas() {
     // _getVendasFb já preserva doc.id real do Firestore
     let allDocs = await _getVendasFb();
 
-    // Detecta duplicatas no universo completo (antes de qualquer filtro)
-    const codCount = {};
-    allDocs.forEach(d => { if (d.cod) codCount[d.cod] = (codCount[d.cod]||0) + 1; });
-    const dupCods = new Set(Object.keys(codCount).filter(c => codCount[c] > 1));
-    const dupTotal = allDocs.filter(d => dupCods.has(d.cod)).length;
+    // Detecta duplicatas — dois níveis: real (NF ou Chassi repetidos) vs venda múltipla (NF+Chassi únicos)
+    const codGroups = {};
+    allDocs.forEach(d => {
+      if (!d.cod) return;
+      if (!codGroups[d.cod]) codGroups[d.cod] = [];
+      codGroups[d.cod].push(d);
+    });
+    const dupRealCods  = new Set();
+    const dupMultiCods = new Set();
+    Object.entries(codGroups).forEach(([cod, group]) => {
+      if (group.length <= 1) return;
+      const nfs    = group.map(d => (d.nf||'').trim().toLowerCase()).filter(Boolean);
+      const chs    = group.map(d => (d.chassi||'').trim().toLowerCase()).filter(Boolean);
+      const nfDup  = nfs.length  !== new Set(nfs).size;
+      const chsDup = chs.length  !== new Set(chs).size;
+      if (nfDup || chsDup) { dupRealCods.add(cod); } else { dupMultiCods.add(cod); }
+    });
+    const dupCods       = dupRealCods; // compat: resolverDuplicatas e dupVis
+    const dupTotal      = allDocs.filter(d => dupRealCods.has(d.cod)).length;
+    const dupMultiTotal = allDocs.filter(d => dupMultiCods.has(d.cod)).length;
 
-    // Banner de duplicatas
+    // Banner de duplicatas (dois níveis)
     let banner = document.getElementById('vv-dup-banner');
     if (!banner) {
       banner = document.createElement('div');
@@ -3116,17 +3190,31 @@ async function renderVendas() {
       const tableWrap = document.querySelector('#vv-table')?.closest('div[style*="overflow-x"]');
       if (tableWrap) tableWrap.parentNode.insertBefore(banner, tableWrap);
     }
-    if (dupCods.size > 0) {
-      banner.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(240,82,82,.1);border:1px solid rgba(240,82,82,.35);border-radius:9px;padding:10px 14px;margin-bottom:12px';
-      banner.innerHTML = `
-        <div style="display:flex;align-items:center;gap:10px">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="#f05252" stroke-width="1.4" stroke-linejoin="round" fill="rgba(240,82,82,.15)"/><path d="M8 6v3.5M8 11v.5" stroke="#f05252" stroke-width="1.4" stroke-linecap="round"/></svg>
-          <span style="font-size:12px;font-weight:600;color:#f05252">Duplicatas detectadas</span>
-          <span style="font-size:12px;color:var(--text)">${dupCods.size} código${dupCods.size>1?'s':''} repetido${dupCods.size>1?'s':''} · ${dupTotal} registros afetados</span>
-        </div>
-        <button class="ro-hide-on-ro" onclick="resolverDuplicatas()" style="font-size:11px;font-weight:600;color:#f05252;background:rgba(240,82,82,.12);border:1px solid rgba(240,82,82,.3);border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap">
-          ⚡ Resolver Duplicatas
-        </button>`;
+    const hasReal  = dupRealCods.size  > 0;
+    const hasMulti = dupMultiCods.size > 0;
+    if (hasReal || hasMulti) {
+      banner.style.cssText = 'display:flex;flex-direction:column;gap:8px;padding:10px 14px;margin-bottom:12px;border-radius:9px;background:var(--bg3);border:1px solid var(--border2)';
+      let _bi = '';
+      if (hasReal) {
+        _bi += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:rgba(240,82,82,.1);border:1px solid rgba(240,82,82,.35);border-radius:8px;padding:9px 12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2L14 13H2L8 2Z" stroke="#f05252" stroke-width="1.4" stroke-linejoin="round" fill="rgba(240,82,82,.15)"/><path d="M8 6v3.5M8 11v.5" stroke="#f05252" stroke-width="1.4" stroke-linecap="round"/></svg>
+            <span style="font-size:12px;font-weight:600;color:#f05252">🔴 Duplicata real</span>
+            <span style="font-size:12px;color:var(--text)">${dupRealCods.size} código${dupRealCods.size>1?'s':''} com NF ou Chassi repetidos · ${dupTotal} registro${dupTotal>1?'s':''} afetado${dupTotal>1?'s':''}</span>
+          </div>
+          <button class="ro-hide-on-ro" onclick="resolverDuplicatas()" style="font-size:11px;font-weight:600;color:#f05252;background:rgba(240,82,82,.12);border:1px solid rgba(240,82,82,.3);border-radius:6px;padding:5px 12px;cursor:pointer;white-space:nowrap">
+            ⚡ Resolver Duplicatas
+          </button>
+        </div>`;
+      }
+      if (hasMulti) {
+        _bi += `<div style="display:flex;align-items:center;gap:10px;background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.3);border-radius:8px;padding:9px 12px">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#4f8ef7" stroke-width="1.4" fill="rgba(79,142,247,.12)"/><path d="M8 5v3M8 10v.5" stroke="#4f8ef7" stroke-width="1.4" stroke-linecap="round"/></svg>
+          <span style="font-size:12px;font-weight:600;color:#4f8ef7">🔵 Venda múltipla no mesmo Lead</span>
+          <span style="font-size:12px;color:var(--text)">${dupMultiCods.size} Cód. Lead com mais de uma venda · NF e Chassi distintos · nenhuma ação necessária</span>
+        </div>`;
+      }
+      banner.innerHTML = _bi;
     } else {
       banner.style.display = 'none';
     }
@@ -3377,6 +3465,7 @@ const renderAnaliseDebounced = debounce(() => renderAnalise(), 300);
 // Cache de vendas: evita full scan repetido dentro de 60 segundos
 let _vendasFbCache = null;
 let _vendasFbCacheTs = 0;
+let _lastCrossDocs = null; // cache para filtros do comparativo Recebeu×Faturou
 const _VENDAS_CACHE_TTL = 60000; // 60s
 
 async function _getVendasFb(force = false) {
@@ -3461,6 +3550,17 @@ async function renderAnalise() {
         `</div></div></div>`;
     } else {
       distEl.style.display = 'none';
+    }
+
+    // Salvar docs para filtros locais do comparativo Recebeu×Faturou
+    _lastCrossDocs = docs;
+    // Popular select de meses do comparativo
+    const _crossMesEl = document.getElementById('cross-flt-mes');
+    if (_crossMesEl) {
+      const _mesesDisp = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
+      const _mesAtualCross = _crossMesEl.value;
+      _crossMesEl.innerHTML = '<option value="">Todos os meses</option>' +
+        _mesesDisp.map(m => `<option value="${m}"${m===_mesAtualCross?' selected':''}>${m}</option>`).join('');
     }
 
     const totalGeral = docs.length;
@@ -3549,15 +3649,20 @@ async function renderAnalise() {
     document.getElementById('an-vfat-list').innerHTML = rankHtml(fatRows, maxFat, '#2ec98a');
 
     // ── 4. Cross — Recebeu × Faturou + detecção de pré-vendas ───────────────
+    renderCrossSection(docs);
+  } catch(e) { toast('Erro ao carregar análise: ' + e.message); console.error(e); }
+}
+
+// Renderiza o comparativo Recebeu×Faturou — chamada por renderAnalise e renderCrossFiltered
+function renderCrossSection(_csDocs) {
     const pvNames = _pvNamesSet();
 
     // Para cada nome no Faturou que for pré-venda, coleta os cods de lead
     const pvFatCods = {}; // nome_lower → [cod1, cod2, ...]
-    docs.forEach(v => {
+    _csDocs.forEach(v => {
       const nome = (v.vendedorFaturou||'').trim();
       if (!nome) return;
       const nomeLow = nome.toLowerCase();
-      // Verifica se algum nome de pré-venda é substring de palavra no nome
       for (const pvN of pvNames) {
         const re = new RegExp(`\\b${pvN}\\b`, 'i');
         if (re.test(nome)) {
@@ -3566,6 +3671,12 @@ async function renderAnalise() {
           break;
         }
       }
+    });
+
+    const byRec = {}; const byFat = {};
+    _csDocs.forEach(v => {
+      const r = (v.vendedorRecebeu||'').trim(); if (r) byRec[r] = (byRec[r]||0) + 1;
+      const f = (v.vendedorFaturou||'').trim(); if (f) byFat[f] = (byFat[f]||0) + 1;
     });
 
     const allNames = new Set([...Object.keys(byRec), ...Object.keys(byFat)]);
@@ -3639,8 +3750,63 @@ async function renderAnalise() {
             <div style="font-size:13px;font-family:var(--mono);font-weight:700;color:${deltaC};text-align:right">${delta===0?'—':deltaStr}</div>
           </div>`;
         }).join('');
+}
 
-  } catch(e) { toast('Erro ao carregar análise: ' + e.message); console.error(e); }
+// Aplica filtros locais do comparativo e re-renderiza
+function renderCrossFiltered() {
+  if (!_lastCrossDocs) return;
+  const fMarca  = document.getElementById('cross-flt-marca')?.value  || '';
+  const fCidade = document.getElementById('cross-flt-cidade')?.value || '';
+  const fMes    = document.getElementById('cross-flt-mes')?.value    || '';
+  let filtered  = _lastCrossDocs;
+  if (fMarca)  filtered = filtered.filter(d => d.marca === fMarca);
+  if (fCidade) filtered = filtered.filter(d => d.filial === fCidade);
+  if (fMes)    filtered = filtered.filter(d => (d.dtFat||'').startsWith(fMes));
+  renderCrossSection(filtered);
+}
+
+// Exporta tabela Recebeu×Faturou filtrada para XLSX
+async function exportCrossXLSX() {
+  if (!_lastCrossDocs) { toast('Carregue a análise primeiro.'); return; }
+  const fMarca  = document.getElementById('cross-flt-marca')?.value  || '';
+  const fCidade = document.getElementById('cross-flt-cidade')?.value || '';
+  const fMes    = document.getElementById('cross-flt-mes')?.value    || '';
+  let docs = _lastCrossDocs;
+  if (fMarca)  docs = docs.filter(d => d.marca === fMarca);
+  if (fCidade) docs = docs.filter(d => d.filial === fCidade);
+  if (fMes)    docs = docs.filter(d => (d.dtFat||'').startsWith(fMes));
+
+  // Construir crossRows
+  const byRec = {}; const byFat = {};
+  docs.forEach(v => {
+    const r = (v.vendedorRecebeu||'').trim(); if (r) byRec[r] = (byRec[r]||0) + 1;
+    const f = (v.vendedorFaturou||'').trim(); if (f) byFat[f] = (byFat[f]||0) + 1;
+  });
+  const allNames = new Set([...Object.keys(byRec), ...Object.keys(byFat)]);
+  const rows = [...allNames].map(nome => ({
+    nome, rec: byRec[nome]||0, fat: byFat[nome]||0,
+    delta: (byFat[nome]||0) - (byRec[nome]||0)
+  })).sort((a,b) => (b.rec + b.fat) - (a.rec + a.fat));
+
+  if (!rows.length) { toast('Nenhum dado para exportar.'); return; }
+
+  // Labels de filtro para o nome do arquivo
+  const lblMarca  = fMarca  || 'Todas as marcas';
+  const lblCidade = fCidade || 'Todas as cidades';
+  const lblMes    = fMes    || 'Todos os meses';
+
+  const wsData = [
+    ['Vendedor', 'Recebeu Lead', 'Faturou', 'Δ Saldo', 'Marca', 'Cidade', 'Mês'],
+    ...rows.map(r => [r.nome, r.rec, r.fat, r.delta, lblMarca, lblCidade, lblMes])
+  ];
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  ws['!cols'] = [200,100,100,90,120,140,100].map(w => ({ wch: Math.round(w/7) }));
+  XLSX.utils.book_append_sheet(wb, ws, 'Recebeu x Faturou');
+  const fn = `comparativo_recebeu_faturou_${fMarca||'todas'}_${fMes||'todos'}.xlsx`;
+  XLSX.writeFile(wb, fn);
+  toast(`✅ XLSX exportado · ${rows.length} vendedor(es)`);
 }
 
 
