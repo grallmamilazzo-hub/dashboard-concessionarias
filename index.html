@@ -749,7 +749,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="hist-wrap">
           <table class="tbl">
             <thead><tr>
-              <th>Data</th><th>Marca</th><th>Filial</th>
+              <th style="font-family:var(--mono);font-size:11px;color:var(--muted);width:32px;text-align:center">#</th><th>Data</th><th>Marca</th><th>Filial</th>
               <th>Vendas</th><th>Pv.Rec</th><th>Pv.Nao</th>
               <th>Rs.Rec</th><th>Rs.Nao</th><th>Fl.Rec</th><th>Fl.Nao</th>
               <th>Tipos</th><th>Ações</th>
@@ -1004,7 +1004,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           <div style="overflow-x:auto">
             <table class="tbl" id="vv-table">
               <thead><tr>
-                <th>Data Fat.</th><th>Marca</th><th>Filial</th><th>Cód Lead</th>
+                <th style="font-family:var(--mono);font-size:11px;color:var(--muted);width:32px;text-align:center">#</th><th>Data Fat.</th><th>Marca</th><th>Filial</th><th>Cód Lead</th>
                 <th>Atendente</th><th>Pré-venda</th><th>Vendedor Faturou</th><th>Mídia</th><th>NF</th>
                 <th style="position:sticky;right:135px;background:var(--bg2);z-index:2;box-shadow:-2px 0 6px rgba(0,0,0,.18)">Status</th><th class="ro-hide-on-ro" style="position:sticky;right:0;background:var(--bg2);z-index:2">Ações</th>
               </tr></thead>
@@ -2371,7 +2371,7 @@ function renderHist() {
   const pg=f.slice(hPage*PG,(hPage+1)*PG);
   if(f.length===0){tb.innerHTML='';em.style.display='block';inf.textContent='0 registros';pv.disabled=nx.disabled=true;return;}
   em.style.display='none';inf.textContent=`${f.length} reg · pág ${hPage+1}/${tp}`;pv.disabled=hPage===0;nx.disabled=hPage>=tp-1;
-  tb.innerHTML=pg.map(e=>{
+  tb.innerHTML=pg.map((e,i)=>{
     const key=encodeURIComponent(`${e.ds}||${e.m}||${e.f}`);
     const cl=COLORS[e.m]||'#888';
     const pnao=Math.max(0,e.prec-(e.patend||0));
@@ -2380,7 +2380,7 @@ function renderHist() {
     const tipos=(e.ok>0?`<span style="color:#2ec98a">${e.ok}OK</span> `:'')+
                 (e.sy>0?`<span style="color:#4f8ef7">${e.sy}Sy</span> `:'')+
                 (e.ma>0?`<span style="color:#f5a623">${e.ma}Ma</span>`:'') || '<span style="color:var(--muted)">—</span>';
-    return `<tr><td style="font-family:var(--mono);font-size:12px">${fmtD(e.ds)}</td><td><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 6px;border-radius:4px;font-weight:500">${e.m}</span></td><td>${e.f}</td><td style="font-family:var(--mono);text-align:center">${e.v}</td><td style="font-family:var(--mono);text-align:center">${e.prec}</td><td style="font-family:var(--mono);text-align:center;color:${pnao>0?'var(--amber)':'var(--muted)'}">${pnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.rrec||0}</td><td style="font-family:var(--mono);text-align:center;color:${rnao>0?'var(--red)':'var(--muted)'}">${rnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.frec||0}</td><td style="font-family:var(--mono);text-align:center;color:${fnao>0?'var(--red)':'var(--muted)'}">${fnao}</td><td style="font-size:11px">${tipos}</td><td style="display:flex;gap:5px;padding:7px 10px"><button class="btn-ico edit" onclick="openEdit('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Editar</button><button class="btn-ico del" onclick="openDel('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Excluir</button></td></tr>`;
+    return `<tr><td style="font-family:var(--mono);font-size:11px;text-align:center;color:var(--muted);padding:0 6px">${hPage*PG+i+1}</td><td style="font-family:var(--mono);font-size:12px">${fmtD(e.ds)}</td><td><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 6px;border-radius:4px;font-weight:500">${e.m}</span></td><td>${e.f}</td><td style="font-family:var(--mono);text-align:center">${e.v}</td><td style="font-family:var(--mono);text-align:center">${e.prec}</td><td style="font-family:var(--mono);text-align:center;color:${pnao>0?'var(--amber)':'var(--muted)'}">${pnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.rrec||0}</td><td style="font-family:var(--mono);text-align:center;color:${rnao>0?'var(--red)':'var(--muted)'}">${rnao}</td><td style="font-family:var(--mono);text-align:center;color:var(--muted)">${e.frec||0}</td><td style="font-family:var(--mono);text-align:center;color:${fnao>0?'var(--red)':'var(--muted)'}">${fnao}</td><td style="font-size:11px">${tipos}</td><td style="display:flex;gap:5px;padding:7px 10px"><button class="btn-ico edit" onclick="openEdit('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M8.5 1.5l2 2L4 10H2v-2L8.5 1.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Editar</button><button class="btn-ico del" onclick="openDel('${key}')"><svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M2 3h8M5 3V2h2v1M4 3v7h4V3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Excluir</button></td></tr>`;
   }).join('');
 }
 function hPg(d){hPage+=d;renderHist();}
@@ -3261,13 +3261,14 @@ async function renderVendas() {
     }
     empty.style.display = 'none';
     const cl = m => {const c=COLORS[m];return c?`background:${c}22;color:${c};`:'';};
-    tbody.innerHTML = docs.map(v => {
+    tbody.innerHTML = docs.map((v,i) => {
       const isDup = dupCods.has(v.cod);
       const dupBadge = isDup
         ? `<span title="Cód ${v.cod} aparece ${codCount[v.cod]}x" style="font-size:9px;font-weight:700;color:#f05252;background:rgba(240,82,82,.15);border:1px solid rgba(240,82,82,.3);border-radius:3px;padding:1px 4px;margin-left:5px;vertical-align:middle">DUP</span>`
         : '';
       return `
       <tr style="${isDup?'background:rgba(240,82,82,.04)':''}">
+        <td style="font-family:var(--mono);font-size:11px;text-align:center;color:var(--muted);padding:0 6px">${i+1}</td>
         <td style="font-family:var(--mono);font-size:12px">${fmtD(v.dtFat||'')}</td>
         <td><span style="font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;${cl(v.marca)}">${v.marca}</span></td>
         <td style="font-size:12px">${v.filial||'—'}</td>
@@ -3788,6 +3789,11 @@ function renderCrossFiltered() {
 // Exporta tabela Recebeu×Faturou filtrada para XLSX
 async function exportCrossXLSX() {
   if (!_lastCrossDocs) { toast('Carregue a análise primeiro.'); return; }
+  if (typeof XLSX === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    await new Promise((res, rej) => { script.onload = res; script.onerror = rej; document.head.appendChild(script); });
+  }
   const fMarca  = document.getElementById('cross-flt-marca')?.value  || '';
   const fCidade = document.getElementById('cross-flt-cidade')?.value || '';
   const fMes    = document.getElementById('cross-flt-mes')?.value    || '';
