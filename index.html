@@ -76,7 +76,7 @@ input[type=date]{background:var(--bg3);border:1px solid var(--border2);color:var
 .chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px}
 .chart-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
 .chart-ttl{font-size:13px;font-weight:600;color:var(--text)}
-.bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.bottom-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:20px}
 
 /* FUNIL */
 .funil-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px}
@@ -323,6 +323,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
   body.directors .kpi-card{min-height:88px;cursor:default}
   body.directors #kpi-resgate,
   body.directors #kpi-prevenda{cursor:pointer;-webkit-tap-highlight-color:rgba(79,142,247,.15)}
+  body.directors #kpi-vendas{cursor:pointer;-webkit-tap-highlight-color:rgba(79,142,247,.15)}
 
   /* Funil mais compacto */
   body.directors .fn-lbl{font-size:11px}
@@ -331,8 +332,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
   /* Conv breakdown: 1 col em telas muito pequenas */
   body.directors #conv-grid{grid-template-columns:1fr!important}
 
-  /* Alertas de meta — scroll horizontal se necessário */
-  body.directors .alerts-card{overflow-x:auto}
+  /* alerts-card removido do dashboard */
   body.directors .al-row{min-width:260px}
 
   /* Sparklines: 1 col em directors para leitura mais fácil */
@@ -491,8 +491,8 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="alert-cnt" id="alert-cnt"></div>
       </div>
       <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-lbl">Vendas Registradas</div>
+        <div class="kpi-card" id="kpi-vendas" onclick="openVendasModal()" style="cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor=''">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="kpi-lbl" style="margin-bottom:0">Vendas Registradas</div><svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="opacity:.4;flex-shrink:0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="kpi-val" id="kv">—</div>
           <div class="kpi-sub"><span class="badge up" id="kb">—</span><span id="kb-label">vs ontem</span></div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px" id="kv-sub-extra">total registrado (NF/Chassi)</div>
@@ -556,8 +556,19 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         </div>
       </div>
 
-      <div class="charts-row">
-        <div class="chart-card">
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="chart-hdr">
+          <div class="chart-ttl">Tendência por marca — últimos 7 dias</div>
+          <div style="font-size:11px;color:var(--muted)">vendas identificadas</div>
+        </div>
+        <div id="sparklines-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px"></div>
+      </div>
+      <div class="chart-card" style="margin-bottom:20px">
+        <div class="chart-hdr"><div class="chart-ttl">Evolução — últimos 14 dias</div></div>
+        <div style="position:relative;height:170px"><canvas id="ch-evolucao"></canvas></div>
+      </div>
+      <div class="bottom-row">
+        <div class="chart-card" style="margin-bottom:0">
           <div class="chart-hdr">
             <div class="chart-ttl">Vendas por filial</div>
             <div style="display:flex;gap:12px">
@@ -567,8 +578,6 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           </div>
           <div style="position:relative;height:210px"><canvas id="ch-filiais"></canvas></div>
         </div>
-      </div>
-      <div class="bottom-row">
         <div class="funil-card">
           <div class="sec-hdr">
             <div><div class="sec-ttl">Funil de conversão</div><div class="sec-sub">pré-venda → atendimento → venda</div></div>
@@ -601,23 +610,6 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div><div style="font-size:11px;color:var(--muted)">Taxa conversão</div><div style="font-size:17px;font-weight:600;font-family:var(--mono);color:var(--green)" id="tx-conv">—</div></div>
           </div>
         </div>
-        <div class="alerts-card">
-          <div class="sec-hdr">
-            <div><div class="sec-ttl">Alertas de meta</div><div class="sec-sub">atingimento por filial hoje</div></div>
-          </div>
-          <div id="alerts-list"></div>
-        </div>
-      </div>
-      <div class="chart-card" style="margin-bottom:20px">
-        <div class="chart-hdr"><div class="chart-ttl">Evolução — últimos 14 dias</div></div>
-        <div style="position:relative;height:170px"><canvas id="ch-evolucao"></canvas></div>
-      </div>
-      <div class="chart-card" style="margin-bottom:20px">
-        <div class="chart-hdr">
-          <div class="chart-ttl">Tendência por marca — últimos 7 dias</div>
-          <div style="font-size:11px;color:var(--muted)">vendas identificadas</div>
-        </div>
-        <div id="sparklines-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px"></div>
       </div>
     </div>
 
@@ -1100,6 +1092,26 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <button class="btn-p" onclick="confirmExportXLSX()">
         <svg width="12" height="12" viewBox="0 0 14 14" fill="none" style="margin-right:5px"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.2"/><path d="M4 7h6M7 4v6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Exportar
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- VENDAS REGISTRADAS MODAL -->
+<div class="modal-ov" id="vendas-modal">
+  <div class="modal" style="width:640px;max-height:85vh;box-sizing:border-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl" id="vm-ttl">Vendas Registradas — Detalhamento</div>
+      <button onclick="closeVendasModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub" id="vm-sub"></div>
+    <div id="vm-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"></div>
+    <div id="vm-list" style="max-height:360px;overflow-y:auto"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap">
+      <button onclick="copyVendasAll()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.25);color:var(--accent);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Copiar consolidado (WhatsApp)
+      </button>
+      <button onclick="closeVendasModal()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;font-family:var(--font);cursor:pointer">Fechar</button>
     </div>
   </div>
 </div>
@@ -2248,7 +2260,8 @@ function renderAlerts(f, all) {
       srBanner.style.display='none';
     }
   }
-  document.getElementById('alerts-list').innerHTML=rows.slice(0,8).map(r=>{
+  const _alEl=document.getElementById('alerts-list'); if(!_alEl) return;
+  _alEl.innerHTML=rows.slice(0,8).map(r=>{
     const dc=r.pct<70?'dot-r':r.pct<90?'dot-a':'dot-g';
     const pc=r.pct<70?'var(--red)':r.pct<90?'var(--amber)':'var(--green)';
     const streak=calcStreak(r.m,r.f,all);
@@ -2462,7 +2475,7 @@ function renderCons() {
     return `<div class="chart-card" style="margin-bottom:10px"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px"><div style="display:flex;align-items:center;gap:8px"><span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600">${MLABELS[m]||m}</span><span style="font-size:12px;color:var(--muted)">${me.length} filiais · ${me.reduce((s,e)=>s+e.v,0)} vendas</span></div><button class="btn-g" onclick="copyMarca('${m}')" style="font-size:11px;padding:4px 9px">Copiar marca</button></div><pre style="font-family:var(--mono);font-size:11px;color:var(--text);white-space:pre-wrap;line-height:1.6;background:var(--bg3);border-radius:6px;padding:11px;border:1px solid var(--border)">${txt.trim()}</pre></div>`;
   }).join('');
   full+=[`——————————————————————————————`,'*FUNIL DO DIA — '+dl+'*',`Pré-vendas recebidas: ${trec}`,`Pré-vendas atendidas: ${tatend}`,`Vendas identificadas: ${tv}`,`Taxa de conversão: *${tc.toFixed(2)}%* — ${getFaixa(tc).label}`].join('\n');
-  full+='\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  full+='\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?token=DIR-2025\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   document.getElementById('cons-txt').textContent=full;
   window._cf=full;
 }
@@ -2632,7 +2645,7 @@ function copyPVAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _pvRowText(r,periodLbl); });
-  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?token=DIR-2025\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, 'Pré-venda copiado!');
 }
 
@@ -2662,6 +2675,110 @@ function closeResgateModal() {
 document.getElementById('resgate-modal').addEventListener('click', e => {
   if(e.target === e.currentTarget) closeResgateModal();
 });
+
+// ── VENDAS REGISTRADAS MODAL ─────────────────────────────────────────────────
+function openVendasModal() {
+  renderVendasModal();
+  document.getElementById('vendas-modal').classList.add('open');
+}
+function closeVendasModal() {
+  document.getElementById('vendas-modal').classList.remove('open');
+}
+document.getElementById('vendas-modal').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeVendasModal();
+});
+
+async function renderVendasModal() {
+  const pMap = {hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td = today().split('-').reverse().join('/'), _yd = lastWorkday().split('-').reverse().join('/');
+  const periodLbl = period==='custom' && customFrom && customTo
+    ? (customFrom===customTo ? customFrom.split('-').reverse().join('/') : customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    : (period==='hoje'?'Hoje · '+_td:period==='ontem'?'Ontem · '+_yd:pMap[period]||period);
+
+  document.getElementById('vm-ttl').textContent = 'Vendas Registradas — Detalhamento';
+  document.getElementById('vm-sub').textContent = `Período: ${periodLbl}${marca!=='todas' ? ' · '+marca : ''}`;
+
+  const docs = await _getVendasFb();
+  const filtered = filterVendasByPeriod(docs);
+
+  // Totais por tipo
+  const totAll      = filtered.length;
+  const totConsid   = filtered.filter(v => v.dentroJanela === true).length;
+  const totNaoConsid= filtered.filter(v => !v.dentroJanela).length;
+  const totResgate  = filtered.filter(v => v.isResgate === true).length;
+
+  document.getElementById('vm-summary').innerHTML = [
+    {l:'Total',          v:totAll,       c:'var(--accent)'},
+    {l:'Consideradas',   v:totConsid,    c:'#2ec98a'},
+    {l:'Não Consid.',    v:totNaoConsid, c:totNaoConsid>0?'var(--amber)':'var(--muted)'},
+    {l:'Resgates',       v:totResgate,   c:'var(--accent2)'}
+  ].map(x=>`<div style="flex:1;min-width:90px;background:var(--bg3);border-radius:8px;padding:9px 12px">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">${x.l}</div>
+    <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>
+  </div>`).join('');
+
+  if (filtered.length === 0) {
+    document.getElementById('vm-list').innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Nenhuma venda no período.</div>';
+    return;
+  }
+
+  // Agrupar por marca+filial
+  const byMF = {};
+  filtered.forEach(v => {
+    const key = (v.marca||'?')+'|'+(v.filial||'?');
+    if (!byMF[key]) byMF[key] = {m:v.marca||'?', f:v.filial||'?', total:0, ok:0, sy:0, ma:0, vendedores:[]};
+    byMF[key].total++;
+    if (v.dentroJanela === true) byMF[key].ok++;
+    else byMF[key].ma++;
+    if (v.isResgate === true) byMF[key].sy++;
+    if (v.atendente) byMF[key].vendedores.push(v.atendente);
+  });
+
+  const rows = Object.values(byMF).sort((a,b) => b.total - a.total);
+
+  document.getElementById('vm-list').innerHTML = rows.map(r => {
+    const cl  = COLORS[r.m]||'#888';
+    const ger = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+    const uniqVend = [...new Set(r.vendedores)];
+    return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="width:8px;height:8px;border-radius:2px;background:${cl};flex-shrink:0;display:inline-block"></span>
+        <span style="font-size:13px;font-weight:600;color:var(--text)">${r.m} · ${r.f}</span>
+        <span style="margin-left:auto;font-size:18px;font-weight:700;font-family:var(--mono);color:var(--accent)">${r.total}</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:5px">${ger}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${r.ok>0?`<span style="font-size:11px;background:rgba(46,201,138,.12);color:#2ec98a;border-radius:4px;padding:2px 7px">✅ Consid.: ${r.ok}</span>`:''}
+        ${r.sy>0?`<span style="font-size:11px;background:rgba(124,95,230,.12);color:var(--accent2);border-radius:4px;padding:2px 7px">🔄 Resgates: ${r.sy}</span>`:''}
+        ${r.ma>0?`<span style="font-size:11px;background:rgba(245,166,35,.12);color:#f5a623;border-radius:4px;padding:2px 7px">⚠️ N.Consid.: ${r.ma}</span>`:''}
+        ${uniqVend.length>0?`<span style="font-size:11px;color:var(--muted)">${uniqVend.slice(0,3).join(', ')}${uniqVend.length>3?' +'+( uniqVend.length-3):''}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function copyVendasAll() {
+  const docs = await _getVendasFb();
+  const filtered = filterVendasByPeriod(docs);
+  const pMap = {hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const periodLbl = period==='custom' && customFrom && customTo
+    ? (customFrom===customTo ? customFrom.split('-').reverse().join('/') : customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    : (pMap[period]||period);
+
+  const byMF = {};
+  filtered.forEach(v => {
+    const key = (v.marca||'?')+'|'+(v.filial||'?');
+    if (!byMF[key]) byMF[key] = {m:v.marca||'?', f:v.filial||'?', total:0};
+    byMF[key].total++;
+  });
+  const rows = Object.values(byMF).sort((a,b)=>b.total-a.total);
+
+  let lines = [`*VENDAS REGISTRADAS — ${periodLbl}*${marca!=='todas'?' · '+marca:''}`,''];
+  rows.forEach(r => lines.push(`${r.m} · ${r.f}: *${r.total}*`));
+  lines.push('', `*Total: ${filtered.length} venda${filtered.length!==1?'s':''}*`);
+
+  navigator.clipboard.writeText(lines.join('\n')).then(()=>toast('✅ Copiado para o WhatsApp!')).catch(()=>toast('❌ Erro ao copiar'));
+}
 
 function rmTab(tab) {
   _rmTab = tab;
@@ -2819,7 +2936,7 @@ function copyResgateAll() {
   txt += `✦ Total: ${totRec} rec · ${totAtend} atend · ${totNao} não atend (${totPct}%)\n`;
   txt += `${'─'.repeat(36)}\n`;
   rows.forEach((r,i) => {  txt += (i>0?'\n\n':'\n') + _resgateRowText(r,isFlua,periodLbl); });
-  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?directors=1\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?token=DIR-2025\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
   cpTxt(txt, `${tipo} copiado!`);
 }
 
@@ -2877,6 +2994,7 @@ function _initDirMes() {
     const y = d.getFullYear();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const val = `${y}-${m}`;
+    if (val < '2026-03') break; // Histórico a partir de Março/2026
     const lbl = d.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
     const lblCap = lbl.charAt(0).toUpperCase() + lbl.slice(1);
     opts += `<option value="${val}"${i === 0 ? ' selected' : ''}>${lblCap}</option>`;
@@ -2915,6 +3033,7 @@ function refresh() {
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
+  if(document.getElementById('vendas-modal')?.classList.contains('open')) renderVendasModal();
   renderChartF(f); renderChartEv(all); renderSparklines(all);
   renderFunil(f); renderAlerts(f, all);
   const lu=localStorage.getItem('db_last');
@@ -3231,7 +3350,7 @@ async function renderVendas() {
     if (mesFlt) docs = docs.filter(d => d.dtFat?.substring(0,7) === mesFlt);
 
     // Preencher filtro de meses disponíveis
-    const meses = [...new Set(allDocs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
+    const meses = [...new Set(allDocs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].filter(m => m >= '2026-03').sort().reverse();
     const mesEl = document.getElementById('vvf-mes');
     const mesAtual = mesEl.value;
     mesEl.innerHTML = '<option value="">Todos os meses</option>' +
@@ -3578,7 +3697,7 @@ async function renderAnalise() {
     // Popular select de meses do comparativo
     const _crossMesEl = document.getElementById('cross-flt-mes');
     if (_crossMesEl) {
-      const _mesesDisp = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].sort().reverse();
+      const _mesesDisp = [...new Set(docs.map(d => d.dtFat?.substring(0,7)).filter(Boolean))].filter(m => m >= '2026-03').sort().reverse();
       const _mesAtualCross = _crossMesEl.value;
       _crossMesEl.innerHTML = '<option value="">Todos os meses</option>' +
         _mesesDisp.map(m => `<option value="${m}"${m===_mesAtualCross?' selected':''}>${m}</option>`).join('');
