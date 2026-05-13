@@ -2726,12 +2726,13 @@ async function renderVendasModal() {
   const byMF = {};
   filtered.forEach(v => {
     const key = (v.marca||'?')+'|'+(v.filial||'?');
-    if (!byMF[key]) byMF[key] = {m:v.marca||'?', f:v.filial||'?', total:0, ok:0, sy:0, ma:0, vendedores:[]};
+    if (!byMF[key]) byMF[key] = {m:v.marca||'?', f:v.filial||'?', total:0, ok:0, sy:0, ma:0, vendedores:[], cods:[]};
     byMF[key].total++;
     if (v.dentroJanela === true) byMF[key].ok++;
     else byMF[key].ma++;
     if (v.isResgate === true) byMF[key].sy++;
-    if (v.atendente) byMF[key].vendedores.push(v.atendente);
+    if (v.vendedorFaturou) byMF[key].vendedores.push(v.vendedorFaturou);
+    if (v.cod) byMF[key].cods.push(v.cod);
   });
 
   const rows = Object.values(byMF).sort((a,b) => b.total - a.total);
@@ -2740,19 +2741,21 @@ async function renderVendasModal() {
     const cl  = COLORS[r.m]||'#888';
     const ger = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
     const uniqVend = [...new Set(r.vendedores)];
+    const codsHtml = r.cods.map(c => `<span style="font-size:10px;font-family:var(--mono);background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:4px;padding:1px 6px">${c}</span>`).join('');
     return `<div style="padding:12px 0;border-bottom:1px solid var(--border)">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
         <span style="width:8px;height:8px;border-radius:2px;background:${cl};flex-shrink:0;display:inline-block"></span>
         <span style="font-size:13px;font-weight:600;color:var(--text)">${r.m} · ${r.f}</span>
         <span style="margin-left:auto;font-size:18px;font-weight:700;font-family:var(--mono);color:var(--accent)">${r.total}</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:5px">${ger}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div style="font-size:11px;color:var(--muted);margin-bottom:6px">${ger}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:${r.cods.length>0?'6':'0'}px">
         ${r.ok>0?`<span style="font-size:11px;background:rgba(46,201,138,.12);color:#2ec98a;border-radius:4px;padding:2px 7px">✅ Consid.: ${r.ok}</span>`:''}
         ${r.sy>0?`<span style="font-size:11px;background:rgba(124,95,230,.12);color:var(--accent2);border-radius:4px;padding:2px 7px">🔄 Resgates: ${r.sy}</span>`:''}
         ${r.ma>0?`<span style="font-size:11px;background:rgba(245,166,35,.12);color:#f5a623;border-radius:4px;padding:2px 7px">⚠️ N.Consid.: ${r.ma}</span>`:''}
-        ${uniqVend.length>0?`<span style="font-size:11px;color:var(--muted)">${uniqVend.slice(0,3).join(', ')}${uniqVend.length>3?' +'+( uniqVend.length-3):''}</span>`:''}
+        ${uniqVend.length>0?`<span style="font-size:11px;color:var(--muted)"><span style="opacity:.5">Faturou:</span> ${uniqVend.join(', ')}</span>`:''}
       </div>
+      ${r.cods.length>0?`<div style="display:flex;gap:4px;flex-wrap:wrap">${codsHtml}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -3815,16 +3818,28 @@ function renderCrossSection(_csDocs) {
 
     const byRec = {}; const byFat = {};
     _csDocs.forEach(v => {
-      const r = (v.vendedorRecebeu||'').trim(); if (r) byRec[r] = (byRec[r]||0) + 1;
-      const f = (v.vendedorFaturou||'').trim(); if (f) byFat[f] = (byFat[f]||0) + 1;
+      const r = (v.vendedorRecebeu||'').trim();
+      if (r) {
+        if (!byRec[r]) byRec[r] = {cnt:0, marcas:new Set()};
+        byRec[r].cnt++;
+        if (v.marca) byRec[r].marcas.add(v.marca);
+      }
+      const f = (v.vendedorFaturou||'').trim();
+      if (f) {
+        if (!byFat[f]) byFat[f] = {cnt:0, marcas:new Set()};
+        byFat[f].cnt++;
+        if (v.marca) byFat[f].marcas.add(v.marca);
+      }
     });
 
     const allNames = new Set([...Object.keys(byRec), ...Object.keys(byFat)]);
     const crossRows = [...allNames].map(nome => ({
       nome,
-      rec: byRec[nome] || 0,
-      fat: byFat[nome] || 0,
-      delta: (byFat[nome]||0) - (byRec[nome]||0)
+      rec:      byRec[nome]?.cnt || 0,
+      recMarcas:byRec[nome]?.marcas || new Set(),
+      fat:      byFat[nome]?.cnt || 0,
+      fatMarcas:byFat[nome]?.marcas || new Set(),
+      delta: (byFat[nome]?.cnt||0) - (byRec[nome]?.cnt||0)
     })).sort((a,b) => (b.rec + b.fat) - (a.rec + a.fat));
 
     const maxVal = Math.max(...crossRows.map(r => Math.max(r.rec, r.fat)), 1);
@@ -3873,21 +3888,29 @@ function renderCrossSection(_csDocs) {
           const pvBadge = isPvError
             ? `<span title="⚠️ Pré-venda registrado como Faturou&#10;Lead(s): ${pvCods.length > 0 ? pvCods.join(', ') : 'sem cod'}" style="margin-left:6px;cursor:help;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(240,82,82,.18);border:1px solid rgba(240,82,82,.4);font-size:10px;vertical-align:middle;flex-shrink:0" aria-label="Erro: pré-venda no campo Faturou">⚠</span>`
             : '';
-          return `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)${isPvError?';background:rgba(240,82,82,.04)':''}">
-            <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:0" title="${r.nome}">${r.nome}${pvBadge}</div>
-            <div style="display:flex;align-items:center;gap:7px">
-              <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
-                <div style="height:100%;width:${r.rec/maxVal*100}%;background:#4f8ef7;border-radius:4px"></div>
+          const recMarcasHtml = [...r.recMarcas].map(m=>`<span style="font-size:9px;font-weight:700;background:${COLORS[m]||'#555'}22;color:${COLORS[m]||'#aaa'};border:1px solid ${COLORS[m]||'#555'}44;border-radius:3px;padding:0 5px;line-height:16px">${(MLABELS[m]||m).replace('ALLMA ','')}</span>`).join('');
+          const fatMarcasHtml = [...r.fatMarcas].map(m=>`<span style="font-size:9px;font-weight:700;background:${COLORS[m]||'#555'}22;color:${COLORS[m]||'#aaa'};border:1px solid ${COLORS[m]||'#555'}44;border-radius:3px;padding:0 5px;line-height:16px">${(MLABELS[m]||m).replace('ALLMA ','')}</span>`).join('');
+          return `<div style="display:grid;grid-template-columns:160px 1fr 1fr 90px;gap:6px;align-items:start;padding:8px 0;border-bottom:1px solid var(--border)${isPvError?';background:rgba(240,82,82,.04)':''}">
+            <div style="font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:0;padding-top:2px" title="${r.nome}">${r.nome}${pvBadge}</div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+                  <div style="height:100%;width:${r.rec/maxVal*100}%;background:#4f8ef7;border-radius:4px"></div>
+                </div>
+                <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:#4f8ef7;width:24px;text-align:right">${r.rec}</span>
               </div>
-              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:#4f8ef7;width:24px;text-align:right">${r.rec}</span>
+              ${recMarcasHtml?`<div style="display:flex;gap:3px;flex-wrap:wrap">${recMarcasHtml}</div>`:''}
             </div>
-            <div style="display:flex;align-items:center;gap:7px">
-              <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
-                <div style="height:100%;width:${r.fat/maxVal*100}%;background:${isPvError?'#f05252':'#2ec98a'};border-radius:4px"></div>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:center;gap:7px">
+                <div style="flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden">
+                  <div style="height:100%;width:${r.fat/maxVal*100}%;background:${isPvError?'#f05252':'#2ec98a'};border-radius:4px"></div>
+                </div>
+                <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:${isPvError?'#f05252':'#2ec98a'};width:24px;text-align:right">${r.fat}</span>
               </div>
-              <span style="font-size:12px;font-family:var(--mono);font-weight:600;color:${isPvError?'#f05252':'#2ec98a'};width:24px;text-align:right">${r.fat}</span>
+              ${fatMarcasHtml?`<div style="display:flex;gap:3px;flex-wrap:wrap">${fatMarcasHtml}</div>`:''}
             </div>
-            <div style="font-size:13px;font-family:var(--mono);font-weight:700;color:${deltaC};text-align:right">${delta===0?'—':deltaStr}</div>
+            <div style="font-size:13px;font-family:var(--mono);font-weight:700;color:${deltaC};text-align:right;padding-top:2px">${delta===0?'—':deltaStr}</div>
           </div>`;
         }).join('');
 }
