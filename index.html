@@ -16,6 +16,32 @@
   --green:#2ec98a;--amber:#f5a623;--red:#f05252;
   --font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;
 }
+/* ── TEMA CLARO ─────────────────────────────────────────── */
+body.theme-light{
+  --bg:#f0f2f7;--bg2:#ffffff;--bg3:#e4e8f0;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:#1a1d27;--muted:#6b7385;
+  --accent:#3b7de8;--accent2:#6d4fd4;
+  --green:#14a069;--amber:#d97706;--red:#dc2626;
+}
+/* ── TEMA AUTO (segue sistema) ──────────────────────────── */
+@media(prefers-color-scheme:light){
+  body.theme-auto{
+    --bg:#f0f2f7;--bg2:#ffffff;--bg3:#e4e8f0;
+    --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+    --text:#1a1d27;--muted:#6b7385;
+    --accent:#3b7de8;--accent2:#6d4fd4;
+    --green:#14a069;--amber:#d97706;--red:#dc2626;
+  }
+}
+/* ── Ajustes no tema claro ──────────────────────────────── */
+body.theme-light .sb,body.theme-auto .sb{box-shadow:1px 0 0 var(--border)}
+body.theme-light .topbar,body.theme-auto .topbar{box-shadow:0 1px 0 var(--border)}
+body.theme-light select,body.theme-light input[type=date],
+body.theme-auto  select,body.theme-auto  input[type=date]{box-shadow:inset 0 1px 2px rgba(0,0,0,.06)}
+body.theme-light .flt-btn.active,body.theme-auto .flt-btn.active{box-shadow:0 1px 3px rgba(0,0,0,.14)}
+/* Cultura banner texto no tema claro */
+body.theme-light #cultura-banner,body.theme-auto #cultura-banner{border-color:rgba(79,142,247,.25);background:rgba(79,142,247,.06)}
 html{font-size:15px}
 body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex}
 
@@ -201,6 +227,7 @@ body.readonly .ro-banner{display:flex}
 body:not(.readonly) .ro-banner{display:none}
 body.readonly .ro-hide-on-ro{display:none!important}
 body.directors .dir-hide{display:none!important}
+ body.directors #cultura-banner{display:none!important}
 body.directors .dir-banner{display:flex!important}
 body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transform .1s}
 
@@ -350,6 +377,23 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 @media(max-width:700px){
   .mob-period-show{display:flex!important}
 }
+/* ── THEME TOGGLE ────────────────────────────────────────── */
+.theme-toggle-wrap{display:flex;gap:4px;padding:10px 18px 0}
+.theme-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:1px solid var(--border2);border-radius:8px;background:var(--bg3);cursor:pointer;font-size:9px;font-weight:600;color:var(--muted);font-family:var(--font);transition:all .15s;letter-spacing:.04em;text-transform:uppercase}
+.theme-btn:hover{border-color:var(--accent);color:var(--text)}
+.theme-btn.active{border-color:var(--accent);background:rgba(79,142,247,.12);color:var(--accent)}
+/* ── CULTURA BANNER ──────────────────────────────────────── */
+#cultura-banner{background:rgba(79,142,247,.07);border:1px solid rgba(79,142,247,.18);border-radius:12px;margin-bottom:20px;overflow:hidden;transition:border-color .2s}
+#cultura-banner .cb-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;user-select:none;-webkit-user-select:none}
+#cultura-banner .cb-header:hover{background:rgba(79,142,247,.06)}
+#cultura-banner .cb-title{font-size:12px;font-weight:700;color:var(--accent);flex:1;letter-spacing:.02em}
+#cultura-banner .cb-chevron{transition:transform .25s;color:var(--muted);flex-shrink:0}
+#cultura-banner.cb-open .cb-chevron{transform:rotate(180deg)}
+#cultura-banner .cb-body{padding:0 16px 14px;font-size:12px;color:var(--muted);line-height:1.7;display:none}
+#cultura-banner.cb-open .cb-body{display:block}
+#cultura-banner .cb-section{margin-bottom:10px}
+#cultura-banner .cb-section:last-child{margin-bottom:0}
+#cultura-banner .cb-section-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
 </style>
 </head>
 <body>
@@ -410,6 +454,21 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
     <div class="nav-lbl">Config</div>
     <button class="nav-btn" onclick="authLogout()" style="color:var(--muted)">
       <svg class="nav-ico" viewBox="0 0 16 16" fill="none"><path d="M6 3H3a1 1 0 00-1 1v8a1 1 0 001 1h3M10 5l3 3-3 3M6 8h7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Sair / Trocar acesso
+    </button>
+  </div>
+  <!-- THEME TOGGLE -->
+  <div class="theme-toggle-wrap">
+    <button class="theme-btn" id="theme-btn-dark"  onclick="setTheme('dark')"  title="Tema escuro">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M14 10.4A6 6 0 116.6 2a4.8 4.8 0 107.4 8.4z" fill="currentColor"/></svg>
+      Escuro
+    </button>
+    <button class="theme-btn" id="theme-btn-light" onclick="setTheme('light')" title="Tema claro">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.22 3.22l1.42 1.42M11.36 11.36l1.42 1.42M11.36 4.64l1.42-1.42M3.22 12.78l1.42-1.42" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Claro
+    </button>
+    <button class="theme-btn" id="theme-btn-auto"  onclick="setTheme('auto')"  title="Seguir sistema">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 13v2M11 13v2M3 15h10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      Auto
     </button>
   </div>
   <div class="sb-foot">
@@ -473,6 +532,25 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div style="width:8px;height:8px;border-radius:50%;background:#7c5fe6;flex-shrink:0;animation:pulse 1.8s ease-in-out infinite"></div>
         <div style="font-size:13px;color:#c3abf7;flex:1">Filiais sem relatório hoje: <span id="alert-sr-nomes" style="font-weight:600;color:#d4bdfa"></span></div>
         <div id="alert-sr-cnt" style="font-size:12px;font-weight:600;color:#7c5fe6;background:rgba(124,95,230,.15);padding:3px 10px;border-radius:20px;white-space:nowrap"></div>
+      </div>
+
+      <!-- CULTURA DE DADOS BANNER -->
+      <div id="cultura-banner">
+        <div class="cb-header" onclick="toggleCultura()">
+          <span style="font-size:15px;flex-shrink:0">📊</span>
+          <div class="cb-title">Cultura de Dados com Responsabilidade</div>
+          <svg class="cb-chevron" width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="cb-body">
+          <div class="cb-section">
+            <div class="cb-section-title">📊 Inteligência de Negócio</div>
+            Este painel foi desenvolvido para transformar dados em inteligência de negócio, auxiliando no monitoramento de leads, conversões e ROI. Use estas informações para guiar suas metas diárias e estratégias de vendas.
+          </div>
+          <div class="cb-section" style="border-top:1px solid var(--border);padding-top:10px">
+            <div class="cb-section-title" style="color:var(--amber)">🔒 Segurança da Informação</div>
+            Todos os indicadores aqui expostos são de propriedade <strong style="color:var(--text)">confidencial do Grupo Allma Milazzo</strong>. Não é permitido o compartilhamento de prints, relatórios ou dados brutos com terceiros ou em ambientes externos. Mantenha nossa vantagem estratégica protegida.
+          </div>
+        </div>
       </div>
 
       <!-- FRASE DO DIA -->
@@ -1954,6 +2032,36 @@ function getFaixa(pct) {
   if (pct <= 5.00) return { label:'Excelência / Alta Performance', cor:'#2ec98a', bg:'rgba(46,201,138,.12)' };
   return { label:'Exponencial / Outlier', cor:'#7c5fe6', bg:'rgba(124,95,230,.12)' };
 }
+
+// ── TEMA ─────────────────────────────────────────────────────────────────────
+function setTheme(t) {
+  localStorage.setItem('allma-theme', t);
+  document.body.classList.remove('theme-dark','theme-light','theme-auto');
+  if (t !== 'dark') document.body.classList.add('theme-' + t);
+  ['dark','light','auto'].forEach(k => {
+    const b = document.getElementById('theme-btn-' + k);
+    if (b) b.classList.toggle('active', k === t);
+  });
+}
+(function initTheme() {
+  const saved = localStorage.getItem('allma-theme') || 'dark';
+  setTheme(saved);
+})();
+
+// ── CULTURA BANNER ──────────────────────────────────────────────────────────
+function toggleCultura() {
+  const el = document.getElementById('cultura-banner');
+  if (!el) return;
+  const open = el.classList.toggle('cb-open');
+  localStorage.setItem('allma-cultura-open', open ? '1' : '0');
+}
+(function initCultura() {
+  // Aberto por padrão na primeira visita, recolhido depois se usuário fechou
+  const saved = localStorage.getItem('allma-cultura-open');
+  const el = document.getElementById('cultura-banner');
+  if (!el) return;
+  if (saved === null || saved === '1') el.classList.add('cb-open');
+})();
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let period='hoje', marca='todas', charts={}, hPage=0, pendingDel=null;
