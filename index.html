@@ -572,7 +572,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="kpi-card" id="kpi-vendas" onclick="openVendasModal()" style="cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor=''">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px"><div class="kpi-lbl" style="margin-bottom:0">Vendas Registradas</div><svg width="12" height="12" viewBox="0 0 16 16" fill="none" style="opacity:.4;flex-shrink:0"><path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
           <div class="kpi-val" id="kv">—</div>
-          <div class="kpi-sub"><span class="badge up" id="kb">—</span><span id="kb-label">vs ontem</span></div>
+          <div class="kpi-sub"><span class="badge up" id="kb">—</span><span id="kb-label">vs mês passado</span></div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px" id="kv-sub-extra">total registrado (NF/Chassi)</div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kvb" style="background:var(--accent);width:0%"></div></div>
         </div>
@@ -585,7 +585,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <div class="kpi-card" id="kc-card">
           <div class="kpi-lbl">Conversão Total</div>
           <div class="kpi-val" id="kc">—</div>
-          <div class="kpi-sub"><span class="badge nt" id="kcb">—</span></div>
+          <div class="kpi-sub"><span class="badge nt" id="kcb">—</span><span id="kc-delta" style="font-size:11px;color:var(--muted);margin-left:6px"></span></div>
           <div id="kc-faixa" style="font-size:11px;font-weight:600;margin-top:4px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
           <div class="kpi-bar"><div class="kpi-bar-fill" id="kcbar" style="width:0%"></div></div>
         </div>
@@ -619,18 +619,21 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#2ec98a;margin-top:4px" id="kc-ok">—</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas OK / pré-vendas rec.</div>
           <div id="kc-ok-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
+          <div id="kc-ok-delta" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
         </div>
         <div class="kpi-card" style="border-left:3px solid #4f8ef7">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#4f8ef7;display:inline-block;flex-shrink:0"></span>Conversão — Syonet Master</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#4f8ef7;margin-top:4px" id="kc-sy">—</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Syonet / pré-vendas rec.</div>
           <div id="kc-sy-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
+          <div id="kc-sy-delta" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
         </div>
         <div class="kpi-card" style="border-left:3px solid #f5a623">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#f5a623;display:inline-block;flex-shrink:0"></span>Conversão — Proc. Manual</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#f5a623;margin-top:4px" id="kc-ma">—</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Manuais / pré-vendas rec.</div>
           <div id="kc-ma-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
+          <div id="kc-ma-delta" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
         </div>
       </div>
 
@@ -2151,12 +2154,12 @@ function calcKPIs(f) {
   Object.values(byF).forEach(x=>{const mt=METAS[`${x.m}|${x.f}`]||10;if(x.v>=mt*.9)nm++;nt++;});
   return{tv,trec,tatend,tres,totalResgateRec,totalResgateAtend,totalFluaRec,totalFluaAtend,txAtend,txConv,txConvOk,txConvSy,txConvMa,nm,nt};
 }
-function renderKPIs(k,pk) {
+function renderKPIs(k,pk,pm) {
   const vd=pk?Math.round(((k.tv-pk.tv)/(pk.tv||1))*100):0;
   document.getElementById('kv').textContent=k.tv;
   const kb=document.getElementById('kb');kb.textContent=(vd>=0?'+':'')+vd+'%';kb.className='badge '+(vd>=0?'up':'dn');
   const kbLbl=document.getElementById('kb-label');
-  if(kbLbl){ const dow=new Date().getDay(); kbLbl.textContent = dow===1 ? 'vs sábado' : dow===0 ? 'vs sábado' : 'vs ontem'; }
+  if(kbLbl){ kbLbl.textContent = 'vs mês passado'; }
   document.getElementById('kvb').style.width=Math.min(100,Math.round((k.tv/300)*100))+'%';
 
   document.getElementById('ka').textContent=k.tatend;
@@ -2171,11 +2174,17 @@ function renderKPIs(k,pk) {
   document.getElementById('kcbar').style.width=Math.min(100,k.txConv*10)+'%';
   document.getElementById('kcbar').style.background=fTotal.cor;
   const fEl=document.getElementById('kc-faixa'); if(fEl){fEl.textContent=fTotal.label;fEl.style.background=fTotal.bg;fEl.style.color=fTotal.cor;}
+  // Delta conversão total vs mês passado
+  const kcDelta=document.getElementById('kc-delta');
+  if(kcDelta&&pm){const cd=pm.txConv>0?parseFloat(((k.txConv-pm.txConv)/pm.txConv*100).toFixed(1)):0;kcDelta.textContent=(cd>=0?'+':'')+cd+'% vs mês passado';kcDelta.style.color=cd>=0?'var(--green)':'var(--red)';}
   // Conversão por tipo
   ['ok','sy','ma'].forEach((tp,i)=>{
     const pct=k['txConv'+['Ok','Sy','Ma'][i]]; const ft=getFaixa(pct);
     const el=document.getElementById('kc-'+tp); if(el) el.textContent=pct.toFixed(2)+'%';
     const fe=document.getElementById('kc-'+tp+'-faixa'); if(fe){fe.textContent=ft.label;fe.style.background=ft.bg;fe.style.color=ft.cor;}
+    // Delta por tipo vs mês passado
+    const de=document.getElementById('kc-'+tp+'-delta');
+    if(de&&pm){const pctPm=pm['txConv'+['Ok','Sy','Ma'][i]];const td=pctPm>0?parseFloat(((pct-pctPm)/pctPm*100).toFixed(1)):0;de.textContent=(td>=0?'+':'')+td+'% vs mês passado';de.style.color=td>=0?'var(--green)':'var(--red)';}
   });
 
   // Resgate de Insucesso — recebidos vs atendidos (sem FLUA)
@@ -3140,7 +3149,15 @@ function lastWorkday() {
 function refresh() {
   const all=getE(), f=filterE(all,period,marca);
   const yf=all.filter(e=>e.ds===lastWorkday()&&(marca==='todas'||e.m===marca));
-  renderKPIs(calcKPIs(f),calcKPIs(yf));
+  const _rNow=new Date(Date.now()-3*60*60*1000);
+  const _rPmYear=_rNow.getMonth()===0?_rNow.getFullYear()-1:_rNow.getFullYear();
+  const _rPmMonth=_rNow.getMonth()===0?12:_rNow.getMonth();
+  const _rPmStr=`${_rPmYear}-${String(_rPmMonth).padStart(2,'0')}`;
+  const _rPmFrom=`${_rPmStr}-01`;
+  const _rPmLastDay=new Date(_rPmYear,_rPmMonth,0).getDate();
+  const _rPmTo=`${_rPmStr}-${String(_rPmLastDay).padStart(2,'0')}`;
+  const pmf=all.filter(e=>e.ds>=_rPmFrom&&e.ds<=_rPmTo&&(marca==='todas'||e.m===marca));
+  renderKPIs(calcKPIs(f),calcKPIs(yf),calcKPIs(pmf));
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
@@ -3178,9 +3195,16 @@ async function updateVendasKPI() {
     const filtered = filterVendasByPeriod(docs);
     const cnt = filtered.length;
     // Comparar com dia anterior para badge
-    const ydDocs = docs.filter(v => v.dtFat === lastWorkday() && (marca === 'todas' || v.marca === marca));
-    const ydCnt = ydDocs.length;
-    const vd = ydCnt > 0 ? Math.round(((cnt - ydCnt) / ydCnt) * 100) : (cnt > 0 ? 100 : 0);
+    const _now = new Date(Date.now() - 3*60*60*1000);
+    const _pmYear = _now.getMonth()===0 ? _now.getFullYear()-1 : _now.getFullYear();
+    const _pmMonth = _now.getMonth()===0 ? 12 : _now.getMonth();
+    const _pmStr = `${_pmYear}-${String(_pmMonth).padStart(2,'0')}`;
+    const _pmFrom = `${_pmStr}-01`;
+    const _pmLastDay = new Date(_pmYear, _pmMonth, 0).getDate();
+    const _pmTo = `${_pmStr}-${String(_pmLastDay).padStart(2,'0')}`;
+    const pmDocs = docs.filter(v => v.dtFat >= _pmFrom && v.dtFat <= _pmTo && (marca === 'todas' || v.marca === marca));
+    const pmCnt = pmDocs.length;
+    const vd = pmCnt > 0 ? Math.round(((cnt - pmCnt) / pmCnt) * 100) : (cnt > 0 ? 100 : 0);
     const el = document.getElementById('kv');
     if (el) el.textContent = cnt;
     const kb = document.getElementById('kb');
