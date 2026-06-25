@@ -614,21 +614,21 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       </div>
       <!-- CONVERSÃO BREAKDOWN -->
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:20px" id="conv-grid">
-        <div class="kpi-card" style="border-left:3px solid #2ec98a">
+        <div class="kpi-card" onclick="openConvModal('ok')" style="border-left:3px solid #2ec98a;cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='#2ec98a'" onmouseleave="this.style.borderColor=''">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#2ec98a;display:inline-block;flex-shrink:0"></span>Conversão — Processo OK</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#2ec98a;margin-top:4px" id="kc-ok">—</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas OK / pré-vendas rec.</div>
           <div id="kc-ok-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
           <div id="kc-ok-delta" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
         </div>
-        <div class="kpi-card" style="border-left:3px solid #4f8ef7">
+        <div class="kpi-card" onclick="openConvModal('sy')" style="border-left:3px solid #4f8ef7;cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='#4f8ef7'" onmouseleave="this.style.borderColor=''">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#4f8ef7;display:inline-block;flex-shrink:0"></span>Conversão — Syonet Master</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#4f8ef7;margin-top:4px" id="kc-sy">—</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Syonet / pré-vendas rec.</div>
           <div id="kc-sy-faixa" style="font-size:10px;font-weight:600;margin-top:5px;padding:2px 7px;border-radius:4px;display:inline-block"></div>
           <div id="kc-sy-delta" style="font-size:10px;color:var(--muted);margin-top:3px"></div>
         </div>
-        <div class="kpi-card" style="border-left:3px solid #f5a623">
+        <div class="kpi-card" onclick="openConvModal('ma')" style="border-left:3px solid #f5a623;cursor:pointer;transition:border-color .2s" onmouseenter="this.style.borderColor='#f5a623'" onmouseleave="this.style.borderColor=''">
           <div class="kpi-lbl" style="display:flex;align-items:center;gap:5px"><span style="width:7px;height:7px;border-radius:2px;background:#f5a623;display:inline-block;flex-shrink:0"></span>Conversão — Proc. Manual</div>
           <div style="font-size:22px;font-weight:600;font-family:var(--mono);color:#f5a623;margin-top:4px" id="kc-ma">—</div>
           <div style="font-size:11px;color:var(--muted);margin-top:3px">vendas Manuais / pré-vendas rec.</div>
@@ -752,7 +752,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
               <tr style="background:rgba(245,166,35,.03)">
                 <td style="padding-left:18px">Não atendidos</td>
                 <td><div id="in-pnao" class="calc-disp calc-amber">0</div></td>
-                <td style="color:var(--muted);font-size:12px">calculado automaticamente</td>
+                <td><input type="text" id="in-pids" placeholder="IDs: 1309926, 1310255..."></td>
               </tr>
               <!-- RESGATE -->
               <tr><td class="sec-sub-row" colspan="3">Resgate de insucesso</td></tr>
@@ -1255,6 +1255,47 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
   </div>
 </div>
 
+<!-- CONVERSÃO MODAL -->
+<div class="modal-ov" id="conv-modal">
+  <div class="modal" style="width:640px;max-height:85vh;box-sizing:border-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl" id="cv-ttl">Conversão — Detalhamento</div>
+      <button onclick="closeConvModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub" id="cv-sub"></div>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:4px;background:var(--bg3);border-radius:8px;padding:3px;margin-bottom:16px">
+      <button id="cv-tab-ok" onclick="cvTab('ok')" style="flex:1;padding:6px 10px;border-radius:6px;border:none;font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;background:var(--bg2);color:var(--text);transition:all .15s">
+        Processo OK
+      </button>
+      <button id="cv-tab-sy" onclick="cvTab('sy')" style="flex:1;padding:6px 10px;border-radius:6px;border:none;font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;background:none;color:var(--muted);transition:all .15s">
+        Syonet Master
+      </button>
+      <button id="cv-tab-ma" onclick="cvTab('ma')" style="flex:1;padding:6px 10px;border-radius:6px;border:none;font-size:12px;font-weight:500;font-family:var(--font);cursor:pointer;background:none;color:var(--muted);transition:all .15s">
+        Proc. Manual
+      </button>
+    </div>
+
+    <!-- SUMMARY BAR -->
+    <div id="cv-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"></div>
+
+    <!-- LIST -->
+    <div id="cv-list" style="max-height:360px;overflow-y:auto"></div>
+
+    <!-- COPY ACTIONS -->
+    <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap">
+      <button onclick="copyConvAll()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.25);color:var(--accent);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+        Copiar consolidado (WhatsApp)
+      </button>
+      <button onclick="closeConvModal()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;font-family:var(--font);cursor:pointer">
+        Fechar
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- EDIT MODAL -->
 <div class="modal-ov" id="edit-modal">
   <div class="modal">
@@ -1308,7 +1349,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
         <tr style="background:rgba(245,166,35,.03)">
           <td style="padding-left:16px">Não atendidos</td>
           <td><div id="m-pnao" class="calc-disp calc-amber">0</div></td>
-          <td style="color:var(--muted);font-size:12px">automático</td>
+          <td><input type="text" id="m-pids" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:4px 8px;font-size:12px;width:100%;outline:none" placeholder="IDs..."></td>
         </tr>
         <tr><td class="sec-sub-row" colspan="3">Resgate de insucesso</td></tr>
         <tr>
@@ -1558,14 +1599,14 @@ const AGENTES = {
   // ── JEEP ─────────────────────────────────────────────────────────────────
   'Jeep|São José do Rio Preto':    'Cintia Gemaiel Zambello Guerra',
   'Jeep|Votuporanga':              'Cintia Gemaiel Zambello Guerra',
-  'Jeep|Barretos':                 'Elvira Mariana Sandre',
+  'Jeep|Barretos':                 'Cintia Gemaiel Zambello Guerra',
   // ── VOLKSWAGEN ───────────────────────────────────────────────────────────
   'VW|Bauru':                      'Ana Beatriz Pereira Saugo',
   'VW|Orlândia':                   'Ana Beatriz Pereira Saugo',
   // ── LEAPMOTOR ────────────────────────────────────────────────────────────
   'Leapmotor|Santos':              'Isabela e Rafaela',
   // ── SEMINOVOS ────────────────────────────────────────────────────────────
-  'Seminovos|São José do Rio Preto': 'Elvira Mariana Sandre'
+  'Seminovos|São José do Rio Preto': 'Cintia Gemaiel Zambello Guerra'
 };
 // Nomes individuais de pré-venda extraídos do mapa AGENTES.
 // Múltiplos agentes por loja são separados por " e " (ex: FIAT|Santos).
@@ -2452,6 +2493,7 @@ function limpar(){
   _clearDirty();
   ['in-ok','in-sy','in-ma','in-prec','in-patend','in-rrec','in-ratend','in-frec','in-fatend'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
   ['in-vtot','in-pnao','in-rnao','in-fnao'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='0';});
+  document.getElementById('in-pids').value='';
   document.getElementById('in-rids').value='';
   document.getElementById('in-fids').value='';
 }
@@ -2468,7 +2510,7 @@ function salvar() {
   const prec=+(document.getElementById('in-prec').value), patend=+(document.getElementById('in-patend').value);
   const rrec=+(document.getElementById('in-rrec').value), ratend=+(document.getElementById('in-ratend').value);
   const frec=+(document.getElementById('in-frec').value), fatend=+(document.getElementById('in-fatend').value);
-  const entry={ds,m,f,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),rrec,ratend,rids:document.getElementById('in-rids').value,frec,fatend,fids:document.getElementById('in-fids').value,obs:''};
+  const entry={ds,m,f,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),pids:document.getElementById('in-pids').value,rrec,ratend,rids:document.getElementById('in-rids').value,frec,fatend,fids:document.getElementById('in-fids').value,obs:''};
   const existing=getE().find(e=>e.ds===ds&&e.m===m&&e.f===f);
   saveE(entry);
   toast(existing?`Relatório de ${f} (${m}) atualizado`:`Relatório de ${f} (${m}) salvo`);
@@ -2526,6 +2568,7 @@ function openEdit(key) {
   document.getElementById('m-ok').value=e.ok||0; document.getElementById('m-sy').value=e.sy||0; document.getElementById('m-ma').value=e.ma||0; upMVtot();
   document.getElementById('m-prec').value=e.prec||0; document.getElementById('m-patend').value=e.patend||0;
   const pnao=Math.max(0,(e.prec||0)-(e.patend||0)); const mpn=document.getElementById('m-pnao');if(mpn)mpn.textContent=pnao;
+  document.getElementById('m-pids').value=e.pids||'';
   document.getElementById('m-rrec').value=e.rrec||0; document.getElementById('m-ratend').value=e.ratend||0;
   const rnao=Math.max(0,(e.rrec||0)-(e.ratend||0)); const mrn=document.getElementById('m-rnao');if(mrn)mrn.textContent=rnao;
   document.getElementById('m-rids').value=e.rids||'';
@@ -2550,7 +2593,7 @@ function saveModal() {
   const prec=+(document.getElementById('m-prec').value), patend=+(document.getElementById('m-patend').value);
   const rrec=+(document.getElementById('m-rrec').value), ratend=+(document.getElementById('m-ratend').value);
   const frec=+(document.getElementById('m-frec').value), fatend=+(document.getElementById('m-fatend').value);
-  const ne={ds:document.getElementById('m-dt').value,m:document.getElementById('m-mrc').value,f:document.getElementById('m-fil').value,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),rrec,ratend,rids:document.getElementById('m-rids').value,frec,fatend,fids:document.getElementById('m-fids').value,obs:''};
+  const ne={ds:document.getElementById('m-dt').value,m:document.getElementById('m-mrc').value,f:document.getElementById('m-fil').value,v:ok+sy+ma,ok,sy,ma,prec,patend,pnao:Math.max(0,prec-patend),pids:document.getElementById('m-pids').value,rrec,ratend,rids:document.getElementById('m-rids').value,frec,fatend,fids:document.getElementById('m-fids').value,obs:''};
   // Se ds/marca/filial mudou, remove o registro original antes de salvar
   if (ods !== ne.ds || om !== ne.m || of_ !== ne.f) deleteE(ods, om, of_);
   saveE(ne);
@@ -2654,10 +2697,11 @@ function renderPVModal() {
   const byMF = {};
   f.forEach(e => {
     const key = e.m+'|'+e.f;
-    if(!byMF[key]) byMF[key] = {m:e.m, f:e.f, rec:0, atend:0, nao:0};
+    if(!byMF[key]) byMF[key] = {m:e.m, f:e.f, rec:0, atend:0, nao:0, ids:[]};
     byMF[key].rec   += (e.prec||0);
     byMF[key].atend += (e.patend||0);
     byMF[key].nao   += Math.max(0,(e.prec||0)-(e.patend||0));
+    if(e.pids) e.pids.split(/[,\s]+/).filter(Boolean).forEach(id => byMF[key].ids.push(id));
   });
 
   const rows = Object.values(byMF).filter(r => r.rec > 0);
@@ -2694,6 +2738,9 @@ function renderPVModal() {
       ? `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" fill="rgba(46,201,138,.15)"/><path d="M5 8l2.5 2.5L11 5" stroke="#2ec98a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`
       : `<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" fill="rgba(240,82,82,.15)"/><path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#f05252" stroke-width="1.5" stroke-linecap="round"/></svg>`;
     const naoColor = r.nao>0 ? 'var(--red)' : 'var(--muted)';
+    const idsHtml = r.ids.length>0
+      ? `<div style="margin-top:5px;font-size:11px;font-family:var(--mono);color:var(--muted);background:var(--bg);padding:4px 8px;border-radius:5px;line-height:1.6">IDs não atendidos: ${r.ids.join(', ')}</div>`
+      : '';
 
     return `<div style="display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)">
       <div style="margin-top:2px">${statusIcon}</div>
@@ -2712,6 +2759,7 @@ function renderPVModal() {
           <span>Não atend: <strong style="color:${naoColor}">${r.nao}</strong></span>
           <span style="background:${pctC}22;color:${pctC};font-size:11px;padding:1px 7px;border-radius:4px;font-weight:600">${pct}%</span>
         </div>
+        ${idsHtml}
       </div>
       <button onclick="copyPVRow('${r.m}','${r.f}')" title="Copiar esta filial" style="flex-shrink:0;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .15s;align-self:flex-start;margin-top:2px" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
         <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="display:block"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
@@ -2729,6 +2777,7 @@ function _pvRowText(r, periodLbl) {
   txt += `*Gerente: ${ger}*\n`;
   txt += `*Operador: ${agnt}*\n`;
   txt += `PRÉ-VENDA: ${r.rec} rec · ${r.atend} atend · ${r.nao} não atend (${pct}%)`;
+  if(r.ids.length>0) txt += `\nIDs não atendidos: ${r.ids.join(', ')}`;
   return txt;
 }
 
@@ -2737,10 +2786,11 @@ function _buildPVRows() {
   const byMF = {};
   f.forEach(e => {
     const key = e.m+'|'+e.f;
-    if(!byMF[key]) byMF[key] = {m:e.m,f:e.f,rec:0,atend:0,nao:0};
+    if(!byMF[key]) byMF[key] = {m:e.m,f:e.f,rec:0,atend:0,nao:0,ids:[]};
     byMF[key].rec   += (e.prec||0);
     byMF[key].atend += (e.patend||0);
     byMF[key].nao   += Math.max(0,(e.prec||0)-(e.patend||0));
+    if(e.pids) e.pids.split(/[,\s]+/).filter(Boolean).forEach(id => byMF[key].ids.push(id));
   });
   return Object.values(byMF).filter(r=>r.rec>0).sort((a,b)=>b.nao-a.nao||b.rec-a.rec);
 }
@@ -3072,6 +3122,157 @@ function copyResgateRow(m, f) {
   cpTxt(_resgateRowText(r,isFlua,periodLbl), `${MLABELS[m]||m} · ${f} copiado!`);
 }
 
+// ── CONVERSÃO MODAL (Processo OK / Syonet Master / Proc. Manual) ─────────────
+let _cvTab = 'ok';
+const _CV_LABEL = {ok:'Processo OK', sy:'Syonet Master', ma:'Proc. Manual'};
+const _CV_COLOR = {ok:'#2ec98a', sy:'#4f8ef7', ma:'#f5a623'};
+
+function openConvModal(type) {
+  _cvTab = type || 'ok';
+  cvTab(_cvTab);
+  document.getElementById('conv-modal').classList.add('open');
+}
+function closeConvModal() {
+  document.getElementById('conv-modal').classList.remove('open');
+}
+document.getElementById('conv-modal').addEventListener('click', e => {
+  if(e.target === e.currentTarget) closeConvModal();
+});
+
+function cvTab(tab) {
+  _cvTab = tab;
+  ['ok','sy','ma'].forEach(t => {
+    const btn = document.getElementById('cv-tab-'+t);
+    if(!btn) return;
+    btn.style.background = t===tab ? 'var(--bg2)' : 'none';
+    btn.style.color      = t===tab ? 'var(--text)' : 'var(--muted)';
+  });
+  renderConvModal();
+}
+
+function renderConvModal() {
+  const type = _cvTab, cl0 = _CV_COLOR[type];
+  const all = getE(), f = filterE(all, period, marca);
+
+  const pMap = {hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td = today().split('-').reverse().join('/'), _yd = lastWorkday().split('-').reverse().join('/');
+  const periodLbl = period==='custom' && customFrom && customTo
+    ? (customFrom===customTo ? customFrom.split('-').reverse().join('/') : customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    : (period==='hoje'?'Hoje · '+_td:period==='ontem'?'Ontem · '+_yd:pMap[period]||period);
+
+  document.getElementById('cv-ttl').textContent = 'Conversão — '+_CV_LABEL[type]+' — Detalhamento';
+  document.getElementById('cv-sub').textContent = `Período: ${periodLbl}${marca!=='todas' ? ' · '+marca : ''}`;
+
+  // Aggregate by marca+filial: quantidade do tipo de conversão e base de pré-vendas recebidas
+  const byMF = {};
+  f.forEach(e => {
+    const key = e.m+'|'+e.f;
+    if(!byMF[key]) byMF[key] = {m:e.m, f:e.f, qtd:0, base:0};
+    byMF[key].qtd  += (e[type]||0);
+    byMF[key].base += (e.prec||0);
+  });
+
+  const rows = Object.values(byMF).filter(r => r.qtd > 0);
+  rows.sort((a,b) => b.qtd - a.qtd);
+
+  const totQtd  = rows.reduce((s,r)=>s+r.qtd,0);
+  const totBase = rows.reduce((s,r)=>s+r.base,0);
+  const totPct  = totBase>0 ? parseFloat((totQtd/totBase*100).toFixed(2)) : 0;
+
+  document.getElementById('cv-summary').innerHTML = [
+    {l:'Vendas — '+_CV_LABEL[type], v:totQtd, c:cl0},
+    {l:'Pré-vendas (base)', v:totBase, c:'var(--text)'},
+    {l:'% Conversão', v:totPct+'%', c:cl0}
+  ].map(x=>`<div style="flex:1;min-width:90px;background:var(--bg3);border-radius:8px;padding:9px 12px">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">${x.l}</div>
+    <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div>
+  </div>`).join('');
+
+  if(rows.length===0) {
+    document.getElementById('cv-list').innerHTML = '<div style="text-align:center;padding:40px 20px;color:var(--muted);font-size:13px">Nenhuma venda deste tipo no período.</div>';
+    return;
+  }
+
+  document.getElementById('cv-list').innerHTML = rows.map(r => {
+    const cl   = COLORS[r.m]||'#888';
+    const ger  = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+    const agnt = AGENTES[r.m+'|'+r.f]  || 'S/ Operador';
+    const pct  = r.base>0 ? Math.round(r.qtd/r.base*100) : 0;
+
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:3px">
+          <span style="background:${cl}22;color:${cl};font-size:11px;padding:2px 7px;border-radius:4px;font-weight:600">${MLABELS[r.m]||r.m}</span>
+          <span style="font-size:13px;font-weight:500;color:var(--text)">${r.f}</span>
+          <span style="font-size:12px;color:var(--muted)">·</span>
+          <span style="font-size:12px;color:var(--muted)">👤 Ger: ${ger}</span>
+          <span style="font-size:12px;color:var(--muted)">·</span>
+          <span style="font-size:12px;color:var(--accent)">📞 Op: ${agnt}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);flex-wrap:wrap">
+          <span>${_CV_LABEL[type]}: <strong style="color:${cl0}">${r.qtd}</strong></span>
+          <span>Base (pré-venda rec.): <strong style="color:var(--text)">${r.base}</strong></span>
+          <span style="background:${cl0}22;color:${cl0};font-size:11px;padding:1px 7px;border-radius:4px;font-weight:600">${pct}%</span>
+        </div>
+      </div>
+      <button onclick="copyConvRow('${r.m}','${r.f}')" title="Copiar esta filial" style="flex-shrink:0;background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:5px 8px;cursor:pointer;font-size:11px;font-family:var(--font);transition:all .15s;align-self:flex-start;margin-top:2px" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+        <svg width="11" height="11" viewBox="0 0 14 14" fill="none" style="display:block"><rect x="1" y="3" width="9" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 3V2a1 1 0 011-1h6a1 1 0 011 1v8a1 1 0 01-1 1h-1" stroke="currentColor" stroke-width="1.2"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+}
+
+function _buildConvRows(type) {
+  const all = getE(), f = filterE(all, period, marca);
+  const byMF = {};
+  f.forEach(e => {
+    const key = e.m+'|'+e.f;
+    if(!byMF[key]) byMF[key] = {m:e.m,f:e.f,qtd:0,base:0};
+    byMF[key].qtd  += (e[type]||0);
+    byMF[key].base += (e.prec||0);
+  });
+  return Object.values(byMF).filter(r=>r.qtd>0).sort((a,b)=>b.qtd-a.qtd);
+}
+
+function _convRowText(r, type) {
+  const ger  = GERENTES[r.m+'|'+r.f] || 'S/ Gerente';
+  const agnt = AGENTES[r.m+'|'+r.f]  || 'S/ Operador';
+  const pct  = r.base>0 ? Math.round(r.qtd/r.base*100) : 0;
+  let txt = `*${MLABELS[r.m]||r.m} · ${r.f}*\n`;
+  txt += `*Gerente: ${ger}*\n`;
+  txt += `*Operador: ${agnt}*\n`;
+  txt += `${_CV_LABEL[type]}: ${r.qtd} vendas · base ${r.base} pré-vendas (${pct}%)`;
+  return txt;
+}
+
+function copyConvAll() {
+  const type = _cvTab;
+  const pMap={hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const _td3=today().split('-').reverse().join('/'), _yd3=lastWorkday().split('-').reverse().join('/');
+  const periodLbl = period==='custom'&&customFrom&&customTo
+    ?(customFrom===customTo?customFrom.split('-').reverse().join('/'):customFrom.split('-').reverse().join('/')+'–'+customTo.split('-').reverse().join('/'))
+    :(period==='hoje'?'Hoje · '+_td3:period==='ontem'?'Ontem · '+_yd3:pMap[period]||period);
+  const rows = _buildConvRows(type);
+  if(!rows.length){toast('Nenhum dado para copiar');return;}
+  const totQtd=rows.reduce((s,r)=>s+r.qtd,0);
+  const totBase=rows.reduce((s,r)=>s+r.base,0);
+  const totPct=totBase>0?Math.round(totQtd/totBase*100):0;
+  const marcaLbl = marca!=='todas' ? ` · ${MLABELS[marca]||marca}` : '';
+  let txt = `📋 *CONVERSÃO — ${_CV_LABEL[type].toUpperCase()} — ${periodLbl}${marcaLbl}*\n`;
+  txt += `✦ Total: ${totQtd} vendas · base ${totBase} pré-vendas (${totPct}%)\n`;
+  txt += `${'─'.repeat(36)}\n`;
+  rows.forEach((r,i) => { txt += (i>0?'\n\n':'\n') + _convRowText(r,type); });
+  txt += '\n\n🔗 https://grallmamilazzo-hub.github.io/dashboard-concessionarias/?token=DIR-2025\n*Acesse o Dashboard Consolidado para visualizar os números atualizados e a performance mensal das unidades*';
+  cpTxt(txt, 'Conversão copiada!');
+}
+
+function copyConvRow(m, f) {
+  const type = _cvTab;
+  const rows = _buildConvRows(type);
+  const r = rows.find(x=>x.m===m&&x.f===f);
+  if(!r){toast('Dados não encontrados');return;}
+  cpTxt(_convRowText(r,type), `${MLABELS[m]||m} · ${f} copiado!`);
+}
 
 // ── NAV ───────────────────────────────────────────────────────────────────────
 function gv(v) {
@@ -3161,6 +3362,7 @@ function refresh() {
   // Atualiza modal de resgate se estiver aberto
   if(document.getElementById('resgate-modal')?.classList.contains('open')) renderResgateModal();
   if(document.getElementById('prevenda-modal')?.classList.contains('open')) renderPVModal();
+  if(document.getElementById('conv-modal')?.classList.contains('open')) renderConvModal();
   if(document.getElementById('vendas-modal')?.classList.contains('open')) renderVendasModal();
   renderChartF(f); renderChartEv(all); renderSparklines(all);
   renderFunil(f); renderAlerts(f, all);
