@@ -883,10 +883,21 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
       <div class="chart-card" style="margin-bottom:16px">
         <div class="sec-hdr" style="margin-bottom:14px">
           <div style="flex:1">
-            <div class="sec-ttl">Vendas por Mídia / Origem</div>
-            <div class="sec-sub" id="an-midia-sub">total da coleção de vendas registradas</div>
+            <div class="sec-ttl">Performance por Mídia / Origem</div>
+            <div class="sec-sub" id="an-midia-sub">vendas, atribuição dentro da janela, ciclo lead → faturamento e resgate · clique na coluna para ordenar</div>
           </div>
           <div id="an-summary" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"></div>
+        </div>
+        <!-- Filtros locais do card Performance por Mídia -->
+        <div id="an-pm-filter-bar" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">
+          <span style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap">Filtrar:</span>
+          <select id="an-pm-flt-marca" onchange="renderMidiaPerf()" style="font-size:12px;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:4px 8px;outline:none;cursor:pointer">
+            <option value="">Todas as marcas</option>
+          </select>
+          <select id="an-pm-flt-filial" onchange="renderMidiaPerf()" style="font-size:12px;background:var(--bg);border:1px solid var(--border2);color:var(--text);border-radius:6px;padding:4px 8px;outline:none;cursor:pointer">
+            <option value="">Todas as filiais</option>
+          </select>
+          <button onclick="document.getElementById('an-pm-flt-marca').value='';document.getElementById('an-pm-flt-filial').value='';renderMidiaPerf()" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:2px 4px;text-decoration:underline">limpar</button>
         </div>
         <div id="an-midia-list" style="display:flex;flex-direction:column;gap:7px">
           <div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Carregando...</div>
@@ -4052,38 +4063,10 @@ async function renderAnalise() {
         `<span style="font-size:12px;font-weight:700;font-family:var(--mono);color:var(--text)">${totalGeral} total</span>`;
     }
 
-    // ── 1. Vendas por Mídia ──────────────────────────────────────────────────
-    const byMidia = {};
-    docs.forEach(v => {
-      const m = v.midia || 'Não informada';
-      byMidia[m] = (byMidia[m] || 0) + 1;
-    });
-    const midiaRows = Object.entries(byMidia).sort((a,b) => b[1]-a[1]);
-    const maxMidia = midiaRows[0]?.[1] || 1;
-    const total = totalGeral;
-
-    const midiaColors = ['#4f8ef7','#2ec98a','#f5a623','#7c5fe6','#f05252','#38bdf8','#fb923c','#a3e635','#e879f9','#34d399'];
-
-    document.getElementById('an-midia-list').innerHTML = total === 0
-      ? '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Nenhuma venda registrada encontrada</div>'
-      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:10px">`
-        + midiaRows.map(([m, v], i) => {
-          const pct = total > 0 ? (v / total * 100) : 0;
-          const cor = midiaColors[i % midiaColors.length];
-          const rankLabel = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
-          return `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-top:3px solid ${cor};transition:border-color .2s">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-              <span style="font-size:10px;color:${cor};font-weight:700">${rankLabel}</span>
-              <span style="font-size:10px;color:var(--muted);background:var(--bg);padding:1px 6px;border-radius:4px">${pct.toFixed(1)}%</span>
-            </div>
-            <div style="font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:8px;min-height:28px">${m}</div>
-            <div style="font-size:26px;font-weight:700;font-family:var(--mono);color:${cor};letter-spacing:-1px">${v}</div>
-            <div style="font-size:10px;color:var(--muted);margin-top:2px">venda${v!==1?'s':''}</div>
-            <div style="height:3px;background:var(--bg);border-radius:2px;margin-top:10px;overflow:hidden">
-              <div style="height:100%;width:${(v/maxMidia*100).toFixed(0)}%;background:${cor};border-radius:2px"></div>
-            </div>
-          </div>`;
-        }).join('') + `</div>`;
+    // ── 1. Performance por Mídia ─────────────────────────────────────────────
+    _lastMidiaDocs = docs;
+    _popularFiltrosMidiaPerf(docs);
+    renderMidiaPerf();
 
     // ── 2. Ranking Vendedor Recebeu ──────────────────────────────────────────
     const byRec = {};
@@ -4247,6 +4230,162 @@ function renderCrossSection(_csDocs) {
             <div style="font-size:13px;font-family:var(--mono);font-weight:700;color:${deltaC};text-align:right;padding-top:2px">${delta===0?'—':deltaStr}</div>
           </div>`;
         }).join('');
+}
+
+// ── PERFORMANCE POR MÍDIA (aba Análise) ──────────────────────────────────────
+let _lastMidiaDocs = null;            // docs já filtrados pelo período global
+let _pmSort = { k: 'v', dir: -1 };    // ordenação padrão: vendas desc
+
+// Limite de referência (dias desde a criação do lead) — espelha calcJanela, sem alterá-la
+function _pmLimiteDias(m) {
+  if (MIDIAS_150.includes(m))     return 150;
+  if (MIDIAS_30_CORR.includes(m)) return 31;
+  return 90; // MIDIAS_30_INS e demais: lead inválido após 90 dias sem tratativa
+}
+
+function _pmDiasCiclo(dtCri, dtFat) {
+  if (!dtCri || !dtFat) return null;
+  const a = new Date(dtCri + 'T12:00:00'), b = new Date(dtFat + 'T12:00:00');
+  if (isNaN(a) || isNaN(b)) return null;
+  const d = Math.round((b - a) / 86400000);
+  return d >= 0 ? d : null;
+}
+
+function _pmMediana(arr) {
+  if (!arr.length) return null;
+  const s = [...arr].sort((x, y) => x - y), h = Math.floor(s.length / 2);
+  return s.length % 2 ? s[h] : Math.round((s[h - 1] + s[h]) / 2);
+}
+
+function _popularFiltrosMidiaPerf(docs) {
+  const mEl = document.getElementById('an-pm-flt-marca');
+  const fEl = document.getElementById('an-pm-flt-filial');
+  if (mEl) {
+    const cur = mEl.value;
+    const marcas = [...new Set(docs.map(d => d.marca).filter(Boolean))].sort();
+    mEl.innerHTML = '<option value="">Todas as marcas</option>' +
+      marcas.map(m => `<option value="${m}"${m === cur ? ' selected' : ''}>${(typeof MLABELS !== 'undefined' && MLABELS[m]) || m}</option>`).join('');
+  }
+  if (fEl) {
+    const cur = fEl.value;
+    const filiais = [...new Set(docs.map(d => d.filial).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    fEl.innerHTML = '<option value="">Todas as filiais</option>' +
+      filiais.map(f => `<option value="${f}"${f === cur ? ' selected' : ''}>${f}</option>`).join('');
+  }
+}
+
+function sortMidiaPerf(k) {
+  if (_pmSort.k === k) _pmSort.dir = -_pmSort.dir;
+  else { _pmSort.k = k; _pmSort.dir = (k === 'm' || k === 'c') ? 1 : -1; }
+  renderMidiaPerf();
+}
+
+function renderMidiaPerf() {
+  const el = document.getElementById('an-midia-list');
+  if (!el || !_lastMidiaDocs) return;
+  const fMarca  = document.getElementById('an-pm-flt-marca')?.value  || '';
+  const fFilial = document.getElementById('an-pm-flt-filial')?.value || '';
+  let docs = _lastMidiaDocs;
+  if (fMarca)  docs = docs.filter(d => d.marca === fMarca);
+  if (fFilial) docs = docs.filter(d => d.filial === fFilial);
+
+  if (!docs.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px;padding:20px 0;text-align:center">Nenhuma venda registrada encontrada</div>';
+    return;
+  }
+
+  const g = {};
+  docs.forEach(v => {
+    const m = v.midia || 'Não informada';
+    if (!g[m]) g[m] = { m, v: 0, j: 0, r: 0, ciclos: [] };
+    g[m].v++;
+    if (v.dentroJanela) g[m].j++;
+    if (v.isResgate)    g[m].r++;
+    const c = _pmDiasCiclo(v.dtCriacao, v.dtFat);
+    if (c !== null) g[m].ciclos.push(c);
+  });
+  const total = docs.length;
+  const rows = Object.values(g).map(x => ({
+    m: x.m, v: x.v,
+    s: x.v / total * 100,
+    j: x.v ? x.j / x.v * 100 : 0,
+    c: _pmMediana(x.ciclos),
+    nc: x.ciclos.length,
+    lim: _pmLimiteDias(x.m),
+    r: x.v ? x.r / x.v * 100 : 0
+  }));
+
+  const k = _pmSort.k, dir = _pmSort.dir;
+  rows.sort((a, b) => {
+    let va = a[k], vb = b[k];
+    if (k === 'm') return va.localeCompare(vb, 'pt-BR') * dir;
+    if (va === null) return 1;            // sem ciclo vai sempre para o fim
+    if (vb === null) return -1;
+    return (va - vb) * dir || (b.v - a.v);
+  });
+
+  // KPIs
+  const nJan = docs.filter(d => d.dentroJanela).length;
+  const ciclosAll = docs.map(d => _pmDiasCiclo(d.dtCriacao, d.dtFat)).filter(c => c !== null);
+  const medAll = _pmMediana(ciclosAll);
+  const maxV = Math.max(...rows.map(r => r.v));
+
+  const kpi = (lbl, val) => `<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">${lbl}</div>
+      <div style="font-size:20px;font-weight:700;font-family:var(--mono);color:var(--text);margin-top:2px">${val}</div></div>`;
+
+  const selo = p => {
+    const r = Math.round(p);
+    const [bg, cor, bd] = r >= 90 ? ['rgba(46,201,138,.12)', 'var(--green)', 'rgba(46,201,138,.3)']
+                        : r >= 75 ? ['rgba(245,166,35,.12)', 'var(--amber)', 'rgba(245,166,35,.3)']
+                        :           ['rgba(240,82,82,.1)',   'var(--red)',   'rgba(240,82,82,.25)'];
+    return `<span style="font-size:11px;font-weight:600;background:${bg};color:${cor};border:1px solid ${bd};border-radius:6px;padding:2px 8px;font-family:var(--mono)">${r}%</span>`;
+  };
+
+  const th = (key, lbl, al) => {
+    const ativo = _pmSort.k === key;
+    const seta = ativo ? (_pmSort.dir < 0 ? ' ↓' : ' ↑') : '';
+    return `<th onclick="sortMidiaPerf('${key}')" style="text-align:${al};font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:${ativo ? 'var(--text)' : 'var(--muted)'};padding:8px;cursor:pointer;user-select:none;white-space:nowrap;border-bottom:1px solid var(--border2)">${lbl}${seta}</th>`;
+  };
+  const td = 'padding:9px 8px;border-bottom:1px solid var(--border);font-size:12px;white-space:nowrap';
+
+  el.innerHTML =
+    `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:14px">` +
+      kpi('Vendas', total) +
+      kpi('Na janela', Math.round(nJan / total * 100) + '%') +
+      kpi('Ciclo mediano', medAll === null ? '—' : medAll + ' d') +
+      kpi('Mídias ativas', rows.length) +
+    `</div>` +
+    `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;min-width:620px">
+      <thead><tr>
+        ${th('m', 'Mídia', 'left')}${th('v', 'Vendas', 'right')}${th('s', 'Share', 'right')}${th('j', 'Na janela', 'right')}${th('c', 'Ciclo mediano', 'right')}${th('r', 'Resgate', 'right')}
+      </tr></thead><tbody>` +
+    rows.map(r => {
+      const pc = r.c === null ? 0 : Math.min(100, Math.round(r.c / r.lim * 100));
+      const corCiclo = r.c !== null && r.c > r.lim ? 'var(--red)' : 'var(--muted)';
+      return `<tr>
+        <td style="${td};max-width:220px">
+          <div style="overflow:hidden;text-overflow:ellipsis;color:var(--text);font-weight:600" title="${r.m}">${r.m}</div>
+          <div style="height:3px;background:var(--bg);border-radius:2px;margin-top:5px;overflow:hidden"><div style="height:100%;width:${Math.round(r.v / maxV * 100)}%;background:var(--accent);border-radius:2px"></div></div>
+        </td>
+        <td style="${td};text-align:right;font-family:var(--mono);font-weight:700;color:var(--text)">${r.v}</td>
+        <td style="${td};text-align:right;font-family:var(--mono);color:var(--muted)">${r.s.toFixed(1)}%</td>
+        <td style="${td};text-align:right">${selo(r.j)}</td>
+        <td style="${td};text-align:right" title="${r.nc} de ${r.v} venda(s) com data de criação informada">
+          <span style="font-family:var(--mono);color:var(--text)">${r.c === null ? '—' : r.c + ' d'}</span>
+          <span style="font-size:10px;color:var(--muted)"> / ${r.lim}</span>
+          <div style="height:3px;background:var(--bg);border-radius:2px;margin:5px 0 0 auto;width:80px;overflow:hidden"><div style="height:100%;width:${pc}%;background:${corCiclo};border-radius:2px"></div></div>
+        </td>
+        <td style="${td};text-align:right;font-family:var(--mono);color:${r.r >= 10 ? 'var(--amber)' : 'var(--muted)'};font-weight:${r.r >= 10 ? 700 : 400}">${Math.round(r.r)}%</td>
+      </tr>`;
+    }).join('') +
+    `</tbody></table></div>` +
+    `<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin-top:10px">
+      <span><span style="color:var(--green);font-weight:700">≥ 90%</span> atribuição confiável</span>
+      <span><span style="color:var(--amber);font-weight:700">75–89%</span> atenção</span>
+      <span><span style="color:var(--red);font-weight:700">&lt; 75%</span> crédito duvidoso</span>
+      <span>Ciclo = mediana de dias entre criação do lead e faturamento / limite da mídia (vendas sem data de criação ficam fora)</span>
+    </div>`;
 }
 
 // Aplica filtros locais do comparativo e re-renderiza
