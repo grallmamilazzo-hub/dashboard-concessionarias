@@ -394,6 +394,30 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 #cultura-banner .cb-section{margin-bottom:10px}
 #cultura-banner .cb-section:last-child{margin-bottom:0}
 #cultura-banner .cb-section-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+/* ── FECHAMENTO DO MÊS ── */
+.fch-card{margin-top:20px}
+.fch-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.fch-kpi{background:var(--bg3);border-radius:10px;padding:10px 12px}
+.fch-kpi-l{font-size:11px;color:var(--muted)}
+.fch-kpi-v{font-size:19px;font-weight:600;font-family:var(--mono);margin-top:2px}
+.fch-wrap{overflow-x:auto}
+.fch-tb{width:100%;border-collapse:collapse;font-size:12px;min-width:640px}
+.fch-tb th{font-weight:600;color:var(--muted);text-align:right;padding:7px 6px;border-bottom:1px solid var(--border2);white-space:nowrap}
+.fch-tb td{padding:6px;text-align:right;border-bottom:1px solid var(--border);font-family:var(--mono);white-space:nowrap}
+.fch-tb th:first-child,.fch-tb td:first-child{text-align:left;font-family:var(--font)}
+.fch-tb tr.fch-tot td{font-weight:700;background:var(--bg3);border-top:1px solid var(--border2);border-bottom:none}
+.fch-pill{display:inline-block;padding:2px 7px;border-radius:6px;font-weight:600}
+.fch-r{background:rgba(240,82,82,.14);color:var(--red)}
+.fch-a{background:rgba(245,166,35,.16);color:var(--amber)}
+.fch-g{background:rgba(46,201,138,.14);color:var(--green)}
+.fch-star{color:#f5a623;margin-left:3px;font-size:13px}
+.fch-meta{font-size:11px;color:var(--muted)}
+.fch-leg{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6}
+.fch-empty{font-size:12px;color:var(--muted);padding:14px 0}
+.fch-in{width:100%;min-width:70px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 7px;font-size:12px;font-family:var(--mono);text-align:right;outline:none}
+.fch-in:focus{border-color:var(--accent)}
+.fch-pw{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:8px;padding:9px 12px;font-size:13px;font-family:var(--font);outline:none}
+.fch-err{font-size:12px;color:var(--red);min-height:16px;margin-top:8px}
 </style>
 </head>
 <body>
@@ -691,6 +715,21 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div><div style="font-size:11px;color:var(--muted)">Taxa conversão</div><div style="font-size:17px;font-weight:600;font-family:var(--mono);color:var(--green)" id="tx-conv">—</div></div>
           </div>
         </div>
+      </div>
+      <!-- FECHAMENTO DO MÊS -->
+      <div class="chart-card fch-card" id="fch-card">
+        <div class="chart-hdr" style="flex-wrap:wrap;gap:8px">
+          <div>
+            <div class="chart-ttl">📅 Fechamento do mês</div>
+            <div class="fch-meta" id="fch-meta">Carregando…</div>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <select id="fch-mes" onchange="fchRender()" style="display:none"></select>
+            <button class="btn-g ro-hide-on-ro dir-hide" onclick="fchAbrir()" style="font-size:12px;padding:7px 13px">🔒 Lançar fechamento</button>
+          </div>
+        </div>
+        <div id="fch-body"><div class="fch-empty">Carregando…</div></div>
+        <div class="fch-leg">Atraso: verde até 4,99% · vermelho a partir de 5%. Conversão (vendas via lead ÷ leads): vermelho até 2,49% · amarelo 2,50–2,99% · verde a partir de 3% · ★ a partir de 5%. Participação (vendas via lead ÷ vendas da loja): vermelho abaixo de 20% · amarelo 20–24,99% · verde a partir de 25% · ★ a partir de 25,5%.</div>
       </div>
     </div>
 
@@ -1138,6 +1177,44 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 </div>
 
 <!-- EDIT VENDA MODAL -->
+<!-- FECHAMENTO DO MÊS — LANÇAMENTO (ADMIN) -->
+<div class="modal-ov" id="fch-modal">
+  <div class="modal" style="width:820px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl">Lançar fechamento do mês</div>
+      <button onclick="fchFechar()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div id="fch-step-pw">
+      <div class="modal-sub">Acesso restrito ao administrador.</div>
+      <input class="fch-pw" type="password" id="fch-pw" placeholder="Senha admin" onkeydown="if(event.key==='Enter')fchCheckPw()">
+      <div class="fch-err" id="fch-pw-err"></div>
+      <div class="modal-act">
+        <button class="btn-g" onclick="fchFechar()">Cancelar</button>
+        <button class="btn-p" onclick="fchCheckPw()">Entrar</button>
+      </div>
+    </div>
+    <div id="fch-step-form" style="display:none">
+      <div class="modal-sub">Informe os dados externos de cada loja. Vendas via lead vêm do dash (somente Consideradas) e ficam gravadas no fechamento. Deixe a linha inteira em branco para pular a loja.</div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+        <span style="font-size:12px;color:var(--muted)">Mês de referência</span>
+        <select id="fch-form-mes" onchange="fchCarregarMes()"></select>
+        <span class="fch-meta" id="fch-form-meta"></span>
+      </div>
+      <div class="fch-wrap" style="max-height:52vh;overflow-y:auto">
+        <table class="fch-tb" id="fch-form-tb">
+          <thead><tr><th>Loja</th><th>Leads</th><th>Atrasados</th><th>Vendas totais</th><th>Vendas via lead (dash)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="fch-err" id="fch-form-err"></div>
+      <div class="modal-act">
+        <button class="btn-g" onclick="fchFechar()">Cancelar</button>
+        <button class="btn-p" onclick="fchSalvar()" id="fch-save-btn">Salvar fechamento</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-ov" id="edit-venda-modal">
   <div class="modal" style="width:660px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
@@ -4600,6 +4677,213 @@ if(fbCfgSaved()){
     }
   };
 })();
+</script>
+<script>
+// ── FECHAMENTO DO MÊS — bloco isolado (não altera funções existentes) ─────────
+const ADMIN_PASSWORD = 'Milazzo@3251'; // senha admin do fechamento — altere aqui quando necessário
+let _fchDocs  = {};   // { 'AAAA-MM': {mes, lojas:{...}, lancadoEm} }
+let _fchMeses = [];   // meses fechados, mais recente primeiro
+let _fchLive  = {};   // vendas via lead (dash) do mês aberto no modal
+let _fchReq   = 0;    // controle de concorrência do carregamento do modal
+
+function _fchLojas(){
+  const out=[];
+  Object.keys(FILIAIS).forEach(m=>FILIAIS[m].forEach(f=>out.push({marca:m,filial:f,key:m+'|'+f})));
+  return out;
+}
+function _fchPct(a,b){ return b>0 ? Math.round(a/b*10000)/100 : null; }
+function _fchFmt(p){ return p==null ? '—' : p.toFixed(2).replace('.',',')+'%'; }
+function _fchClsAtr(p){ return p==null?'':(p>=5?'fch-r':'fch-g'); }
+function _fchClsConv(p){ return p==null?'':(p<2.5?'fch-r':p<3?'fch-a':'fch-g'); }
+function _fchClsPart(p){ return p==null?'':(p<20?'fch-r':p<25?'fch-a':'fch-g'); }
+function _fchPill(p,cls,star){ return p==null?'—':`<span class="fch-pill ${cls}">${_fchFmt(p)}</span>${star?'<span class="fch-star" title="Destaque">★</span>':''}`; }
+function _fchMesLbl(mes){
+  const [y,m]=mes.split('-').map(Number);
+  const l=new Date(y,m-1,1).toLocaleString('pt-BR',{month:'long',year:'numeric'});
+  return l.charAt(0).toUpperCase()+l.slice(1);
+}
+function _fchQuando(iso){
+  if(!iso) return '';
+  try{ return new Date(iso).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); }catch(e){ return ''; }
+}
+
+async function fchCarregar(){
+  try{
+    const snap = await fbDb.collection('fechamentos').get();
+    _fchDocs = {};
+    snap.docs.forEach(d=>{ const x=d.data(); if(x && x.lojas) _fchDocs[d.id]=x; });
+    _fchMeses = Object.keys(_fchDocs).sort().reverse();
+    const sel=document.getElementById('fch-mes');
+    const atual=sel.value;
+    sel.innerHTML=_fchMeses.map(m=>`<option value="${m}">${_fchMesLbl(m)}</option>`).join('');
+    if(atual && _fchMeses.includes(atual)) sel.value=atual;
+    fchRender();
+  }catch(e){
+    console.error('Fechamento:', e);
+    document.getElementById('fch-meta').textContent='Não foi possível carregar os fechamentos.';
+    document.getElementById('fch-body').innerHTML='<div class="fch-empty">Verifique a conexão com o Firebase.</div>';
+  }
+}
+
+function fchRender(){
+  const sel=document.getElementById('fch-mes');
+  const meta=document.getElementById('fch-meta');
+  const body=document.getElementById('fch-body');
+  if(!_fchMeses.length){
+    sel.style.display='none';
+    meta.textContent='Aguardando o primeiro fechamento';
+    body.innerHTML='<div class="fch-empty">Nenhum fechamento lançado ainda.</div>';
+    return;
+  }
+  sel.style.display='';
+  const mes=sel.value||_fchMeses[0];
+  const doc=_fchDocs[mes];
+  meta.textContent=`${_fchMesLbl(mes)}${doc.lancadoEm?' · lançado em '+_fchQuando(doc.lancadoEm):''}`;
+  const ordem=_fchLojas().map(l=>l.key);
+  const keys=Object.keys(doc.lojas).sort((a,b)=>{
+    const ia=ordem.indexOf(a), ib=ordem.indexOf(b);
+    return (ia<0?999:ia)-(ib<0?999:ib);
+  });
+  const T={n:0,t:0,v:0,d:0};
+  const linha=(nome,o,cls)=>{
+    const pA=_fchPct(o.t,o.n), pC=_fchPct(o.d,o.n), pP=_fchPct(o.d,o.v);
+    return `<tr class="${cls||''}"><td>${nome}</td><td>${o.n.toLocaleString('pt-BR')}</td><td>${_fchPill(pA,_fchClsAtr(pA))}</td><td>${o.v.toLocaleString('pt-BR')}</td><td>${o.d.toLocaleString('pt-BR')}</td><td>${_fchPill(pC,_fchClsConv(pC),pC!=null&&pC>=5)}</td><td>${_fchPill(pP,_fchClsPart(pP),pP!=null&&pP>=25.5)}</td></tr>`;
+  };
+  let rows='';
+  keys.forEach(k=>{
+    const x=doc.lojas[k];
+    const o={n:+x.leads||0,t:+x.atrasados||0,v:+x.vendasTotais||0,d:+x.vendasLead||0};
+    T.n+=o.n; T.t+=o.t; T.v+=o.v; T.d+=o.d;
+    rows+=linha(`${x.marca} · ${x.filial}`,o);
+  });
+  rows+=linha('Total grupo',T,'fch-tot');
+  const pA=_fchPct(T.t,T.n), pC=_fchPct(T.d,T.n), pP=_fchPct(T.d,T.v);
+  const cor=c=>c==='fch-r'?'var(--red)':c==='fch-a'?'var(--amber)':c==='fch-g'?'var(--green)':'var(--text)';
+  const kpi=(l,v,c,st)=>`<div class="fch-kpi"><div class="fch-kpi-l">${l}</div><div class="fch-kpi-v" style="color:${cor(c)}">${v}${st?'<span class="fch-star">★</span>':''}</div></div>`;
+  body.innerHTML=`<div class="fch-kpis">${
+    kpi('Leads no mês',T.n.toLocaleString('pt-BR'),'')+
+    kpi('Atraso / não atendidos',_fchFmt(pA),_fchClsAtr(pA))+
+    kpi('Conversão de leads',_fchFmt(pC),_fchClsConv(pC),pC!=null&&pC>=5)+
+    kpi('Participação nas vendas',_fchFmt(pP),_fchClsPart(pP),pP!=null&&pP>=25.5)
+  }</div><div class="fch-wrap"><table class="fch-tb"><thead><tr><th>Loja</th><th>Leads</th><th>Atraso</th><th>Vendas loja</th><th>Vendas via lead</th><th>Conversão</th><th>Participação</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+// ── Modal admin ──
+function fchAbrir(){
+  document.getElementById('fch-step-pw').style.display='';
+  document.getElementById('fch-step-form').style.display='none';
+  document.getElementById('fch-pw').value='';
+  document.getElementById('fch-pw-err').textContent='';
+  document.getElementById('fch-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('fch-pw').focus(),50);
+}
+function fchFechar(){
+  document.getElementById('fch-modal').classList.remove('open');
+  document.getElementById('fch-pw').value='';
+}
+function fchCheckPw(){
+  const pw=document.getElementById('fch-pw').value;
+  if(pw!==ADMIN_PASSWORD){
+    document.getElementById('fch-pw-err').textContent='Senha incorreta.';
+    document.getElementById('fch-pw').value='';
+    document.getElementById('fch-pw').focus();
+    return;
+  }
+  document.getElementById('fch-pw').value='';
+  document.getElementById('fch-step-pw').style.display='none';
+  document.getElementById('fch-step-form').style.display='';
+  // Meses: atual + anteriores até Mar/2026; padrão = mês anterior (mês a fechar)
+  const now=new Date(Date.now()-3*60*60*1000); // UTC-3
+  let opts='';
+  for(let i=0;i<=17;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const val=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if(val<'2026-03') break;
+    opts+=`<option value="${val}"${i===1?' selected':''}>${_fchMesLbl(val)}</option>`;
+  }
+  document.getElementById('fch-form-mes').innerHTML=opts;
+  fchCarregarMes();
+}
+async function fchCarregarMes(){
+  const mes=document.getElementById('fch-form-mes').value;
+  const tb=document.querySelector('#fch-form-tb tbody');
+  const meta=document.getElementById('fch-form-meta');
+  document.getElementById('fch-form-err').textContent='';
+  tb.innerHTML='<tr><td colspan="5" class="fch-empty">Carregando…</td></tr>';
+  const req=++_fchReq; // ignora respostas antigas se o mês for trocado durante o carregamento
+  const live={};
+  try{
+    const docs=await _getVendasFb();
+    docs.forEach(v=>{
+      if(v.dentroJanela===true && typeof v.dtFat==='string' && v.dtFat.slice(0,7)===mes){
+        const k=v.marca+'|'+v.filial; live[k]=(live[k]||0)+1;
+      }
+    });
+  }catch(e){ console.error('Fechamento vendas:',e); }
+  if(req!==_fchReq) return;
+  _fchLive=live;
+  const exist=_fchDocs[mes];
+  meta.textContent=exist?`Já lançado em ${_fchQuando(exist.lancadoEm)} — salvar substitui`:'Ainda não lançado';
+  tb.innerHTML=_fchLojas().map(l=>{
+    const x=exist&&exist.lojas[l.key]||{};
+    const val=f=>x[f]!=null&&x[f]!==''?x[f]:'';
+    return `<tr data-k="${l.key}"><td>${l.marca} · ${l.filial}</td>
+      <td><input class="fch-in" type="number" min="0" step="1" data-f="leads" value="${val('leads')}"></td>
+      <td><input class="fch-in" type="number" min="0" step="1" data-f="atrasados" value="${val('atrasados')}"></td>
+      <td><input class="fch-in" type="number" min="0" step="1" data-f="vendasTotais" value="${val('vendasTotais')}"></td>
+      <td style="color:var(--muted)">${_fchLive[l.key]||0}</td></tr>`;
+  }).join('');
+}
+async function fchSalvar(){
+  const err=document.getElementById('fch-form-err');
+  err.textContent='';
+  const mes=document.getElementById('fch-form-mes').value;
+  const lojas={};
+  const trs={};
+  document.querySelectorAll('#fch-form-tb tbody tr[data-k]').forEach(tr=>{ trs[tr.dataset.k]=tr; });
+  for(const l of _fchLojas()){
+    const tr=trs[l.key];
+    if(!tr) continue;
+    const g=f=>tr.querySelector(`[data-f="${f}"]`).value.trim();
+    const raw={leads:g('leads'),atrasados:g('atrasados'),vendasTotais:g('vendasTotais')};
+    const vazios=Object.values(raw).filter(v=>v==='').length;
+    if(vazios===3) continue; // loja pulada
+    const nome=`${l.marca} · ${l.filial}`;
+    if(vazios>0){ err.textContent=`${nome}: preencha os três campos ou deixe a linha inteira em branco.`; return; }
+    const n=Number(raw.leads), t=Number(raw.atrasados), v=Number(raw.vendasTotais), d=_fchLive[l.key]||0;
+    if(![n,t,v].every(x=>Number.isInteger(x)&&x>=0)){ err.textContent=`${nome}: use apenas números inteiros, sem negativos.`; return; }
+    if(n<=0){ err.textContent=`${nome}: o total de leads precisa ser maior que zero.`; return; }
+    if(t>n){ err.textContent=`${nome}: atrasados (${t}) não podem passar do total de leads (${n}).`; return; }
+    if(v<d){ err.textContent=`${nome}: vendas totais (${v}) não podem ser menores que as vendas via lead do dash (${d}).`; return; }
+    lojas[l.key]={marca:l.marca,filial:l.filial,leads:n,atrasados:t,vendasTotais:v,vendasLead:d};
+  }
+  if(!Object.keys(lojas).length){ err.textContent='Preencha ao menos uma loja.'; return; }
+  const btn=document.getElementById('fch-save-btn');
+  btn.disabled=true; btn.textContent='Salvando…';
+  try{
+    await fbDb.collection('fechamentos').doc(mes).set({mes,lojas,lancadoEm:new Date().toISOString()});
+    fchFechar();
+    toast(`✅ Fechamento de ${_fchMesLbl(mes)} salvo`);
+    await fchCarregar();
+    document.getElementById('fch-mes').value=mes;
+    fchRender();
+  }catch(e){
+    console.error('Fechamento salvar:',e);
+    err.textContent='Não foi possível salvar. Verifique a conexão e as regras do Firestore para a coleção fechamentos.';
+  }finally{
+    btn.disabled=false; btn.textContent='Salvar fechamento';
+  }
+}
+
+// Inicialização autônoma: aguarda o fbDb existir (até ~30s), sem tocar no init do Firebase
+(function _fchInit(n){
+  if(typeof fbDb!=='undefined' && fbDb){ fchCarregar(); return; }
+  if(n<60){ setTimeout(()=>_fchInit(n+1),500); return; }
+  const m=document.getElementById('fch-meta');
+  if(m) m.textContent='Firebase indisponível — fechamento não carregado.';
+  const b=document.getElementById('fch-body');
+  if(b) b.innerHTML='';
+})(0);
 </script>
 </body>
 </html>
