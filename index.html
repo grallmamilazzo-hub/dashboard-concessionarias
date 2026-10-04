@@ -413,6 +413,18 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 .fch-star{color:#f5a623;margin-left:3px;font-size:13px}
 .fch-meta{font-size:11px;color:var(--muted)}
 .fch-leg{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6}
+.fch-leg b{color:var(--text);font-weight:700}
+/* Fechamento — agrupado por marca + zebra */
+.fch-tb tr.fch-grp td{background:transparent;border-bottom:none;padding:12px 6px 4px;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.fch-tb tr.fch-grp:first-child td{padding-top:6px}
+.fch-tb tr.fch-grp td span{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.fch-tb tr.fch-row td:first-child{border-left:3px solid var(--bc,transparent);padding-left:9px}
+.fch-tb tr.fch-z td{background:rgba(128,128,128,.07)}
+.fch-tb tr.fch-row:hover td{background:rgba(79,142,247,.10)}
+.fch-lnk{color:var(--accent);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;background:none;border:none;padding:0;font:inherit}
+.fch-lnk:hover{text-decoration-style:solid}
+.fch-vl-item{display:grid;grid-template-columns:auto 1fr auto;gap:4px 10px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px}
+.fch-vl-warn{font-size:11px;background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.3);border-radius:8px;padding:7px 10px;margin-bottom:12px}
 .fch-empty{font-size:12px;color:var(--muted);padding:14px 0}
 .fch-in{width:100%;min-width:70px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);border-radius:7px;padding:5px 7px;font-size:12px;font-family:var(--mono);text-align:right;outline:none}
 .fch-in:focus{border-color:var(--accent)}
@@ -729,7 +741,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           </div>
         </div>
         <div id="fch-body"><div class="fch-empty">Carregando…</div></div>
-        <div class="fch-leg">Atraso: verde até 4,99% · vermelho a partir de 5%. Conversão (vendas via lead ÷ leads): vermelho até 2,49% · amarelo 2,50–2,99% · verde a partir de 3% · ★ a partir de 5%. Participação (vendas via lead ÷ vendas da loja): vermelho abaixo de 20% · amarelo 20–24,99% · verde a partir de 25% · ★ a partir de 25,5%.</div>
+        <div class="fch-leg"><b>ATRASO:</b> verde até 4,99% · vermelho a partir de 5%. &nbsp;|&nbsp; <b>CONVERSÃO</b> (vendas via lead ÷ leads): vermelho até 2,49% · amarelo 2,50–2,99% · verde a partir de 3% · ★ a partir de 5%. &nbsp;|&nbsp; <b>PARTICIPAÇÃO</b> (vendas via lead ÷ vendas da loja): vermelho abaixo de 20% · amarelo 20–24,99% · verde a partir de 25% · ★ a partir de 25,5%. &nbsp;|&nbsp; Clique em <b>VENDAS VIA LEAD</b> para ver as vendas.</div>
       </div>
     </div>
 
@@ -1177,6 +1189,23 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 </div>
 
 <!-- EDIT VENDA MODAL -->
+<!-- FECHAMENTO DO MÊS — VENDAS VIA LEAD (DETALHAMENTO) -->
+<div class="modal-ov" id="fch-vl-modal">
+  <div class="modal" style="width:640px;max-height:85vh;box-sizing:border-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl" id="fch-vl-ttl">Vendas via lead — Detalhamento</div>
+      <button onclick="fchVlFechar()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub" id="fch-vl-sub"></div>
+    <div id="fch-vl-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"></div>
+    <div id="fch-vl-warn"></div>
+    <div id="fch-vl-list" style="max-height:380px;overflow-y:auto"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+      <button onclick="fchVlFechar()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;font-family:var(--font);cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- FECHAMENTO DO MÊS — LANÇAMENTO (ADMIN) -->
 <div class="modal-ov" id="fch-modal">
   <div class="modal" style="width:820px">
@@ -4351,6 +4380,9 @@ function _popularFiltrosMidiaPerf(docs) {
   }
 }
 
+// Rótulo de exibição (não altera o valor gravado no Firestore)
+function _pmLbl(m) { return m === 'OUTROS' ? 'OUTROS (RESG. DE INSUCESSO)' : m; }
+
 function sortMidiaPerf(k) {
   if (_pmSort.k === k) _pmSort.dir = -_pmSort.dir;
   else { _pmSort.k = k; _pmSort.dir = (k === 'm' || k === 'c') ? 1 : -1; }
@@ -4442,7 +4474,7 @@ function renderMidiaPerf() {
       const corCiclo = r.c !== null && r.c > r.lim ? 'var(--red)' : 'var(--muted)';
       return `<tr>
         <td style="${td};max-width:220px">
-          <div style="overflow:hidden;text-overflow:ellipsis;color:var(--text);font-weight:600" title="${r.m}">${r.m}</div>
+          <div style="overflow:hidden;text-overflow:ellipsis;color:var(--text);font-weight:600" title="${_pmLbl(r.m)}">${_pmLbl(r.m)}</div>
           <div style="height:3px;background:var(--bg);border-radius:2px;margin-top:5px;overflow:hidden"><div style="height:100%;width:${Math.round(r.v / maxV * 100)}%;background:var(--accent);border-radius:2px"></div></div>
         </td>
         <td style="${td};text-align:right;font-family:var(--mono);font-weight:700;color:var(--text)">${r.v}</td>
@@ -4745,18 +4777,25 @@ function fchRender(){
     return (ia<0?999:ia)-(ib<0?999:ib);
   });
   const T={n:0,t:0,v:0,d:0};
-  const linha=(nome,o,cls)=>{
+  const linha=(nome,o,cls,k,bc)=>{
     const pA=_fchPct(o.t,o.n), pC=_fchPct(o.d,o.n), pP=_fchPct(o.d,o.v);
-    return `<tr class="${cls||''}"><td>${nome}</td><td>${o.n.toLocaleString('pt-BR')}</td><td>${_fchPill(pA,_fchClsAtr(pA))}</td><td>${o.v.toLocaleString('pt-BR')}</td><td>${o.d.toLocaleString('pt-BR')}</td><td>${_fchPill(pC,_fchClsConv(pC),pC!=null&&pC>=5)}</td><td>${_fchPill(pP,_fchClsPart(pP),pP!=null&&pP>=25.5)}</td></tr>`;
+    const dv=o.d.toLocaleString('pt-BR');
+    const dCell=`<button class="fch-lnk" onclick="fchVendasLead('${encodeURIComponent(k)}')" title="Ver vendas via lead">${dv}</button>`;
+    return `<tr class="${cls||''}"${bc?` style="--bc:${bc}"`:''}><td>${nome}</td><td>${o.n.toLocaleString('pt-BR')}</td><td>${_fchPill(pA,_fchClsAtr(pA))}</td><td>${o.v.toLocaleString('pt-BR')}</td><td>${dCell}</td><td>${_fchPill(pC,_fchClsConv(pC),pC!=null&&pC>=5)}</td><td>${_fchPill(pP,_fchClsPart(pP),pP!=null&&pP>=25.5)}</td></tr>`;
   };
-  let rows='';
+  let rows='', ultMarca=null, zi=0;
   keys.forEach(k=>{
     const x=doc.lojas[k];
     const o={n:+x.leads||0,t:+x.atrasados||0,v:+x.vendasTotais||0,d:+x.vendasLead||0};
     T.n+=o.n; T.t+=o.t; T.v+=o.v; T.d+=o.d;
-    rows+=linha(`${x.marca} · ${x.filial}`,o);
+    const bc=(typeof COLORS!=='undefined'&&COLORS[x.marca])||'#888';
+    if(x.marca!==ultMarca){
+      rows+=`<tr class="fch-grp"><td colspan="7"><span style="background:${bc}"></span>${(typeof MLABELS!=='undefined'&&MLABELS[x.marca])||x.marca}</td></tr>`;
+      ultMarca=x.marca; zi=0;
+    }
+    rows+=linha(`${x.marca} · ${x.filial}`,o,'fch-row'+(zi++%2?' fch-z':''),k,bc);
   });
-  rows+=linha('Total grupo',T,'fch-tot');
+  rows+=linha('Total grupo',T,'fch-tot','');
   const pA=_fchPct(T.t,T.n), pC=_fchPct(T.d,T.n), pP=_fchPct(T.d,T.v);
   const cor=c=>c==='fch-r'?'var(--red)':c==='fch-a'?'var(--amber)':c==='fch-g'?'var(--green)':'var(--text)';
   const kpi=(l,v,c,st)=>`<div class="fch-kpi"><div class="fch-kpi-l">${l}</div><div class="fch-kpi-v" style="color:${cor(c)}">${v}${st?'<span class="fch-star">★</span>':''}</div></div>`;
@@ -4766,6 +4805,68 @@ function fchRender(){
     kpi('Conversão de leads',_fchFmt(pC),_fchClsConv(pC),pC!=null&&pC>=5)+
     kpi('Participação nas vendas',_fchFmt(pP),_fchClsPart(pP),pP!=null&&pP>=25.5)
   }</div><div class="fch-wrap"><table class="fch-tb"><thead><tr><th>Loja</th><th>Leads</th><th>Atraso</th><th>Vendas loja</th><th>Vendas via lead</th><th>Conversão</th><th>Participação</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+// ── Detalhamento: vendas via lead do fechamento (somente leitura) ──
+function fchVlFechar(){ document.getElementById('fch-vl-modal').classList.remove('open'); }
+document.getElementById('fch-vl-modal').addEventListener('click', e=>{ if(e.target===e.currentTarget) fchVlFechar(); });
+async function fchVendasLead(kEnc){
+  const k=decodeURIComponent(kEnc||'');
+  const mes=document.getElementById('fch-mes').value||_fchMeses[0];
+  const doc=_fchDocs[mes]; if(!doc) return;
+  const nomeLoja=k?(()=>{const x=doc.lojas[k];return x?`${x.marca} · ${x.filial}`:k.replace('|',' · ');})():'Total grupo';
+  const gravado=k?(+(doc.lojas[k]&&doc.lojas[k].vendasLead)||0):Object.values(doc.lojas).reduce((s,x)=>s+(+x.vendasLead||0),0);
+  document.getElementById('fch-vl-ttl').textContent=`Vendas via lead — ${nomeLoja}`;
+  document.getElementById('fch-vl-sub').textContent=`Fechamento: ${_fchMesLbl(mes)} · somente vendas consideradas (dentro da janela)`;
+  document.getElementById('fch-vl-summary').innerHTML='';
+  document.getElementById('fch-vl-warn').innerHTML='';
+  const list=document.getElementById('fch-vl-list');
+  list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">Carregando…</div>';
+  document.getElementById('fch-vl-modal').classList.add('open');
+  let vendas=[];
+  try{
+    const docs=await _getVendasFb();
+    vendas=docs.filter(v=>v.dentroJanela===true && typeof v.dtFat==='string' && v.dtFat.slice(0,7)===mes
+      && (k ? (v.marca+'|'+v.filial)===k : !!doc.lojas[v.marca+'|'+v.filial]));
+  }catch(e){
+    console.error('Fechamento detalhe:',e);
+    list.innerHTML='<div style="text-align:center;padding:30px;color:var(--red);font-size:13px">Não foi possível carregar as vendas.</div>';
+    return;
+  }
+  const resg=vendas.filter(v=>v.isResgate===true).length;
+  document.getElementById('fch-vl-summary').innerHTML=[
+    {l:'Gravado no fechamento',v:gravado,c:'var(--accent)'},
+    {l:'Hoje no dash',v:vendas.length,c:vendas.length===gravado?'var(--green)':'var(--amber)'},
+    {l:'Resgates',v:resg,c:'var(--accent2)'}
+  ].map(x=>`<div style="flex:1;min-width:110px;background:var(--bg3);border-radius:8px;padding:9px 12px">
+    <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px">${x.l}</div>
+    <div style="font-size:18px;font-weight:600;font-family:var(--mono);color:${x.c}">${x.v}</div></div>`).join('');
+  if(vendas.length!==gravado){
+    document.getElementById('fch-vl-warn').innerHTML=`<div class="fch-vl-warn">⚠️ O número do fechamento (${gravado}) foi gravado em ${_fchQuando(doc.lancadoEm)||'data do lançamento'}. Desde então houve alteração nas vendas do mês — hoje o dash mostra ${vendas.length}. Para atualizar, relance o fechamento.</div>`;
+  }
+  if(!vendas.length){
+    list.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted);font-size:13px">Nenhuma venda considerada encontrada hoje para este mês.</div>';
+    return;
+  }
+  const fData=d=>d?d.split('-').reverse().join('/'):'—';
+  const item=v=>`<div class="fch-vl-item">
+      <span style="font-family:var(--mono);font-size:11px;background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:1px 6px;color:var(--text);align-self:start">${v.cod||'s/ cód.'}</span>
+      <div><div style="color:var(--text);font-weight:600">${v.vendedorFaturou||'—'}</div>
+        <div style="color:var(--muted);font-size:11px;margin-top:2px">${_pmLbl(v.midia||'Não informada')}${v.isResgate===true?' · <span style="color:var(--accent2)">🔄 Resgate</span>':''}</div></div>
+      <span style="font-family:var(--mono);color:var(--muted);font-size:11px">${fData(v.dtFat)}</span>
+    </div>`;
+  vendas.sort((a,b)=>(a.dtFat||'').localeCompare(b.dtFat||''));
+  if(k){ list.innerHTML=vendas.map(item).join(''); return; }
+  const ordem=_fchLojas().map(l=>l.key), g={};
+  vendas.forEach(v=>{ const kk=v.marca+'|'+v.filial; (g[kk]=g[kk]||[]).push(v); });
+  list.innerHTML=Object.keys(g).sort((a,b)=>ordem.indexOf(a)-ordem.indexOf(b)).map(kk=>{
+    const [m,f]=kk.split('|'), cl=(typeof COLORS!=='undefined'&&COLORS[m])||'#888';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:12px 0 4px">
+        <span style="width:8px;height:8px;border-radius:2px;background:${cl};display:inline-block"></span>
+        <span style="font-size:13px;font-weight:600;color:var(--text)">${m} · ${f}</span>
+        <span style="margin-left:auto;font-size:16px;font-weight:700;font-family:var(--mono);color:var(--accent)">${g[kk].length}</span>
+      </div>`+g[kk].map(item).join('');
+  }).join('');
 }
 
 // ── Modal admin ──
