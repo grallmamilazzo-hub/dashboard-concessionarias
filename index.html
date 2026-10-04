@@ -394,6 +394,48 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 #cultura-banner .cb-section{margin-bottom:10px}
 #cultura-banner .cb-section:last-child{margin-bottom:0}
 #cultura-banner .cb-section-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:3px}
+/* ── CONCILIAÇÃO DE VENDAS (Relatório diário × Registrar Venda) ── */
+.conc-chip{display:flex;align-items:center;gap:8px;width:100%;margin-top:12px;font-size:12px;font-family:var(--font);text-align:left;background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.3);border-radius:8px;padding:7px 10px;cursor:pointer}
+.conc-chip:hover{background:rgba(245,166,35,.2)}
+.conc-chip b{font-family:var(--mono)}
+.conc-chip .conc-go{margin-left:auto;font-weight:700;white-space:nowrap}
+.conc-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.conc-kpi{background:var(--bg3);border-radius:10px;padding:10px 12px}
+.conc-kpi-l{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.conc-kpi-v{font-size:20px;font-weight:600;font-family:var(--mono);margin-top:2px}
+.conc-kpi-d{font-size:11px;color:var(--muted);margin-top:2px}
+.conc-seg{display:inline-flex;background:var(--bg3);border-radius:8px;padding:3px;gap:2px}
+.conc-seg button{border:none;background:none;font-family:var(--font);font-size:12px;padding:6px 10px;border-radius:6px;color:var(--muted);cursor:pointer}
+.conc-seg button.on{background:var(--bg2);color:var(--text);font-weight:600}
+.conc-wrap{overflow:auto;max-height:46vh;border-top:1px solid var(--border2);margin-top:10px}
+.conc-tb{width:100%;border-collapse:collapse;font-size:12px;min-width:600px}
+.conc-tb th{position:sticky;top:0;z-index:1;background:var(--bg2);font-weight:600;font-size:11px;color:var(--muted);text-align:right;padding:8px 6px;border-bottom:1px solid var(--border2);white-space:nowrap}
+.conc-tb td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--border);font-family:var(--mono);white-space:nowrap}
+.conc-tb th:first-child,.conc-tb td:first-child,.conc-tb th:last-child,.conc-tb td:last-child{text-align:left;font-family:var(--font)}
+.conc-tb tr.conc-grp td{background:transparent;border-bottom:none;padding:12px 6px 4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.conc-tb tr.conc-grp td span{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.conc-tb tr.conc-row td:first-child{border-left:3px solid var(--bc,transparent);padding-left:9px}
+.conc-tb tr.conc-z td{background:rgba(128,128,128,.07)}
+.conc-tb tr.conc-click{cursor:pointer}
+.conc-tb tr.conc-click:hover td{background:rgba(79,142,247,.10)}
+.conc-tb tr.conc-tot td{font-weight:700;background:var(--bg3);border-top:1px solid var(--border2);border-bottom:none}
+.conc-car{display:inline-block;width:12px;color:var(--muted);transition:transform .15s}
+.conc-tb tr.conc-open .conc-car{transform:rotate(90deg)}
+.conc-tb tr.conc-days>td{background:var(--bg);padding:8px 10px 10px 22px;border-bottom:1px solid var(--border2);white-space:normal}
+.conc-dt{border-collapse:collapse;font-size:11px}
+.conc-dt th,.conc-dt td{padding:4px 10px;border-bottom:1px dashed var(--border);background:transparent;position:static;font-size:11px}
+.conc-st{display:inline-block;font-size:11px;font-weight:600;border-radius:6px;padding:2px 8px;font-family:var(--font)}
+.conc-st-g{background:rgba(46,201,138,.14);color:var(--green)}
+.conc-st-a{background:rgba(245,166,35,.16);color:var(--amber)}
+.conc-st-r{background:rgba(240,82,82,.14);color:var(--red)}
+.conc-leg{margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);line-height:1.55}
+.conc-leg h4{margin:0 0 6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text)}
+.conc-leg b{color:var(--text)}
+.conc-leg-g{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.conc-src{background:var(--bg3);border-radius:10px;padding:10px 12px}
+.conc-leg ol{margin:0;padding-left:18px}
+.conc-leg ol li{margin-bottom:3px}
+@media(max-width:640px){.conc-kpis,.conc-leg-g{grid-template-columns:1fr}}
 /* ── FECHAMENTO DO MÊS ── */
 .fch-card{margin-top:20px}
 .fch-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
@@ -722,6 +764,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
             <div class="fn-bg"><div class="fn-fill" id="f3" style="background:var(--green);width:0%">—</div></div>
             <div class="fn-num" id="fn3">—</div>
           </div>
+          <button class="conc-chip" id="conc-chip" onclick="openConcModal()" style="display:none"></button>
           <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);display:flex;gap:18px">
             <div><div style="font-size:11px;color:var(--muted)">Taxa atendimento</div><div style="font-size:17px;font-weight:600;font-family:var(--mono);color:var(--accent2)" id="tx-atend">—</div></div>
             <div><div style="font-size:11px;color:var(--muted)">Taxa conversão</div><div style="font-size:17px;font-weight:600;font-family:var(--mono);color:var(--green)" id="tx-conv">—</div></div>
@@ -1189,6 +1232,47 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 </div>
 
 <!-- EDIT VENDA MODAL -->
+<!-- CONCILIAÇÃO DE VENDAS — Relatório diário × Registrar Venda -->
+<div class="modal-ov" id="conc-modal">
+  <div class="modal" style="width:780px;max-width:96vw;max-height:92vh;overflow-y:auto;box-sizing:border-box">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div class="modal-ttl">Conciliação de vendas — Relatório diário × Registrar Venda</div>
+      <button onclick="closeConcModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px;line-height:1">×</button>
+    </div>
+    <div class="modal-sub" id="conc-sub"></div>
+    <div class="conc-kpis" id="conc-kpis"></div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--muted)">Comparar com:</span>
+      <span class="conc-seg"><button id="conc-sg-all" class="on" onclick="concModo('all')">Todas as registradas</button><button id="conc-sg-ok" onclick="concModo('ok')">Só consideradas</button></span>
+      <span style="font-size:11px;color:var(--muted)" id="conc-segl"></span>
+    </div>
+    <div class="conc-wrap"><table class="conc-tb"><thead><tr><th>Loja</th><th>Relatório diário</th><th>Registradas</th><th>Não consid.</th><th>Diferença</th><th>Situação</th></tr></thead><tbody id="conc-tb"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Carregando…</td></tr></tbody></table></div>
+    <div class="conc-leg">
+      <h4>De onde vem cada número</h4>
+      <div class="conc-leg-g">
+        <div class="conc-src"><b>Relatório diário</b>: soma das vendas digitadas em <b>Inserir Dados</b> (Processo OK + Syonet Master + Checagem Manual), pela <b>data do relatório</b>. É o número do Funil de conversão.</div>
+        <div class="conc-src"><b>Registradas</b>: cada venda cadastrada em <b>Registrar Venda</b>, consideradas e não consideradas, pela <b>data de faturamento</b>. É o número do card Vendas Registradas.</div>
+      </div>
+      <h4>Por que podem ser diferentes</h4>
+      <ol>
+        <li><b>Faltou no relatório diário:</b> a venda foi cadastrada, mas não entrou no número do Inserir Dados daquele dia (ou foi cadastrada depois que o relatório foi enviado).</li>
+        <li><b>Datas diferentes:</b> uma venda faturada no último dia do período e informada no relatório do dia seguinte conta em Registradas, mas fica fora do Funil, e vice-versa no primeiro dia. Acontece nas bordas do período.</li>
+        <li><b>Vendas não consideradas:</b> as vendas fora da janela entram em Registradas, mas a equipe costuma não informá-las no relatório. Use "Só consideradas" para tirá-las da comparação.</li>
+        <li><b>Relatório não preenchido:</b> dia ou loja sem relatório diário diminui o número do Funil.</li>
+      </ol>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px">
+        <span><span class="conc-st conc-st-g">Conciliado</span> números iguais</span>
+        <span><span class="conc-st conc-st-a">Faltou no relatório</span> há mais vendas cadastradas que informadas</span>
+        <span><span class="conc-st conc-st-r">Faltou cadastrar</span> o relatório informa mais vendas do que as cadastradas</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap">
+      <button onclick="copyConc()" style="flex:1;background:rgba(79,142,247,.12);border:1px solid rgba(79,142,247,.25);color:var(--accent);border-radius:8px;padding:9px 14px;font-size:12px;font-weight:600;font-family:var(--font);cursor:pointer">Copiar divergências (WhatsApp)</button>
+      <button onclick="closeConcModal()" style="background:var(--bg3);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;font-family:var(--font);cursor:pointer">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <!-- FECHAMENTO DO MÊS — VENDAS VIA LEAD (DETALHAMENTO) -->
 <div class="modal-ov" id="fch-vl-modal">
   <div class="modal" style="width:640px;max-height:85vh;box-sizing:border-box">
@@ -2484,6 +2568,7 @@ function renderFunil(f) {
   document.getElementById('f3').style.width=p3+'%';document.getElementById('f3').textContent=p3+'%';
   document.getElementById('tx-atend').textContent=p2+'%';
   document.getElementById('tx-conv').textContent=p3+'%';
+  _concChip(v);
 }
 
 // ── STREAK ────────────────────────────────────────────────────────────────────
@@ -4711,6 +4796,158 @@ if(fbCfgSaved()){
 })();
 </script>
 <script>
+// ── CONCILIAÇÃO DE VENDAS — bloco isolado (somente leitura) ──────────────────
+// Relatório diário (relatorios: e.v por data do relatório) × Registrar Venda (vendas: por dtFat)
+var _concModo = 'all';      // 'all' = todas as registradas | 'ok' = só consideradas
+var _concData = null;       // último cálculo exibido no modal
+var _concChipReq = 0;
+var _concOpen = new Set();
+
+function _concPeriodo() {
+  if (period === 'custom' && customFrom && customTo) return { de: customFrom, ate: customTo };
+  const ds = getDates(period);
+  return { de: ds[0], ate: ds[ds.length - 1] };
+}
+function _concPeriodLbl() {
+  const pMap = {hoje:'Hoje',ontem:'Ontem',semana:'Últimos 7 dias',mes:'Últimos 30 dias','semana-atual':'Esta semana','mes-atual':'Este mês'};
+  const br = d => d.split('-').reverse().join('/');
+  const { de, ate } = _concPeriodo();
+  const faixa = de === ate ? br(de) : br(de) + '–' + br(ate);
+  return (period === 'custom' ? '' : (pMap[period] || period) + ' · ') + faixa;
+}
+var _concBr  = d => d ? d.split('-').reverse().slice(0, 2).join('/') : '—';
+var _concSgn = n => n > 0 ? '+' + n : n < 0 ? '−' + Math.abs(n) : '0';
+var _concCor = d => d === 0 ? 'var(--green)' : d > 0 ? 'var(--amber)' : 'var(--red)';
+function _concSt(d) {
+  return d === 0 ? '<span class="conc-st conc-st-g">Conciliado</span>'
+       : d > 0  ? '<span class="conc-st conc-st-a">Faltou no relatório</span>'
+       :          '<span class="conc-st conc-st-r">Faltou cadastrar</span>';
+}
+function _concStTxt(d) { return d === 0 ? 'Conciliado' : d > 0 ? 'Faltou no relatório' : 'Faltou cadastrar'; }
+
+// Aviso no Funil — só aparece quando os números não batem
+async function _concChip(rel) {
+  const el = document.getElementById('conc-chip');
+  if (!el) return;
+  try {
+  if (typeof fbCfgSaved === 'function' && !fbCfgSaved()) { el.style.display = 'none'; return; }
+  const req = _concChipReq = (_concChipReq || 0) + 1;
+    const docs = await _getVendasFb();
+    if (req !== _concChipReq) return;
+    const reg = filterVendasByPeriod(docs).length;
+    if (reg === rel) { el.style.display = 'none'; return; }
+    el.innerHTML = `<span>⚠️</span><span>Relatório diário: <b>${rel}</b> · Vendas Registradas: <b>${reg}</b></span><span class="conc-go">Conciliar →</span>`;
+    el.style.display = '';
+  } catch (e) { el.style.display = 'none'; }
+}
+
+// Monta os dados por loja e por dia
+async function _concCalc() {
+  const rels = filterE(getE(), period, marca);
+  const vendas = filterVendasByPeriod(await _getVendasFb());
+  const ordem = [];
+  Object.keys(FILIAIS).forEach(m => FILIAIS[m].forEach(f => ordem.push(m + '|' + f)));
+  const L = {};
+  const loja = k => L[k] || (L[k] = { k, m: k.split('|')[0], f: k.split('|')[1], rel: 0, ok: 0, nc: 0, dias: {}, comRel: new Set() });
+  const dia  = (o, d) => o.dias[d] || (o.dias[d] = { d, rel: 0, ok: 0, nc: 0 });
+  rels.forEach(e => {
+    const o = loja(e.m + '|' + e.f), v = +e.v || 0;
+    o.rel += v; dia(o, e.ds).rel += v; o.comRel.add(e.ds);
+  });
+  vendas.forEach(v => {
+    const o = loja((v.marca || '?') + '|' + (v.filial || '?')), x = dia(o, v.dtFat);
+    if (v.dentroJanela === true) { o.ok++; x.ok++; } else { o.nc++; x.nc++; }
+  });
+  const lojas = Object.values(L).sort((a, b) => {
+    const ia = ordem.indexOf(a.k), ib = ordem.indexOf(b.k);
+    return (ia < 0 ? 999 : ia) - (ib < 0 ? 999 : ib);
+  });
+  return { lojas, ...(_concPeriodo()) };
+}
+
+function _concCausa(o, x, dif, p) {
+  if (dif > 0 && !o.comRel.has(x.d)) return 'Sem relatório nesse dia';
+  if (dif > 0 && x.d === p.ate) return 'Último dia do período: pode entrar no relatório do dia seguinte';
+  if (dif < 0 && x.d === p.de)  return 'Primeiro dia do período: pode ser venda faturada no dia anterior';
+  return dif > 0 ? 'Faltou no relatório do dia' : 'Faltou cadastrar no Registrar Venda';
+}
+function _concReg(o) { return _concModo === 'all' ? o.ok + o.nc : o.ok; }
+function _concDiasDiv(o) {
+  return Object.values(o.dias).map(x => ({ ...x, reg: _concModo === 'all' ? x.ok + x.nc : x.ok }))
+    .filter(x => x.reg !== x.rel).sort((a, b) => a.d.localeCompare(b.d));
+}
+
+function renderConc() {
+  const D = _concData; if (!D) return;
+  const tb = document.getElementById('conc-tb');
+  let R = 0, C = 0, N = 0, h = '', ult = null, zi = 0, nDiv = 0;
+  D.lojas.forEach(o => {
+    const reg = _concReg(o), dif = reg - o.rel, dias = _concDiasDiv(o), aberto = _concOpen.has(o.k);
+    R += o.rel; C += o.ok; N += o.nc; if (dif !== 0) nDiv++;
+    const bc = (typeof COLORS !== 'undefined' && COLORS[o.m]) || '#888';
+    if (o.m !== ult) {
+      h += `<tr class="conc-grp"><td colspan="6"><span style="background:${bc}"></span>${(typeof MLABELS !== 'undefined' && MLABELS[o.m]) || o.m}</td></tr>`;
+      ult = o.m; zi = 0;
+    }
+    const tem = dias.length > 0;
+    h += `<tr class="conc-row${zi++ % 2 ? ' conc-z' : ''}${tem ? ' conc-click' : ''}${aberto && tem ? ' conc-open' : ''}" style="--bc:${bc}"${tem ? ` onclick="concToggle('${encodeURIComponent(o.k)}')"` : ''}>
+      <td><span class="conc-car">${tem ? '▸' : ''}</span>${o.m} · ${o.f}</td><td>${o.rel}</td><td>${reg}</td>
+      <td style="color:var(--muted)">${_concModo === 'all' ? o.nc : '<s>' + o.nc + '</s>'}</td>
+      <td style="font-weight:700;color:${_concCor(dif)}">${_concSgn(dif)}</td><td>${_concSt(dif)}</td></tr>`;
+    if (tem && aberto) {
+      h += `<tr class="conc-days"><td colspan="6"><div style="font-size:11px;color:var(--muted);margin-bottom:6px">Dias em que os números não batem:</div>
+        <table class="conc-dt"><thead><tr><th style="text-align:left">Data</th><th>Relatório</th><th>Registradas</th><th>Dif.</th><th style="text-align:left">Provável causa</th></tr></thead><tbody>${
+        dias.map(x => { const dd = x.reg - x.rel; return `<tr><td style="text-align:left">${_concBr(x.d)}</td><td>${o.comRel.has(x.d) ? x.rel : '—'}</td><td>${x.reg}</td><td style="font-weight:700;color:${_concCor(dd)}">${_concSgn(dd)}</td><td style="text-align:left;font-family:var(--font)">${_concCausa(o, x, dd, D)}</td></tr>`; }).join('')
+        }</tbody></table></td></tr>`;
+    }
+  });
+  if (!D.lojas.length) h = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Nenhum relatório ou venda no período.</td></tr>';
+  const REG = _concModo === 'all' ? C + N : C, DT = REG - R;
+  if (D.lojas.length) h += `<tr class="conc-tot"><td>Total grupo</td><td>${R}</td><td>${REG}</td><td style="color:var(--muted)">${N}</td><td style="color:${_concCor(DT)}">${_concSgn(DT)}</td><td>${_concSt(DT)}</td></tr>`;
+  tb.innerHTML = h;
+  document.getElementById('conc-kpis').innerHTML =
+    `<div class="conc-kpi"><div class="conc-kpi-l">Relatório diário (Funil)</div><div class="conc-kpi-v">${R}</div><div class="conc-kpi-d">Inserir Dados</div></div>` +
+    `<div class="conc-kpi"><div class="conc-kpi-l">Registradas${_concModo === 'ok' ? ' (só consid.)' : ''}</div><div class="conc-kpi-v">${REG}</div><div class="conc-kpi-d">${_concModo === 'all' ? `${C} consideradas + ${N} não consid.` : `${N} não consideradas fora da conta`}</div></div>` +
+    `<div class="conc-kpi"><div class="conc-kpi-l">Diferença</div><div class="conc-kpi-v" style="color:${_concCor(DT)}">${_concSgn(DT)}</div><div class="conc-kpi-d">${nDiv} de ${D.lojas.length} lojas divergem</div></div>`;
+  document.getElementById('conc-segl').textContent = _concModo === 'all' ? 'Igual ao card Vendas Registradas' : 'Tira as vendas fora da janela da comparação';
+}
+
+async function openConcModal() {
+  _concOpen.clear(); _concData = null;
+  document.getElementById('conc-sub').textContent = `Período: ${_concPeriodLbl()}${marca !== 'todas' ? ' · ' + ((typeof MLABELS !== 'undefined' && MLABELS[marca]) || marca) : ' · Todas as marcas'}`;
+  document.getElementById('conc-kpis').innerHTML = '';
+  document.getElementById('conc-tb').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:24px">Carregando…</td></tr>';
+  document.getElementById('conc-modal').classList.add('open');
+  try { _concData = await _concCalc(); renderConc(); }
+  catch (e) {
+    console.error('Conciliação:', e);
+    document.getElementById('conc-tb').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px">Não foi possível carregar as vendas.</td></tr>';
+  }
+}
+function closeConcModal() { document.getElementById('conc-modal').classList.remove('open'); }
+document.getElementById('conc-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeConcModal(); });
+function concToggle(kEnc) { const k = decodeURIComponent(kEnc); _concOpen.has(k) ? _concOpen.delete(k) : _concOpen.add(k); renderConc(); }
+function concModo(m) {
+  _concModo = m;
+  document.getElementById('conc-sg-all').classList.toggle('on', m === 'all');
+  document.getElementById('conc-sg-ok').classList.toggle('on', m === 'ok');
+  renderConc();
+}
+function copyConc() {
+  const D = _concData; if (!D) return;
+  let R = 0, REG = 0; D.lojas.forEach(o => { R += o.rel; REG += _concReg(o); });
+  const L = [`*CONCILIAÇÃO DE VENDAS — ${_concPeriodLbl()}*${marca !== 'todas' ? ' · ' + marca : ''}`,
+    `Relatório diário: ${R} · Registradas${_concModo === 'ok' ? ' (só consideradas)' : ''}: ${REG} · Diferença: ${_concSgn(REG - R)}`, ''];
+  const div = D.lojas.filter(o => _concReg(o) !== o.rel);
+  if (!div.length) L.push('✅ Todas as lojas conciliadas.');
+  div.forEach(o => {
+    const reg = _concReg(o), dif = reg - o.rel;
+    L.push(`▸ *${o.m} · ${o.f}*: relatório ${o.rel} × registradas ${reg} (${_concSgn(dif)}) — ${_concStTxt(dif)}`);
+    _concDiasDiv(o).forEach(x => L.push(`   • ${_concBr(x.d)}: ${o.comRel.has(x.d) ? x.rel : 'sem relatório'} × ${x.reg} — ${_concCausa(o, x, x.reg - x.rel, D)}`));
+  });
+  cpTxt(L.join('\n'), '✅ Divergências copiadas!');
+}
+
 // ── FECHAMENTO DO MÊS — bloco isolado (não altera funções existentes) ─────────
 const ADMIN_PASSWORD = 'Milazzo@3251'; // senha admin do fechamento — altere aqui quando necessário
 let _fchDocs  = {};   // { 'AAAA-MM': {mes, lojas:{...}, lancadoEm} }
