@@ -197,6 +197,8 @@ input[type=date]{background:var(--bg3);border:1px solid var(--border2);color:var
 /* AUTH OVERLAY */
 .auth-ov{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center}
 .auth-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:36px 32px;width:360px;max-width:92vw;text-align:center}
+.db-visor{transform-origin:60px 40px;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.sb-mark:hover .db-visor,.auth-logo:hover .db-visor{transform:translateY(-9px) scaleY(.75)}
 .auth-logo{width:64px;height:64px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;cursor:pointer}
 .auth-ttl{font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px}
 .auth-sub{font-size:12px;color:var(--muted);margin-bottom:22px}
@@ -479,26 +481,27 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 <!-- SIDEBAR -->
 <aside class="sb">
   <div class="sb-logo">
-    <div class="sb-mark" id="dashbird-sb-wrap" onmouseenter="dbChirp();dbAnim('sb',true)" onmouseleave="dbAnim('sb',false)" onclick="dbChirp()" title="DashBird">
-      <svg id="dashbird-sb" width="38" height="38" viewBox="0 0 120 120" style="transition:transform .25s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 80%" title="DashBird">
-          <ellipse cx="60" cy="72" rx="34" ry="28" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1.5"/>
-          <ellipse cx="60" cy="48" rx="26" ry="24" fill="#f5f4f0" stroke="#c8c6c0" stroke-width="1.5"/>
-          <path d="M38 58 Q28 54 24 45 Q30 44 38 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
-          <path d="M82 58 Q92 54 96 45 Q90 44 82 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
-          <ellipse cx="52" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
-          <ellipse cx="68" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
-          <circle class="db-eye-l" cx="53" cy="44" r="3.5" fill="#2c2c2a"/>
-          <circle class="db-eye-r" cx="69" cy="44" r="3.5" fill="#2c2c2a"/>
-          <circle cx="54.2" cy="42.8" r="1" fill="white"/>
-          <circle cx="70.2" cy="42.8" r="1" fill="white"/>
-          <path class="db-beak" d="M57 54 Q60 60 63 54 Q60 52 57 54Z" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
-          <path d="M42 82 Q44 92 50 96 Q54 98 60 98 Q66 98 70 96 Q76 92 78 82" fill="#e8e6e0" stroke="#c8c6c0" stroke-width="1"/>
-          <ellipse cx="52" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
-          <ellipse cx="68" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
-          <path d="M46 36 Q48 26 52 22 Q54 30 50 36" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
-          <path d="M60 34 Q60 24 63 20 Q66 28 63 34" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
-          <circle class="db-blush-l" cx="44" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
-          <circle class="db-blush-r" cx="76" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+    <div class="sb-mark" id="dashbird-sb-wrap" onmouseenter="dbChirp();dbAnim('sb',true)" onmouseleave="dbAnim('sb',false)" onclick="dbChirp()" title="DashBird Piloto">
+      <svg id="dashbird-sb" width="38" height="38" viewBox="0 0 120 120" style="transition:transform .25s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 80%" title="DashBird Piloto">
+          <ellipse cx="60" cy="74" rx="34" ry="28" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1.5"/>
+          <path d="M38 64 Q28 60 24 51 Q30 50 38 56 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+          <path d="M82 64 Q92 60 96 51 Q90 50 82 56 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+          <path d="M42 84 Q44 94 50 98 Q54 100 60 100 Q66 100 70 98 Q76 94 78 84" fill="#e8e6e0" stroke="#c8c6c0" stroke-width="1"/>
+          <ellipse cx="51" cy="101" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+          <ellipse cx="69" cy="101" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+          <path d="M30 50 Q30 18 60 18 Q90 18 90 50 L90 58 Q60 64 30 58 Z" fill="#4f8ef7" stroke="#2a63c9" stroke-width="1.5"/>
+          <path d="M52 19 L68 19 L66 58 L54 58 Z" fill="#ffffff" opacity=".9"/>
+          <path d="M55 22h3v3h-3zM61 22h3v3h-3zM58 25h3v3h-3zM55 28h3v3h-3zM61 28h3v3h-3zM58 31h3v3h-3zM55 34h3v3h-3zM61 34h3v3h-3z" fill="#1a1d27"/>
+          <ellipse cx="51" cy="47" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+          <ellipse cx="69" cy="47" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+          <circle class="db-eye-l" cx="52" cy="47" r="3.5" fill="#2c2c2a"/>
+          <circle class="db-eye-r" cx="70" cy="47" r="3.5" fill="#2c2c2a"/>
+          <circle cx="53.2" cy="45.8" r="1" fill="white"/>
+          <circle cx="71.2" cy="45.8" r="1" fill="white"/>
+          <g class="db-visor"><path d="M36 38 Q60 30 84 38 L84 53 Q60 59 36 53 Z" fill="rgba(30,40,60,.82)" stroke="#2a63c9" stroke-width="1.2"/><path d="M42 40 Q52 37 60 37" stroke="rgba(255,255,255,.45)" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+          <path class="db-beak" d="M56 60 Q60 67 64 60 Q60 58 56 60Z" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+          <circle class="db-blush-l" cx="41" cy="62" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+          <circle class="db-blush-r" cx="79" cy="62" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
         </svg>
     </div>
     <div class="sb-name">Concessionárias</div>
@@ -1200,26 +1203,27 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 <!-- AUTH OVERLAY -->
 <div class="auth-ov" id="auth-overlay" style="display:none">
   <div class="auth-box">
-    <div class="auth-logo" id="dashbird-auth-wrap" onmouseenter="dbChirp();dbAnim('auth',true)" onmouseleave="dbAnim('auth',false)" onclick="dbChirp()" title="DashBird">
-      <svg id="dashbird-auth" width="64" height="64" viewBox="0 0 120 120" style="transition:transform .25s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 80%" title="DashBird">
-        <ellipse cx="60" cy="72" rx="34" ry="28" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1.5"/>
-        <ellipse cx="60" cy="48" rx="26" ry="24" fill="#f5f4f0" stroke="#c8c6c0" stroke-width="1.5"/>
-        <path d="M38 58 Q28 54 24 45 Q30 44 38 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
-        <path d="M82 58 Q92 54 96 45 Q90 44 82 50 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
-        <ellipse cx="52" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
-        <ellipse cx="68" cy="44" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
-        <circle cx="53" cy="44" r="3.5" fill="#2c2c2a"/>
-        <circle cx="69" cy="44" r="3.5" fill="#2c2c2a"/>
-        <circle cx="54.2" cy="42.8" r="1" fill="white"/>
-        <circle cx="70.2" cy="42.8" r="1" fill="white"/>
-        <path class="db-beak-auth" d="M57 54 Q60 60 63 54 Q60 52 57 54Z" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
-        <path d="M42 82 Q44 92 50 96 Q54 98 60 98 Q66 98 70 96 Q76 92 78 82" fill="#e8e6e0" stroke="#c8c6c0" stroke-width="1"/>
-        <ellipse cx="52" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
-        <ellipse cx="68" cy="99" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
-        <path d="M46 36 Q48 26 52 22 Q54 30 50 36" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
-        <path d="M60 34 Q60 24 63 20 Q66 28 63 34" fill="#e8e0d0" stroke="#c8c6c0" stroke-width="0.8"/>
-        <circle class="db-blush-la" cx="44" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
-        <circle class="db-blush-ra" cx="76" cy="51" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+    <div class="auth-logo" id="dashbird-auth-wrap" onmouseenter="dbChirp();dbAnim('auth',true)" onmouseleave="dbAnim('auth',false)" onclick="dbChirp()" title="DashBird Piloto">
+      <svg id="dashbird-auth" width="64" height="64" viewBox="0 0 120 120" style="transition:transform .25s cubic-bezier(.34,1.56,.64,1);transform-origin:50% 80%" title="DashBird Piloto">
+        <ellipse cx="60" cy="74" rx="34" ry="28" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1.5"/>
+        <path d="M38 64 Q28 60 24 51 Q30 50 38 56 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+        <path d="M82 64 Q92 60 96 51 Q90 50 82 56 Z" fill="#f0f0ee" stroke="#c8c6c0" stroke-width="1"/>
+        <path d="M42 84 Q44 94 50 98 Q54 100 60 100 Q66 100 70 98 Q76 94 78 84" fill="#e8e6e0" stroke="#c8c6c0" stroke-width="1"/>
+        <ellipse cx="51" cy="101" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+        <ellipse cx="69" cy="101" rx="7" ry="3" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+        <path d="M30 50 Q30 18 60 18 Q90 18 90 50 L90 58 Q60 64 30 58 Z" fill="#4f8ef7" stroke="#2a63c9" stroke-width="1.5"/>
+        <path d="M52 19 L68 19 L66 58 L54 58 Z" fill="#ffffff" opacity=".9"/>
+        <path d="M55 22h3v3h-3zM61 22h3v3h-3zM58 25h3v3h-3zM55 28h3v3h-3zM61 28h3v3h-3zM58 31h3v3h-3zM55 34h3v3h-3zM61 34h3v3h-3z" fill="#1a1d27"/>
+        <ellipse cx="51" cy="47" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+        <ellipse cx="69" cy="47" rx="6" ry="6" fill="white" stroke="#c8c6c0" stroke-width="0.5"/>
+        <circle cx="52" cy="47" r="3.5" fill="#2c2c2a"/>
+        <circle cx="70" cy="47" r="3.5" fill="#2c2c2a"/>
+        <circle cx="53.2" cy="45.8" r="1" fill="white"/>
+        <circle cx="71.2" cy="45.8" r="1" fill="white"/>
+        <g class="db-visor"><path d="M36 38 Q60 30 84 38 L84 53 Q60 59 36 53 Z" fill="rgba(30,40,60,.82)" stroke="#2a63c9" stroke-width="1.2"/><path d="M42 40 Q52 37 60 37" stroke="rgba(255,255,255,.45)" stroke-width="2" fill="none" stroke-linecap="round"/></g>
+        <path class="db-beak-auth" d="M56 60 Q60 67 64 60 Q60 58 56 60Z" fill="#e8a020" stroke="#c07010" stroke-width="0.5"/>
+        <circle class="db-blush-la" cx="41" cy="62" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
+        <circle class="db-blush-ra" cx="79" cy="62" r="5" fill="rgba(230,140,140,0)" style="transition:fill .3s"/>
       </svg>
     </div>
     <div class="auth-ttl">Painel Concessionárias</div>
@@ -2568,7 +2572,7 @@ function renderFunil(f) {
   document.getElementById('f3').style.width=p3+'%';document.getElementById('f3').textContent=p3+'%';
   document.getElementById('tx-atend').textContent=p2+'%';
   document.getElementById('tx-conv').textContent=p3+'%';
-  _concChip(v);
+  if (typeof _concChip === 'function') _concChip(v);
 }
 
 // ── STREAK ────────────────────────────────────────────────────────────────────
@@ -4785,12 +4789,12 @@ if(fbCfgSaved()){
       svg.style.transform='scale(1.18) rotate(-6deg)';
       if(bl) bl.style.fill='rgba(230,140,140,0.35)';
       if(br) br.style.fill='rgba(230,140,140,0.35)';
-      if(bk) bk.setAttribute('d','M56 55 Q60 63 64 55 Q60 52 56 55Z');
+      if(bk) bk.setAttribute('d','M55 61 Q60 70 65 61 Q60 57 55 61Z');
     } else {
       svg.style.transform='scale(1) rotate(0deg)';
       if(bl) bl.style.fill='rgba(230,140,140,0)';
       if(br) br.style.fill='rgba(230,140,140,0)';
-      if(bk) bk.setAttribute('d','M57 54 Q60 60 63 54 Q60 52 57 54Z');
+      if(bk) bk.setAttribute('d','M56 60 Q60 67 64 60 Q60 58 56 60Z');
     }
   };
 })();
