@@ -440,26 +440,28 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
 @media(max-width:640px){.conc-kpis,.conc-leg-g{grid-template-columns:1fr}}
 /* ── FECHAMENTO DO MÊS ── */
 .fch-card{margin-top:20px}
-.fch-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
-.fch-kpi{background:var(--bg3);border-radius:10px;padding:10px 12px}
+.fch-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:8px}
+.fch-kpi{background:var(--bg3);border-radius:10px;padding:6px 12px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .fch-kpi-l{font-size:11px;color:var(--muted)}
-.fch-kpi-v{font-size:19px;font-weight:600;font-family:var(--mono);margin-top:2px}
+.fch-kpi-v{font-size:16px;font-weight:600;font-family:var(--mono);white-space:nowrap}
 .fch-wrap{overflow-x:auto}
-.fch-tb{width:100%;border-collapse:collapse;font-size:12px;min-width:640px}
-.fch-tb th{font-weight:600;color:var(--muted);text-align:right;padding:7px 6px;border-bottom:1px solid var(--border2);white-space:nowrap}
-.fch-tb td{padding:6px;text-align:right;border-bottom:1px solid var(--border);font-family:var(--mono);white-space:nowrap}
+.fch-tb{width:100%;border-collapse:collapse;font-size:12px;min-width:640px;table-layout:fixed}
+.fch-tb th{font-weight:600;color:var(--muted);text-align:right;padding:5px 6px;border-bottom:1px solid var(--border2);white-space:nowrap}
+.fch-tb td{padding:3px 6px;text-align:right;border-bottom:1px solid var(--border);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fch-tb th.fch-sep,.fch-tb td.fch-sep{border-left:1px solid var(--border2)}
+.fch-nostar{display:inline-block;width:16px}
 .fch-tb th:first-child,.fch-tb td:first-child{text-align:left;font-family:var(--font)}
 .fch-tb tr.fch-tot td{font-weight:700;background:var(--bg3);border-top:1px solid var(--border2);border-bottom:none}
-.fch-pill{display:inline-block;padding:2px 7px;border-radius:6px;font-weight:600}
+.fch-pill{display:inline-block;padding:1px 6px;border-radius:6px;font-weight:600}
 .fch-r{background:rgba(240,82,82,.14);color:var(--red)}
 .fch-a{background:rgba(245,166,35,.16);color:var(--amber)}
 .fch-g{background:rgba(46,201,138,.14);color:var(--green)}
-.fch-star{color:#f5a623;margin-left:3px;font-size:13px}
+.fch-star{color:#f5a623;margin-left:3px;font-size:13px;display:inline-block;width:13px}
 .fch-meta{font-size:11px;color:var(--muted)}
 .fch-leg{font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6}
 .fch-leg b{color:var(--text);font-weight:700}
 /* Fechamento — agrupado por marca + zebra */
-.fch-tb tr.fch-grp td{background:transparent;border-bottom:none;padding:12px 6px 4px;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
+.fch-tb tr.fch-grp td{background:transparent;border-bottom:none;padding:7px 6px 2px;font-family:var(--font);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:left}
 .fch-tb tr.fch-grp:first-child td{padding-top:6px}
 .fch-tb tr.fch-grp td span{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
 .fch-tb tr.fch-row td:first-child{border-left:3px solid var(--bc,transparent);padding-left:9px}
@@ -787,7 +789,7 @@ body.readonly .kpi-card[onclick]:active{transform:scale(.98);transition:transfor
           </div>
         </div>
         <div id="fch-body"><div class="fch-empty">Carregando…</div></div>
-        <div class="fch-leg"><b>ATRASO:</b> verde até 4,99% · vermelho a partir de 5%. &nbsp;|&nbsp; <b>CONVERSÃO</b> (vendas via lead ÷ leads): vermelho até 2,49% · amarelo 2,50–2,99% · verde a partir de 3% · ★ a partir de 5%. &nbsp;|&nbsp; <b>PARTICIPAÇÃO</b> (vendas via lead ÷ vendas da loja): vermelho abaixo de 20% · amarelo 20–24,99% · verde a partir de 25% · ★ a partir de 25,5%. &nbsp;|&nbsp; Clique em <b>VENDAS VIA LEAD</b> para ver as vendas.</div>
+        <div class="fch-leg"><b>CONVERSÃO</b> (vendas via lead ÷ leads): vermelho até 2,49% · amarelo 2,50–2,99% · verde a partir de 3% · ★ a partir de 5%. &nbsp;|&nbsp; <b>PARTICIPAÇÃO</b> (vendas via lead ÷ vendas da loja): vermelho abaixo de 20% · amarelo 20–24,99% · verde a partir de 25% · ★ a partir de 25,5%. &nbsp;|&nbsp; <b>ATRASO:</b> verde até 4,99% · vermelho a partir de 5%. &nbsp;|&nbsp; Clique em <b>VENDAS VIA LEAD</b> para ver as vendas.</div>
       </div>
     </div>
 
@@ -5022,7 +5024,8 @@ function fchRender(){
     const pA=_fchPct(o.t,o.n), pC=_fchPct(o.d,o.n), pP=_fchPct(o.d,o.v);
     const dv=o.d.toLocaleString('pt-BR');
     const dCell=`<button class="fch-lnk" onclick="fchVendasLead('${encodeURIComponent(k)}')" title="Ver vendas via lead">${dv}</button>`;
-    return `<tr class="${cls||''}"${bc?` style="--bc:${bc}"`:''}><td>${nome}</td><td>${o.n.toLocaleString('pt-BR')}</td><td>${_fchPill(pA,_fchClsAtr(pA))}</td><td>${o.v.toLocaleString('pt-BR')}</td><td>${dCell}</td><td>${_fchPill(pC,_fchClsConv(pC),pC!=null&&pC>=5)}</td><td>${_fchPill(pP,_fchClsPart(pP),pP!=null&&pP>=25.5)}</td></tr>`;
+    const pillS=(p,c,st)=>_fchPill(p,c,st)+(p!=null&&!st?'<span class="fch-nostar"></span>':''); // reserva o espaço da ★ para alinhar
+    return `<tr class="${cls||''}"${bc?` style="--bc:${bc}"`:''}><td title="${nome}">${nome}</td><td>${o.n.toLocaleString('pt-BR')}</td><td>${o.v.toLocaleString('pt-BR')}</td><td>${dCell}</td><td>${pillS(pC,_fchClsConv(pC),pC!=null&&pC>=5)}</td><td>${pillS(pP,_fchClsPart(pP),pP!=null&&pP>=25.5)}</td><td class="fch-sep">${_fchPill(pA,_fchClsAtr(pA))}</td></tr>`;
   };
   let rows='', ultMarca=null, zi=0;
   keys.forEach(k=>{
@@ -5045,7 +5048,7 @@ function fchRender(){
     kpi('Atraso / não atendidos',_fchFmt(pA),_fchClsAtr(pA))+
     kpi('Conversão de leads',_fchFmt(pC),_fchClsConv(pC),pC!=null&&pC>=5)+
     kpi('Participação nas vendas',_fchFmt(pP),_fchClsPart(pP),pP!=null&&pP>=25.5)
-  }</div><div class="fch-wrap"><table class="fch-tb"><thead><tr><th>Loja</th><th>Leads</th><th>Atraso</th><th>Vendas loja</th><th>Vendas via lead</th><th>Conversão</th><th>Participação</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }</div><div class="fch-wrap"><table class="fch-tb"><colgroup><col style="width:26%"><col style="width:10%"><col style="width:11%"><col style="width:13%"><col style="width:13%"><col style="width:14%"><col style="width:13%"></colgroup><thead><tr><th>Loja</th><th>Leads</th><th>Vendas loja</th><th>Vendas via lead</th><th>Conversão</th><th>Participação</th><th class="fch-sep">Atraso</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 // ── Detalhamento: vendas via lead do fechamento (somente leitura) ──
